@@ -29,15 +29,18 @@
 - [x] Create /supabase/README.md with setup instructions (Phase 2A)
 - [x] Create .env.example with required env vars (Phase 2A)
 - [x] Run npm run build successfully (Phase 2A)
-- [ ] Commit Phase 2A to Git
-- [ ] Create Supabase project (Phase 2B)
-- [ ] Add environment variables (Phase 2B)
-- [ ] Create lib/supabase.ts (Phase 2B)
-- [ ] Create lib/supabaseAdmin.ts (Phase 2B)
-- [ ] Run SQL in Supabase (Phase 2B)
-- [ ] Test Supabase connection (Phase 2B)
-- [ ] Run npm run build successfully (Phase 2B)
+- [x] Commit Phase 2A to Git
+- [x] Create /types/database.ts with TypeScript types (Phase 2B)
+- [x] Create /lib/supabase.ts — browser client (Phase 2B)
+- [x] Create /lib/supabaseAdmin.ts — server-side admin client (Phase 2B)
+- [x] Create /lib/supabaseServer.ts — server-side auth client (Phase 2B)
+- [x] Update .env.example with clear PUBLIC/SECRET labels (Phase 2B)
+- [x] Install @supabase/supabase-js (Phase 2B)
+- [x] Run npm run build successfully (Phase 2B)
 - [ ] Commit Phase 2B to Git
+- [ ] Create Supabase project and run SQL (manual)
+- [ ] Add real environment variables to .env.local (manual)
+- [ ] Test Supabase connection (manual)
 
 ## Phase 3: Public Booking System
 
