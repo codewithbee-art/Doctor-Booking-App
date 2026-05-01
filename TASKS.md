@@ -15,7 +15,12 @@
 - [x] Create homepage skeleton
 - [x] Add responsive layout
 - [x] Run npm run build successfully
-- [ ] Commit Phase 1B to Git
+- [x] Commit Phase 1B to Git
+- [x] Polish homepage UI (Phase 1C)
+- [x] Add hover states, icons, focus-visible styles
+- [x] Improve section rhythm and card design
+- [x] Run npm run build successfully
+- [ ] Commit Phase 1C to Git
 
 ## Phase 2: Supabase Setup
 

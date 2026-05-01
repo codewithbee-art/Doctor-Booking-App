@@ -43,7 +43,7 @@ export default function Navbar() {
             ))}
             <Link
               href="/booking"
-              className="rounded-lg bg-accent px-5 py-2.5 font-body text-base font-semibold text-white hover:bg-accent-hover transition-colors"
+              className="rounded-lg bg-accent px-5 py-2.5 font-body text-base font-semibold text-white shadow-sm hover:bg-accent-hover transition-colors"
             >
               Book Appointment
             </Link>

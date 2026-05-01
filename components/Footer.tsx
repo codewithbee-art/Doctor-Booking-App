@@ -60,10 +60,10 @@ export default function Footer() {
               </p>
               <p>
                 <a
-                  href="mailto:info@drsharma.com"
+                  href="mailto:info@dracharya.com"
                   className="font-body text-base text-white/80 hover:text-white transition-colors"
                 >
-                  info@drsharma.com
+                  info@dracharya.com
                 </a>
               </p>
             </address>

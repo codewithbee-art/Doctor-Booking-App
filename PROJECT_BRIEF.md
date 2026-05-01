@@ -105,7 +105,7 @@ Each phase must:
 
 ## Current Status
 
-Phase 1: In progress (1B complete — Navbar, Footer, homepage skeleton with all sections)  
+Phase 1: In progress (1C complete — homepage UI polished with hover states, icons, improved cards, focus-visible styles)  
 Phase 2: Not started  
 Phase 3: Not started  
 Phase 4: Not started  

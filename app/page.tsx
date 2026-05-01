@@ -49,8 +49,10 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-white px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl">
+      <section className="relative overflow-hidden bg-white px-4 py-16 md:py-24">
+        <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-light-blue/30 blur-3xl" aria-hidden="true" />
+        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-light-blue/20 blur-3xl" aria-hidden="true" />
+        <div className="relative mx-auto max-w-7xl">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
             <div className="space-y-6 text-center md:text-left">
               <h1 className="text-4xl font-bold md:text-5xl lg:text-6xl">
@@ -101,20 +103,59 @@ export default function HomePage() {
       </section>
 
       {/* Quick Stats */}
-      <section className="bg-light-blue px-4 py-12">
+      <section className="bg-light-blue px-4 py-14">
         <div className="mx-auto max-w-7xl">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             {[
-              { value: "5000+", label: "Happy Patients" },
-              { value: "5+", label: "Years Experience" },
-              { value: "98%", label: "Satisfaction" },
-              { value: "24/7", label: "Emergency" },
+              {
+                value: "5000+",
+                label: "Happy Patients",
+                iconPath:
+                  "M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z",
+              },
+              {
+                value: "5+",
+                label: "Years Experience",
+                iconPath:
+                  "M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z",
+              },
+              {
+                value: "98%",
+                label: "Satisfaction",
+                iconPath:
+                  "M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z",
+              },
+              {
+                value: "24/7",
+                label: "Emergency",
+                iconPath:
+                  "M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z",
+              },
             ].map((stat) => (
-              <div key={stat.label} className="text-center">
+              <div
+                key={stat.label}
+                className="rounded-xl bg-white/80 px-4 py-6 text-center shadow-sm"
+              >
+                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-light-blue">
+                  <svg
+                    className="h-5 w-5 text-primary"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d={stat.iconPath}
+                    />
+                  </svg>
+                </div>
                 <p className="font-body text-3xl font-bold text-primary md:text-4xl">
                   {stat.value}
                 </p>
-                <p className="mt-2 font-body text-base text-text-secondary">
+                <p className="mt-1 font-body text-base text-text-secondary">
                   {stat.label}
                 </p>
               </div>
@@ -136,7 +177,7 @@ export default function HomePage() {
                 alt="Dr. Bishnu Acharya consulting with a patient"
                 width={600}
                 height={600}
-                className="h-80 w-full rounded-lg object-cover md:h-[35rem]"
+                className="h-80 w-full rounded-lg object-cover shadow-md md:h-[35rem]"
               />
             </div>
             <div className="space-y-5">
@@ -157,17 +198,23 @@ export default function HomePage() {
                   patient with compassion and expertise.
                 </p>
               </div>
-              <ul className="space-y-2 font-body text-base text-text-secondary">
-                <li className="flex items-center gap-2">
-                  <span className="text-accent" aria-hidden="true">&#10003;</span>
+              <ul className="space-y-3 font-body text-base text-text-secondary">
+                <li className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10" aria-hidden="true">
+                    <svg className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                  </span>
                   Ayurvedic Medicine Graduate
                 </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-accent" aria-hidden="true">&#10003;</span>
+                <li className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10" aria-hidden="true">
+                    <svg className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                  </span>
                   5+ Years Experience
                 </li>
-                <li className="flex items-center gap-2">
-                  <span className="text-accent" aria-hidden="true">&#10003;</span>
+                <li className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/10" aria-hidden="true">
+                    <svg className="h-3.5 w-3.5 text-accent" fill="none" viewBox="0 0 24 24" strokeWidth="3" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                  </span>
                   Family Medicine Specialist
                 </li>
               </ul>
@@ -186,7 +233,7 @@ export default function HomePage() {
             {services.map((service) => (
               <div
                 key={service.title}
-                className="rounded-lg bg-white p-6 shadow-sm"
+                className="rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-light-blue">
                   <svg
@@ -220,7 +267,13 @@ export default function HomePage() {
           <h2 className="mb-10 text-3xl font-bold md:text-4xl">
             Visiting Specialists This Week
           </h2>
-          <div className="rounded-lg border border-dashed border-border bg-bg-light px-6 py-12 text-center">
+          <div className="rounded-lg border border-dashed border-border bg-bg-light px-6 py-16 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-light-blue">
+              <svg className="h-7 w-7 text-secondary" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+            </div>
+            <h3 className="mb-2 text-lg font-semibold">Coming Soon</h3>
             <p className="font-body text-base text-text-secondary">
               Check back soon for visiting specialists
             </p>
@@ -239,8 +292,12 @@ export default function HomePage() {
           </p>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="rounded-lg bg-white p-5 shadow-sm">
-                <div className="mb-4 h-32 rounded-lg bg-bg-off" />
+              <div key={item} className="rounded-lg bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+                <div className="mb-4 flex h-32 items-center justify-center rounded-lg bg-bg-off">
+                  <svg className="h-10 w-10 text-border" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                  </svg>
+                </div>
                 <h3 className="mb-1 text-base font-semibold">Product Name</h3>
                 <p className="mb-4 font-body text-base font-bold text-primary">
                   NPR 250
@@ -289,9 +346,13 @@ export default function HomePage() {
             {[1, 2, 3].map((item) => (
               <article
                 key={item}
-                className="rounded-lg border border-border bg-white p-5 shadow-sm"
+                className="rounded-lg border border-border bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="mb-4 h-40 rounded-lg bg-bg-off" />
+                <div className="mb-4 flex h-40 items-center justify-center rounded-lg bg-bg-off">
+                  <svg className="h-10 w-10 text-border" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6V7.5z" />
+                  </svg>
+                </div>
                 <span className="mb-2 inline-block rounded bg-light-blue px-3 py-1 font-body text-xs font-semibold text-primary">
                   Health Tips
                 </span>
@@ -300,9 +361,15 @@ export default function HomePage() {
                   Short excerpt of the blog post content goes here. This
                   preview gives readers a quick idea of the article.
                 </p>
-                <p className="font-body text-sm text-text-secondary">
-                  By Dr. Bishnu Acharya
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="font-body text-sm text-text-secondary">
+                    By Dr. Bishnu Acharya
+                  </p>
+                  <Link href="/blog" className="inline-flex items-center gap-1 font-body text-sm font-semibold text-primary hover:text-secondary transition-colors">
+                    Read More
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
               </article>
             ))}
           </div>
@@ -350,10 +417,10 @@ export default function HomePage() {
                   "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
               },
             ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary">
+              <div key={item.step} className="rounded-xl bg-white/60 px-6 py-8 text-center shadow-sm">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md">
                   <svg
-                    className="h-6 w-6 text-white"
+                    className="h-7 w-7 text-white"
                     fill="none"
                     viewBox="0 0 24 24"
                     strokeWidth="1.5"
@@ -367,9 +434,9 @@ export default function HomePage() {
                     />
                   </svg>
                 </div>
-                <p className="mb-1 font-body text-sm font-semibold uppercase tracking-wider text-secondary">
+                <span className="mb-3 inline-block rounded-full bg-primary/10 px-4 py-1 font-body text-xs font-bold uppercase tracking-wider text-primary">
                   Step {item.step}
-                </p>
+                </span>
                 <h3 className="mb-2 text-lg font-semibold">{item.title}</h3>
                 <p className="font-body text-base text-text-secondary">
                   {item.description}
@@ -381,17 +448,20 @@ export default function HomePage() {
       </section>
 
       {/* CTA Banner */}
-      <section className="bg-primary px-4 py-16 md:py-20">
+      <section className="bg-primary px-4 py-16 md:py-24">
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="mb-4 text-3xl font-bold text-white md:text-4xl">
             Ready to Book Your Appointment?
           </h2>
-          <p className="mb-8 font-body text-lg text-white/80">
+          <p className="mb-2 font-body text-lg text-white/80">
             Available Sunday to Saturday, 9 AM &ndash; 5 PM
+          </p>
+          <p className="mb-8 font-body text-base text-white/60">
+            Call us at +977 1234567890 or book online
           </p>
           <Link
             href="/booking"
-            className="inline-block rounded-lg bg-accent px-10 py-4 font-body text-lg font-semibold text-white hover:bg-accent-hover transition-colors"
+            className="inline-block rounded-lg bg-accent px-10 py-4 font-body text-lg font-semibold text-white shadow-lg hover:bg-accent-hover transition-colors"
           >
             Book Now
           </Link>
