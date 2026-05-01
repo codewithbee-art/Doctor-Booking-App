@@ -11,6 +11,7 @@
 -- Remove this line if you want to keep existing data:
 -- DELETE FROM available_slots;
 
+
 INSERT INTO available_slots (slot_date_ad, slot_date_bs, slot_time, is_booked)
 SELECT
   date_val::date AS slot_date_ad,
@@ -22,11 +23,11 @@ FROM
     current_date,
     current_date + interval '30 days',
     interval '1 day'
-  ) AS date_val,
+  ) AS date_val
+CROSS JOIN
   generate_series(
-    '09:00'::time,
-    '17:00'::time,
+    timestamp '2000-01-01 09:00:00',
+    timestamp '2000-01-01 16:30:00',
     interval '30 minutes'
   ) AS time_val
-WHERE
-  time_val < '17:00'::time;
+ON CONFLICT (slot_date_ad, slot_time) DO NOTHING;
