@@ -106,7 +106,7 @@ Each phase must:
 ## Current Status
 
 Phase 1: Complete (1C — homepage UI polished with hover states, icons, improved cards, focus-visible styles)  
-Phase 2: In progress (2B complete — Supabase clients, TypeScript types, env config created)  
+Phase 2: In progress (2C complete — health check route added; schema + seed run in Supabase)  
 Phase 3: Not started  
 Phase 4: Not started  
 Phase 5: Not started  

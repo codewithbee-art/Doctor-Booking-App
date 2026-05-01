@@ -178,3 +178,12 @@ create index idx_blog_slug on blog_posts (slug);
 create trigger trg_blog_posts_updated_at
   before update on blog_posts
   for each row execute function update_updated_at();
+
+-- Backend service role permissions for server-side API routes
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.available_slots TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.bookings TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.visiting_specialists TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.products TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.orders TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.order_items TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.blog_posts TO service_role;

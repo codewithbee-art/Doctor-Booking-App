@@ -37,10 +37,14 @@
 - [x] Update .env.example with clear PUBLIC/SECRET labels (Phase 2B)
 - [x] Install @supabase/supabase-js (Phase 2B)
 - [x] Run npm run build successfully (Phase 2B)
-- [ ] Commit Phase 2B to Git
-- [ ] Create Supabase project and run SQL (manual)
+- [x] Commit Phase 2B to Git
+- [x] Create Supabase project and run SQL (manual)
+- [x] Fix seed-slots.sql (CROSS JOIN + ON CONFLICT)
 - [ ] Add real environment variables to .env.local (manual)
-- [ ] Test Supabase connection (manual)
+- [x] Create /api/health/supabase route (Phase 2C)
+- [x] Run npm run build successfully (Phase 2C)
+- [ ] Commit Phase 2C to Git
+- [ ] Test Supabase connection via health check (manual)
 
 ## Phase 3: Public Booking System
 
