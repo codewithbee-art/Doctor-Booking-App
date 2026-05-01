@@ -20,20 +20,24 @@
 - [x] Add hover states, icons, focus-visible styles
 - [x] Improve section rhythm and card design
 - [x] Run npm run build successfully
-- [ ] Commit Phase 1C to Git
+- [x] Commit Phase 1C to Git
 
 ## Phase 2: Supabase Setup
 
-- [ ] Create Supabase project
-- [ ] Add environment variables
-- [ ] Create lib/supabase.ts
-- [ ] Create lib/supabaseAdmin.ts
-- [ ] Create database schema SQL
-- [ ] Create seed slots SQL
-- [ ] Run SQL in Supabase
-- [ ] Test Supabase connection
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 2 to Git
+- [x] Create /supabase/schema.sql with all 7 tables (Phase 2A)
+- [x] Create /supabase/seed-slots.sql (Phase 2A)
+- [x] Create /supabase/README.md with setup instructions (Phase 2A)
+- [x] Create .env.example with required env vars (Phase 2A)
+- [x] Run npm run build successfully (Phase 2A)
+- [ ] Commit Phase 2A to Git
+- [ ] Create Supabase project (Phase 2B)
+- [ ] Add environment variables (Phase 2B)
+- [ ] Create lib/supabase.ts (Phase 2B)
+- [ ] Create lib/supabaseAdmin.ts (Phase 2B)
+- [ ] Run SQL in Supabase (Phase 2B)
+- [ ] Test Supabase connection (Phase 2B)
+- [ ] Run npm run build successfully (Phase 2B)
+- [ ] Commit Phase 2B to Git
 
 ## Phase 3: Public Booking System
 

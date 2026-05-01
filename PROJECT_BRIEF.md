@@ -105,8 +105,8 @@ Each phase must:
 
 ## Current Status
 
-Phase 1: In progress (1C complete — homepage UI polished with hover states, icons, improved cards, focus-visible styles)  
-Phase 2: Not started  
+Phase 1: Complete (1C — homepage UI polished with hover states, icons, improved cards, focus-visible styles)  
+Phase 2: In progress (2A complete — schema.sql, seed-slots.sql, README, .env.example created)  
 Phase 3: Not started  
 Phase 4: Not started  
 Phase 5: Not started  
