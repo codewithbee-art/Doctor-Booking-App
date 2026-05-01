@@ -9,12 +9,13 @@
 - [x] Add Source Sans 3 font
 - [x] Configure global styles
 - [x] Configure Tailwind color system
-- [ ] Create Navbar component
-- [ ] Create Footer component
-- [ ] Create homepage skeleton
-- [ ] Add responsive layout
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 1 to Git
+- [x] Commit Phase 1A to Git
+- [x] Create Navbar component
+- [x] Create Footer component
+- [x] Create homepage skeleton
+- [x] Add responsive layout
+- [x] Run npm run build successfully
+- [ ] Commit Phase 1B to Git
 
 ## Phase 2: Supabase Setup
 

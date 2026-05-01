@@ -60,6 +60,35 @@ The site will include:
 - Body text should use dark gray.
 - The website must be responsive, accessible, clean, and professional.
 
+## UI/UX Accessibility Rules
+
+This website is for patients of all age groups, including older users, so the design must be clear, calm, and easy to use.
+
+### Typography
+- Use only the approved fonts:
+  - Playfair Display for main headings only
+  - Source Sans 3 for body text, buttons, forms, navigation, and all readable content
+- Do not use decorative, handwritten, futuristic, comic, or overly stylized fonts.
+- Prioritize readability over style.
+- Body text must be at least 16px.
+- Important text should use 18px or larger where appropriate.
+- Line height must be comfortable, around 1.6 for paragraphs.
+- Avoid thin font weights for important text.
+- Use strong contrast between text and background.
+
+### Navigation
+- Navigation must be simple and obvious.
+- Buttons must look clearly clickable.
+- Forms must have clear labels, not placeholder-only labels.
+- Important actions like Book Appointment must be easy to find.
+- Avoid hidden interactions that older users may not understand.
+
+### Visual Style
+- Keep the design professional, calm, medical, and trustworthy.
+- Do not use flashy animations, excessive gradients, neon colors, or complex visual effects.
+- Use generous spacing and clear section separation.
+- Icons should support understanding, not decorate randomly.
+
 ## Build Strategy
 
 This project must be built in phases.
@@ -76,7 +105,7 @@ Each phase must:
 
 ## Current Status
 
-Phase 1: In progress (1A setup complete — project, Tailwind, fonts, color system, layout, placeholder homepage)  
+Phase 1: In progress (1B complete — Navbar, Footer, homepage skeleton with all sections)  
 Phase 2: Not started  
 Phase 3: Not started  
 Phase 4: Not started  
