@@ -58,7 +58,10 @@
 - [x] Run npm run build successfully (Phase 3A)
 - [x] Add BS/AD calendar toggle (Phase 3A-fix)
 - [x] Run npm run build successfully (Phase 3A-fix)
-- [ ] Commit Phase 3A to Git
+- [x] Commit Phase 3A to Git
+- [x] Create /api/slots route (Phase 3B)
+- [x] Run npm run build successfully (Phase 3B)
+- [ ] Commit Phase 3B to Git
 - [ ] Connect real Supabase slots (Phase 4)
 - [ ] Connect real booking insert API (Phase 4)
 - [ ] Run npm run build successfully (Phase 4)
