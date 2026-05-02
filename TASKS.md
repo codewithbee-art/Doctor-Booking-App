@@ -43,20 +43,26 @@
 - [ ] Add real environment variables to .env.local (manual)
 - [x] Create /api/health/supabase route (Phase 2C)
 - [x] Run npm run build successfully (Phase 2C)
-- [ ] Commit Phase 2C to Git
-- [ ] Test Supabase connection via health check (manual)
+- [x] Commit Phase 2C to Git
+- [x] Test Supabase connection via health check (manual)
 
 ## Phase 3: Public Booking System
 
-- [ ] Create booking page
-- [ ] Create BS/AD calendar component
-- [ ] Create time slot picker
-- [ ] Create booking form
-- [ ] Add loading states
-- [ ] Add error states
-- [ ] Add success confirmation screen
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 3 to Git
+- [x] Create /app/booking/page.tsx (Phase 3A)
+- [x] Create /components/BSADCalendar.tsx (Phase 3A)
+- [x] Create /components/TimeSlotPicker.tsx (Phase 3A)
+- [x] Create /components/BookingForm.tsx (Phase 3A)
+- [x] Add two-step booking UI with mock slots (Phase 3A)
+- [x] Add form validation UI (Phase 3A)
+- [x] Add success confirmation UI (Phase 3A)
+- [x] Run npm run build successfully (Phase 3A)
+- [x] Add BS/AD calendar toggle (Phase 3A-fix)
+- [x] Run npm run build successfully (Phase 3A-fix)
+- [ ] Commit Phase 3A to Git
+- [ ] Connect real Supabase slots (Phase 4)
+- [ ] Connect real booking insert API (Phase 4)
+- [ ] Run npm run build successfully (Phase 4)
+- [ ] Commit Phase 4 to Git
 
 ## Phase 4: Booking API
 

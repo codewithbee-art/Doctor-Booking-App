@@ -106,8 +106,8 @@ Each phase must:
 ## Current Status
 
 Phase 1: Complete (1C — homepage UI polished with hover states, icons, improved cards, focus-visible styles)  
-Phase 2: In progress (2C complete — health check route added; schema + seed run in Supabase)  
-Phase 3: Not started  
+Phase 2: Complete (2C — health check route; schema + seed SQL run successfully in Supabase)  
+Phase 3: In progress (3A complete — booking page UI with calendar, time slots, form, validation, success screen)  
 Phase 4: Not started  
 Phase 5: Not started  
 Phase 6: Not started  
