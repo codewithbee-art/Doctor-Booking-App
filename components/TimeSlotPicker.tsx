@@ -10,13 +10,50 @@ interface TimeSlotPickerProps {
   slots: TimeSlot[];
   selectedTime: string | null;
   onTimeSelect: (time: string) => void;
+  loading?: boolean;
+  error?: string | null;
 }
 
 export default function TimeSlotPicker({
   slots,
   selectedTime,
   onTimeSelect,
+  loading = false,
+  error = null,
 }: TimeSlotPickerProps) {
+  // Loading state
+  if (loading) {
+    return (
+      <div className="rounded-xl border border-border bg-bg-light px-6 py-8 text-center">
+        <svg className="mx-auto mb-3 h-10 w-10 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+        <p className="font-body text-base text-text-secondary">
+          Loading available time slots...
+        </p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="rounded-xl border border-danger/40 bg-danger/10 px-6 py-8 text-center">
+        <svg className="mx-auto mb-3 h-10 w-10 text-danger" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        <p className="font-body text-base font-semibold text-danger">
+          Unable to load time slots
+        </p>
+        <p className="mt-1 font-body text-sm text-text-secondary">
+          {error}
+        </p>
+      </div>
+    );
+  }
+
+  // Empty state (no slots available)
   if (slots.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-bg-light px-6 py-8 text-center">

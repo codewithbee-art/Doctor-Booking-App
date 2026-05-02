@@ -61,11 +61,11 @@
 - [x] Commit Phase 3A to Git
 - [x] Create /api/slots route (Phase 3B)
 - [x] Run npm run build successfully (Phase 3B)
-- [ ] Commit Phase 3B to Git
-- [ ] Connect real Supabase slots (Phase 4)
+- [x] Commit Phase 3B to Git
+- [x] Connect booking page to real slots API (Phase 3C)
+- [x] Run npm run build successfully (Phase 3C)
+- [ ] Commit Phase 3C to Git
 - [ ] Connect real booking insert API (Phase 4)
-- [ ] Run npm run build successfully (Phase 4)
-- [ ] Commit Phase 4 to Git
 
 ## Phase 4: Booking API
 

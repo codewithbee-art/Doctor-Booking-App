@@ -1,32 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BSADCalendar, { CalendarMode } from "@/components/BSADCalendar";
 import TimeSlotPicker, { TimeSlot } from "@/components/TimeSlotPicker";
 import BookingForm, { BookingFormData } from "@/components/BookingForm";
-
-// ---------------------------------------------------------------
-// Mock time slots — Phase 3A only.
-// These will be replaced with real Supabase data in Phase 4.
-// ---------------------------------------------------------------
-const MOCK_SLOTS: TimeSlot[] = [
-  { time: "09:00", label: "9:00 AM", isBooked: false },
-  { time: "09:30", label: "9:30 AM", isBooked: true },
-  { time: "10:00", label: "10:00 AM", isBooked: false },
-  { time: "10:30", label: "10:30 AM", isBooked: false },
-  { time: "11:00", label: "11:00 AM", isBooked: true },
-  { time: "11:30", label: "11:30 AM", isBooked: false },
-  { time: "12:00", label: "12:00 PM", isBooked: false },
-  { time: "12:30", label: "12:30 PM", isBooked: false },
-  { time: "13:00", label: "1:00 PM", isBooked: false },
-  { time: "13:30", label: "1:30 PM", isBooked: true },
-  { time: "14:00", label: "2:00 PM", isBooked: false },
-  { time: "14:30", label: "2:30 PM", isBooked: false },
-  { time: "15:00", label: "3:00 PM", isBooked: false },
-  { time: "15:30", label: "3:30 PM", isBooked: true },
-  { time: "16:00", label: "4:00 PM", isBooked: false },
-  { time: "16:30", label: "4:30 PM", isBooked: false },
-];
 
 type Step = "pick" | "details" | "success";
 
@@ -53,10 +30,65 @@ export default function BookingPage() {
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("BS");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedName, setConfirmedName] = useState("");
+  
+  // Slots API state
+  const [slots, setSlots] = useState<TimeSlot[]>([]);
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [slotsError, setSlotsError] = useState<string | null>(null);
+
+  // Fetch slots from API when date is selected
+  useEffect(() => {
+    if (!selectedDate) {
+      setSlots([]);
+      setSlotsError(null);
+      return;
+    }
+
+    async function fetchSlots() {
+      setSlotsLoading(true);
+      setSlotsError(null);
+      setSelectedTime(null);
+
+      try {
+        const response = await fetch(`/api/slots?date=${encodeURIComponent(selectedDate!)}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch slots");
+        }
+
+        if (data.success && Array.isArray(data.slots)) {
+          // Convert API slots to TimeSlot format
+          const formattedSlots: TimeSlot[] = data.slots.map((slot: any) => {
+            const [hour, minute] = slot.slot_time.split(":").map(Number);
+            const suffix = hour >= 12 ? "PM" : "AM";
+            const displayHour = hour % 12 || 12;
+            const label = `${displayHour}:${String(minute).padStart(2, "0")} ${suffix}`;
+            
+            return {
+              time: slot.slot_time,
+              label,
+              isBooked: slot.is_booked,
+            };
+          });
+          setSlots(formattedSlots);
+        } else {
+          throw new Error("Invalid response format");
+        }
+      } catch (err) {
+        console.error("Failed to fetch slots:", err);
+        setSlotsError(err instanceof Error ? err.message : "An unexpected error occurred");
+        setSlots([]);
+      } finally {
+        setSlotsLoading(false);
+      }
+    }
+
+    fetchSlots();
+  }, [selectedDate]);
 
   function handleDateSelect(date: string) {
     setSelectedDate(date);
-    setSelectedTime(null);
   }
 
   function handleContinue() {
@@ -85,6 +117,8 @@ export default function BookingPage() {
     setSelectedTime(null);
     setConfirmedName("");
     setCalendarMode("BS");
+    setSlots([]);
+    setSlotsError(null);
   }
 
   const stepNumber = step === "pick" ? 1 : step === "details" ? 2 : 3;
@@ -228,6 +262,8 @@ export default function BookingPage() {
                                 setCalendarMode(mode);
                                 setSelectedDate(null);
                                 setSelectedTime(null);
+                                setSlots([]);
+                                setSlotsError(null);
                               }}
                               aria-pressed={calendarMode === mode}
                               className={[
@@ -254,9 +290,11 @@ export default function BookingPage() {
                         Select Time
                       </h3>
                       <TimeSlotPicker
-                        slots={selectedDate ? MOCK_SLOTS : []}
+                        slots={slots}
                         selectedTime={selectedTime}
                         onTimeSelect={setSelectedTime}
+                        loading={slotsLoading}
+                        error={slotsError}
                       />
                     </div>
 
