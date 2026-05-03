@@ -64,8 +64,11 @@
 - [x] Commit Phase 3B to Git
 - [x] Connect booking page to real slots API (Phase 3C)
 - [x] Run npm run build successfully (Phase 3C)
-- [ ] Commit Phase 3C to Git
-- [ ] Connect real booking insert API (Phase 4)
+- [x] Commit Phase 3C to Git
+- [x] Create POST /api/bookings route (Phase 3D)
+- [x] Fix Database type compatibility with Supabase JS v2.105 (Phase 3D)
+- [x] Run npm run build successfully (Phase 3D)
+- [ ] Commit Phase 3D to Git
 
 ## Phase 4: Booking API
 

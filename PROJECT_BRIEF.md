@@ -107,7 +107,7 @@ Each phase must:
 
 Phase 1: Complete (1C — homepage UI polished with hover states, icons, improved cards, focus-visible styles)  
 Phase 2: Complete (2C — health check route; schema + seed SQL run successfully in Supabase)  
-Phase 3: In progress (3C complete — booking page connected to real slots API; BS/AD toggle maintained)  
+Phase 3: In progress (3D complete — booking API route created; slots API connected; BS/AD toggle maintained)  
 Phase 4: Not started  
 Phase 5: Not started  
 Phase 6: Not started  
