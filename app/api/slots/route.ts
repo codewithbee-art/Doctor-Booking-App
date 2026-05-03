@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
       .from("available_slots")
       .select("id, slot_date_ad, slot_date_bs, slot_time, is_booked")
       .eq("slot_date_ad", date)
+      .eq("is_blocked", false)
       .order("slot_time", { ascending: true });
 
     if (error) {

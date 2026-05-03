@@ -109,7 +109,7 @@ Phase 1: Complete (1C — homepage UI polished with hover states, icons, improve
 Phase 2: Complete (2C — health check route; schema + seed SQL run successfully in Supabase)  
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
-Phase 5: Complete (5A API, 5B dashboard UI, 5C status update with optimistic UI)  
+Phase 5: In progress (5A–5C complete; 5D availability management done)  
 Phase 6: Not started  
 Phase 7: Not started  
 Phase 8: Not started  

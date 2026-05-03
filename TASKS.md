@@ -76,7 +76,7 @@
 - [x] Refresh slot list after successful booking (Phase 3E)
 - [x] Prevent duplicate form submissions (Phase 3E)
 - [x] Run npm run build successfully (Phase 3E)
-- [ ] Commit Phase 3E to Git
+- [x] Commit Phase 3E to Git
 
 
 ## Phase 4: Admin Authentication
@@ -87,7 +87,7 @@
 - [x] Protect /admin/dashboard (redirect to login) (Phase 4)
 - [x] Add logout button (Phase 4)
 - [x] Run npm run build successfully (Phase 4)
-- [ ] Commit Phase 4 to Git
+- [x] Commit Phase 4 to Git
 
 ## Phase 5: Admin Booking Dashboard
 
@@ -100,7 +100,7 @@
 - [x] Add filters (Phase 5B)
 - [x] Add search (Phase 5B)
 - [x] Run npm run build successfully (Phase 5B)
-- [ ] Commit Phase 5B to Git
+- [x] Commit Phase 5B to Git
 - [x] Add status update API (Phase 5C)
 - [x] Add optimistic UI update (Phase 5C)
 - [x] Run npm run build successfully (Phase 5C)
@@ -110,24 +110,21 @@
 - [x] Add slot release on cancel and re-book on restore (Phase 5C-fix)
 - [x] Add View Details modal (Phase 5C-fix)
 - [x] Run npm run build successfully (Phase 5C-fix)
-- [ ] Commit Phase 5C to Git
+- [x] Commit Phase 5C to Git
 
 ## Phase 5D: Admin Availability Management
 
-- [ ] Add unavailable slot management planning
-- [ ] Decide whether to update available_slots schema with:
-  - is_blocked boolean default false
-  - blocked_reason text
-- [ ] Add SQL migration for blocked/unavailable slots
-- [ ] Update slots API so blocked slots are unavailable to patients
-- [ ] Add admin availability page or dashboard section
-- [ ] Allow admin to block a single time slot
-- [ ] Allow admin to unblock a time slot
-- [ ] Allow admin to block a full day
-- [ ] Allow admin to add a reason, for example doctor unavailable, emergency, holiday, lunch break
-- [ ] Show blocked slots clearly in admin
-- [ ] Make blocked slots unavailable on the public booking page
-- [ ] Run npm run build successfully
+- [x] Add SQL migration for blocked/unavailable slots (Phase 5D)
+- [x] Update available_slots with is_blocked boolean and blocked_reason text (Phase 5D)
+- [x] Update /api/slots so blocked slots are unavailable to patients (Phase 5D)
+- [x] Create /api/admin/slots GET/PATCH/POST routes (Phase 5D)
+- [x] Create /admin/availability page (Phase 5D)
+- [x] Allow admin to block/unblock a single time slot (Phase 5D)
+- [x] Allow admin to block a full day (Phase 5D)
+- [x] Allow admin to add a reason for blocking (Phase 5D)
+- [x] Show blocked slots clearly in admin (Phase 5D)
+- [x] Make blocked slots unavailable on the public booking page (Phase 5D)
+- [x] Run npm run build successfully (Phase 5D)
 - [ ] Commit Phase 5D to Git
 
 ## Phase 5E: Admin Rescheduling
@@ -152,7 +149,7 @@
 - [ ] Create admin specialists page
 - [ ] Add specialist CRUD
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 7 to Git
+- [ ] Commit Phase 6 to Git
 
 ## Phase 7: Blog
 
@@ -166,7 +163,7 @@
 - [ ] Add rich text editor
 - [ ] Add SEO metadata
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 8 to Git
+- [ ] Commit Phase 7 to Git
 
 ## Phase 8: Medicine Shop
 
@@ -179,7 +176,7 @@
 - [ ] Create admin shop page
 - [ ] Add product CRUD
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 9 to Git
+- [ ] Commit Phase 8 to Git
 
 ## Phase 9: Checkout, Emails, Deployment
 
