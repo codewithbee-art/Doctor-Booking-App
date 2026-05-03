@@ -81,11 +81,12 @@
 
 ## Phase 4: Admin Authentication
 
-- [ ] Create admin login page
-- [ ] Connect Supabase Auth
-- [ ] Protect admin routes
-- [ ] Add logout
-- [ ] Run npm run build successfully
+- [x] Create /app/admin/login/page.tsx (Phase 4)
+- [x] Create /app/admin/dashboard/page.tsx (Phase 4)
+- [x] Add Supabase Auth email/password login (Phase 4)
+- [x] Protect /admin/dashboard (redirect to login) (Phase 4)
+- [x] Add logout button (Phase 4)
+- [x] Run npm run build successfully (Phase 4)
 - [ ] Commit Phase 4 to Git
 
 ## Phase 5: Admin Booking Dashboard
