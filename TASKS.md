@@ -93,16 +93,18 @@
 
 - [x] Add GET /api/bookings route (Phase 5A)
 - [x] Run npm run build successfully (Phase 5A)
-- [ ] Commit Phase 5A to Git
-- [ ] Create dashboard layout
-- [ ] Add booking stats
-- [ ] Add bookings table
-- [ ] Add filters
-- [ ] Add search
-- [ ] Add status update API
-- [ ] Add optimistic UI update
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 5 to Git
+- [x] Commit Phase 5A to Git
+- [x] Create dashboard layout (Phase 5B)
+- [x] Add booking stats (Phase 5B)
+- [x] Add bookings table (Phase 5B)
+- [x] Add filters (Phase 5B)
+- [x] Add search (Phase 5B)
+- [x] Run npm run build successfully (Phase 5B)
+- [ ] Commit Phase 5B to Git
+- [ ] Add status update API (Phase 5C)
+- [ ] Add optimistic UI update (Phase 5C)
+- [ ] Run npm run build successfully (Phase 5C)
+- [ ] Commit Phase 5C to Git
 
 ## Phase 6: Visiting Specialists
 
