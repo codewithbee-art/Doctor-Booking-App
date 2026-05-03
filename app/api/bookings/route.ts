@@ -15,6 +15,32 @@ interface BookingRequestBody {
   appointment_time?: string;
 }
 
+export async function GET() {
+  try {
+    const { data: bookings, error: fetchError } = await supabaseAdmin
+      .from("bookings")
+      .select(
+        "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, created_at"
+      )
+      .order("appointment_date_ad", { ascending: false })
+      .order("appointment_time", { ascending: true });
+
+    if (fetchError) {
+      return NextResponse.json(
+        { success: false, error: "Failed to fetch bookings." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, bookings: bookings ?? [] });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "An unexpected error occurred." },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   let body: BookingRequestBody;
 
