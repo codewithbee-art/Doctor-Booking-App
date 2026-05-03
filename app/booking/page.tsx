@@ -30,11 +30,13 @@ export default function BookingPage() {
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("BS");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedName, setConfirmedName] = useState("");
-  
+  const [bookingId, setBookingId] = useState<string | null>(null);
+
   // Slots API state
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Fetch slots from API when date is selected
   useEffect(() => {
@@ -101,14 +103,75 @@ export default function BookingPage() {
     setStep("pick");
   }
 
-  function handleSubmit(data: BookingFormData) {
+  async function handleSubmit(data: BookingFormData) {
+    if (!selectedDate || !selectedTime) return;
+
     setIsSubmitting(true);
-    // Phase 3A: simulate submit delay — real API call added in Phase 4.
-    setTimeout(() => {
-      setConfirmedName(data.fullName);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_name: data.fullName,
+          patient_phone: data.phone,
+          patient_email: data.email || undefined,
+          problem: data.problem,
+          appointment_date_ad: selectedDate,
+          appointment_date_bs: "", // BS conversion not implemented yet
+          appointment_time: selectedTime,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to create booking");
+      }
+
+      if (result.success && result.booking_id) {
+        setConfirmedName(data.fullName);
+        setBookingId(result.booking_id);
+        setStep("success");
+        // Refresh slots so the booked slot appears unavailable
+        await refreshSlots();
+      } else {
+        throw new Error("Unexpected response from server");
+      }
+    } catch (err) {
+      console.error("Booking submission failed:", err);
+      setSubmitError(err instanceof Error ? err.message : "An unexpected error occurred");
+    } finally {
       setIsSubmitting(false);
-      setStep("success");
-    }, 1200);
+    }
+  }
+
+  // Refresh slots for the currently selected date
+  async function refreshSlots() {
+    if (!selectedDate) return;
+
+    try {
+      const response = await fetch(`/api/slots?date=${encodeURIComponent(selectedDate)}`);
+      const data = await response.json();
+
+      if (response.ok && data.success && Array.isArray(data.slots)) {
+        const formattedSlots: TimeSlot[] = data.slots.map((slot: any) => {
+          const [hour, minute] = slot.slot_time.split(":").map(Number);
+          const suffix = hour >= 12 ? "PM" : "AM";
+          const displayHour = hour % 12 || 12;
+          const label = `${displayHour}:${String(minute).padStart(2, "0")} ${suffix}`;
+          return {
+            time: slot.slot_time,
+            label,
+            isBooked: slot.is_booked,
+          };
+        });
+        setSlots(formattedSlots);
+      }
+    } catch (err) {
+      console.error("Failed to refresh slots:", err);
+    }
   }
 
   function handleBookAnother() {
@@ -116,9 +179,11 @@ export default function BookingPage() {
     setSelectedDate(null);
     setSelectedTime(null);
     setConfirmedName("");
+    setBookingId(null);
     setCalendarMode("BS");
     setSlots([]);
     setSlotsError(null);
+    setSubmitError(null);
   }
 
   const stepNumber = step === "pick" ? 1 : step === "details" ? 2 : 3;
@@ -159,6 +224,11 @@ export default function BookingPage() {
                 <p className="font-body text-base text-text-primary mt-1">
                   <span className="font-semibold">Time:</span> {formatDisplayTime(selectedTime)}
                 </p>
+                {bookingId && (
+                  <p className="font-body text-sm text-text-secondary mt-2">
+                    <span className="font-semibold">Booking ID:</span> {bookingId}
+                  </p>
+                )}
               </div>
             )}
             <p className="mt-5 font-body text-base text-text-secondary">
@@ -314,13 +384,26 @@ export default function BookingPage() {
                 )}
 
                 {step === "details" && selectedDate && selectedTime && (
-                  <BookingForm
-                    selectedDate={selectedDate}
-                    selectedTime={selectedTime}
-                    onBack={handleBack}
-                    onSubmit={handleSubmit}
-                    isSubmitting={isSubmitting}
-                  />
+                  <>
+                    {submitError && (
+                      <div className="mb-6 rounded-xl border border-danger/40 bg-danger/10 px-5 py-4 flex items-start gap-3">
+                        <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-danger" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                        <div>
+                          <p className="font-body text-sm font-semibold text-danger">Booking failed</p>
+                          <p className="font-body text-sm text-text-secondary">{submitError}</p>
+                        </div>
+                      </div>
+                    )}
+                    <BookingForm
+                      selectedDate={selectedDate}
+                      selectedTime={selectedTime}
+                      onBack={handleBack}
+                      onSubmit={handleSubmit}
+                      isSubmitting={isSubmitting}
+                    />
+                  </>
                 )}
               </div>
             </div>

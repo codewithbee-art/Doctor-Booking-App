@@ -40,7 +40,7 @@
 - [x] Commit Phase 2B to Git
 - [x] Create Supabase project and run SQL (manual)
 - [x] Fix seed-slots.sql (CROSS JOIN + ON CONFLICT)
-- [ ] Add real environment variables to .env.local (manual)
+- [x] Add real environment variables to .env.local (manual)
 - [x] Create /api/health/supabase route (Phase 2C)
 - [x] Run npm run build successfully (Phase 2C)
 - [x] Commit Phase 2C to Git
@@ -68,29 +68,27 @@
 - [x] Create POST /api/bookings route (Phase 3D)
 - [x] Fix Database type compatibility with Supabase JS v2.105 (Phase 3D)
 - [x] Run npm run build successfully (Phase 3D)
-- [ ] Commit Phase 3D to Git
+- [x] Commit Phase 3D to Git
 
-## Phase 4: Booking API
+- [x] Connect booking form submit to POST /api/bookings (Phase 3E)
+- [x] Show booking submission loading state (Phase 3E)
+- [x] Show real success confirmation after booking succeeds (Phase 3E)
+- [x] Refresh slot list after successful booking (Phase 3E)
+- [x] Prevent duplicate form submissions (Phase 3E)
+- [x] Run npm run build successfully (Phase 3E)
+- [ ] Commit Phase 3E to Git
 
-- [ ] Create /api/slots route
-- [ ] Create /api/bookings route
-- [ ] Validate booking data
-- [ ] Insert booking into Supabase
-- [ ] Mark selected slot as booked
-- [ ] Prevent double booking
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 4 to Git
 
-## Phase 5: Admin Authentication
+## Phase 4: Admin Authentication
 
 - [ ] Create admin login page
 - [ ] Connect Supabase Auth
 - [ ] Protect admin routes
 - [ ] Add logout
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 5 to Git
+- [ ] Commit Phase 4 to Git
 
-## Phase 6: Admin Booking Dashboard
+## Phase 5: Admin Booking Dashboard
 
 - [ ] Create dashboard layout
 - [ ] Add booking stats
@@ -102,7 +100,7 @@
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 6 to Git
 
-## Phase 7: Visiting Specialists
+## Phase 6: Visiting Specialists
 
 - [ ] Create public specialists page
 - [ ] Create specialist cards
@@ -113,7 +111,7 @@
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 7 to Git
 
-## Phase 8: Blog
+## Phase 7: Blog
 
 - [ ] Create blog listing page
 - [ ] Create blog detail page
@@ -127,7 +125,7 @@
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 8 to Git
 
-## Phase 9: Medicine Shop
+## Phase 8: Medicine Shop
 
 - [ ] Create shop page
 - [ ] Create product detail page
@@ -140,7 +138,7 @@
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 9 to Git
 
-## Phase 10: Checkout, Emails, Deployment
+## Phase 9: Checkout, Emails, Deployment
 
 - [ ] Add Stripe setup
 - [ ] Create checkout API
