@@ -129,18 +129,56 @@
 
 ## Phase 5E: Admin Rescheduling
 
-- [ ] Add Reschedule action for pending and confirmed bookings
-- [ ] Allow admin to choose a new available date and time
-- [ ] Check selected new slot is available
-- [ ] Free the old slot when rescheduling
-- [ ] Mark the new slot as booked
-- [ ] Update booking appointment_date_ad, appointment_date_bs, and appointment_time
-- [ ] Show clear success/error messages
-- [ ] Add optional patient notification for rescheduled appointment
-- [ ] Run npm run build successfully
+- [x] Add Reschedule action for pending and confirmed bookings (Phase 5E)
+- [x] Allow admin to choose a new available date and time (Phase 5E)
+- [x] Check selected new slot is available and not blocked (Phase 5E)
+- [x] Free the old slot when rescheduling (Phase 5E)
+- [x] Mark the new slot as booked (Phase 5E)
+- [x] Update booking appointment_date_ad, appointment_date_bs, and appointment_time (Phase 5E)
+- [x] Show clear success/error messages (Phase 5E)
+- [x] Add placeholder for patient notification (Phase 5E)
+- [x] Run npm run build successfully (Phase 5E)
+- [x] Conditional reschedule for cancelled bookings after restore failure (Phase 5E-fix)
+- [x] API: allow PUT reschedule for cancelled bookings, skip freeing old slot, set status to pending (Phase 5E-fix)
+- [x] Dashboard: track restore-failed IDs, show Reschedule only after 409 restore failure (Phase 5E-fix)
+- [x] Run npm run build successfully (Phase 5E-fix)
 - [ ] Commit Phase 5E to Git
 
-## Phase 6: Visiting Specialists
+## Phase 5F: Availability and Booking Conflict Handling
+
+- [ ] In Availability Management, detect when a slot is already booked
+- [ ] Show patient/booking summary on booked slots
+- [ ] Prevent silent blocking of booked slots
+- [ ] Add View Booking action for booked slots
+- [ ] Add Reschedule Patient action from booked slots
+- [ ] Allow admin to choose a new available slot
+- [ ] After rescheduling, block the original slot with the selected reason
+- [ ] Update booking date/time to the new slot
+- [ ] Mark the new slot as booked
+- [ ] Show clear success/error messages
+- [ ] Add placeholder for patient notification later
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 5F to Git
+
+## Phase 6: Patient Records and Treatment History
+
+- [ ] Plan patient history data structure
+- [ ] Decide how to identify returning patients: phone number, email, or patient profile
+- [ ] Create patients table
+- [ ] Create patient_visits or treatment_history table
+- [ ] Link bookings to patients where possible
+- [ ] Add doctor/admin view for patient history
+- [ ] Show past visits, problems, notes, medicines, and treatment duration
+- [ ] Allow doctor/admin to add current visit notes
+- [ ] Allow doctor/admin to add prescribed medicines
+- [ ] Allow doctor/admin to add follow-up instructions
+- [ ] Allow doctor/admin to update patient condition/history
+- [ ] Add search by patient name, phone, or email
+- [ ] Protect patient records inside admin only
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 6 to Git
+
+## Phase 7: Visiting Specialists
 
 - [ ] Create public specialists page
 - [ ] Create specialist cards
@@ -149,7 +187,7 @@
 - [ ] Create admin specialists page
 - [ ] Add specialist CRUD
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 6 to Git
+- [ ] Commit Phase 7 to Git
 
 ## Phase 7: Blog
 
@@ -163,7 +201,7 @@
 - [ ] Add rich text editor
 - [ ] Add SEO metadata
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 7 to Git
+- [ ] Commit Phase 8 to Git
 
 ## Phase 8: Medicine Shop
 
@@ -176,7 +214,7 @@
 - [ ] Create admin shop page
 - [ ] Add product CRUD
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 8 to Git
+- [ ] Commit Phase 9 to Git
 
 ## Phase 9: Checkout, Emails, Deployment
 

@@ -26,6 +26,12 @@ interface Booking {
 
 type FilterTab = "all" | "today" | "pending" | "confirmed" | "cancelled" | "completed";
 
+interface AvailableSlot {
+  id: string;
+  slot_time: string;
+  is_booked: boolean;
+}
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -77,6 +83,16 @@ export default function AdminDashboardPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+
+  const [restoreFailedIds, setRestoreFailedIds] = useState<Set<string>>(new Set());
+  const [rescheduleBooking, setRescheduleBooking] = useState<Booking | null>(null);
+  const [rescheduleDate, setRescheduleDate] = useState("");
+  const [rescheduleTime, setRescheduleTime] = useState("");
+  const [rescheduleSlots, setRescheduleSlots] = useState<AvailableSlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [rescheduling, setRescheduling] = useState(false);
+  const [rescheduleError, setRescheduleError] = useState<string | null>(null);
+  const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
 
   /* ---- Auth ---- */
   useEffect(() => {
@@ -149,16 +165,82 @@ export default function AdminDashboardPage() {
         body: JSON.stringify({ status: newStatus }),
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Update failed");
+      if (!res.ok) {
+        // Detect restore-from-cancelled failure due to slot conflict
+        if (prev.status === "cancelled" && newStatus === "pending" && res.status === 409) {
+          setRestoreFailedIds((cur) => new Set(cur).add(bookingId));
+          throw new Error("Original slot is no longer available. Please reschedule this booking.");
+        }
+        throw new Error(json.error || "Update failed");
+      }
+      // Clear from restore-failed set on success
+      setRestoreFailedIds((cur) => { const n = new Set(cur); n.delete(bookingId); return n; });
     } catch (err) {
       // Revert on failure
       setBookings((cur) => cur.map((b) => (b.id === bookingId ? { ...b, status: prev.status } : b)));
       setUpdateError(err instanceof Error ? err.message : "Failed to update status");
-      setTimeout(() => setUpdateError(null), 4000);
+      setTimeout(() => setUpdateError(null), 6000);
     } finally {
       setUpdatingId(null);
     }
   }, [bookings]);
+
+  /* ---- Reschedule: fetch available slots for chosen date ---- */
+  useEffect(() => {
+    if (!rescheduleDate) { setRescheduleSlots([]); return; }
+    let cancelled = false;
+    async function load() {
+      setLoadingSlots(true);
+      setRescheduleSlots([]);
+      setRescheduleTime("");
+      try {
+        const res = await fetch(`/api/slots?date=${encodeURIComponent(rescheduleDate)}`);
+        const json = await res.json();
+        if (!cancelled && res.ok) setRescheduleSlots(json.slots ?? []);
+      } catch { /* ignore */ }
+      finally { if (!cancelled) setLoadingSlots(false); }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [rescheduleDate]);
+
+  /* ---- Reschedule: open modal ---- */
+  const openReschedule = useCallback((b: Booking) => {
+    setRescheduleBooking(b);
+    setRescheduleDate("");
+    setRescheduleTime("");
+    setRescheduleSlots([]);
+    setRescheduleError(null);
+    setRescheduleSuccess(false);
+  }, []);
+
+  /* ---- Reschedule: submit ---- */
+  const submitReschedule = useCallback(async () => {
+    if (!rescheduleBooking || !rescheduleDate || !rescheduleTime) return;
+    setRescheduling(true);
+    setRescheduleError(null);
+    try {
+      const res = await fetch(`/api/bookings/${rescheduleBooking.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          appointment_date_ad: rescheduleDate,
+          appointment_time: rescheduleTime,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Reschedule failed");
+      // Update local bookings
+      const updated = json.booking as Booking;
+      setBookings((cur) => cur.map((b) => (b.id === updated.id ? updated : b)));
+      setRestoreFailedIds((cur) => { const n = new Set(cur); n.delete(updated.id); return n; });
+      setRescheduleSuccess(true);
+    } catch (err) {
+      setRescheduleError(err instanceof Error ? err.message : "Reschedule failed");
+    } finally {
+      setRescheduling(false);
+    }
+  }, [rescheduleBooking, rescheduleDate, rescheduleTime]);
 
   /* ---- Loading gate ---- */
   if (checking) {
@@ -356,6 +438,13 @@ export default function AdminDashboardPage() {
                                   Confirm
                                 </button>
                                 <button
+                                  onClick={() => openReschedule(b)}
+                                  disabled={updatingId !== null}
+                                  className="rounded-md bg-blue-50 border border-blue-300 px-2.5 py-1 font-body text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                >
+                                  Reschedule
+                                </button>
+                                <button
                                   onClick={() => updateStatus(b.id, "cancelled")}
                                   disabled={updatingId !== null}
                                   className="rounded-md bg-red-50 border border-red-300 px-2.5 py-1 font-body text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
@@ -374,6 +463,13 @@ export default function AdminDashboardPage() {
                                   Complete
                                 </button>
                                 <button
+                                  onClick={() => openReschedule(b)}
+                                  disabled={updatingId !== null}
+                                  className="rounded-md bg-blue-50 border border-blue-300 px-2.5 py-1 font-body text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                >
+                                  Reschedule
+                                </button>
+                                <button
                                   onClick={() => updateStatus(b.id, "cancelled")}
                                   disabled={updatingId !== null}
                                   className="rounded-md bg-red-50 border border-red-300 px-2.5 py-1 font-body text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
@@ -383,13 +479,24 @@ export default function AdminDashboardPage() {
                               </>
                             )}
                             {b.status === "cancelled" && (
-                              <button
-                                onClick={() => updateStatus(b.id, "pending")}
-                                disabled={updatingId !== null}
-                                className="rounded-md bg-amber-50 border border-amber-300 px-2.5 py-1 font-body text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                              >
-                                Restore
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => updateStatus(b.id, "pending")}
+                                  disabled={updatingId !== null}
+                                  className="rounded-md bg-amber-50 border border-amber-300 px-2.5 py-1 font-body text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                                >
+                                  Restore
+                                </button>
+                                {restoreFailedIds.has(b.id) && (
+                                  <button
+                                    onClick={() => openReschedule(b)}
+                                    disabled={updatingId !== null}
+                                    className="rounded-md bg-blue-50 border border-blue-300 px-2.5 py-1 font-body text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                                  >
+                                    Reschedule
+                                  </button>
+                                )}
+                              </>
                             )}
                           </div>
                         </td>
@@ -421,6 +528,145 @@ export default function AdminDashboardPage() {
           )}
         </div>
       </div>
+      {/* ===== Reschedule Modal ===== */}
+      {rescheduleBooking && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !rescheduling && setRescheduleBooking(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Reschedule booking"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">Reschedule Booking</h2>
+              <button
+                onClick={() => setRescheduleBooking(null)}
+                disabled={rescheduling}
+                aria-label="Close reschedule"
+                className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {rescheduleSuccess ? (
+              <div className="py-6 text-center">
+                <svg className="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="mt-3 font-body text-base font-semibold text-text-primary">Booking rescheduled successfully</p>
+                <p className="mt-1 font-body text-sm text-text-secondary">Patient notification will be added when email notifications are implemented.</p>
+                <button
+                  onClick={() => setRescheduleBooking(null)}
+                  className="mt-5 rounded-lg border border-border bg-white px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="font-body text-sm space-y-1 mb-5">
+                  <p><span className="font-semibold text-text-secondary">Patient:</span> <span className="text-text-primary">{rescheduleBooking.patient_name}</span></p>
+                  <p><span className="font-semibold text-text-secondary">Current:</span> <span className="text-text-primary">{formatDate(rescheduleBooking.appointment_date_ad)} at {formatTime(rescheduleBooking.appointment_time)}</span></p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="resched-date" className="block font-body text-sm font-semibold text-text-secondary mb-1">New Date</label>
+                    <input
+                      id="resched-date"
+                      type="date"
+                      value={rescheduleDate}
+                      min={todayAD()}
+                      onChange={(e) => setRescheduleDate(e.target.value)}
+                      disabled={rescheduling}
+                      className="w-full rounded-lg border border-border bg-white px-4 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="resched-time" className="block font-body text-sm font-semibold text-text-secondary mb-1">New Time</label>
+                    {!rescheduleDate && (
+                      <p className="font-body text-sm text-text-secondary">Select a date first.</p>
+                    )}
+                    {rescheduleDate && loadingSlots && (
+                      <div className="flex items-center gap-2 py-2">
+                        <svg className="h-4 w-4 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                        </svg>
+                        <span className="font-body text-sm text-text-secondary">Loading slots…</span>
+                      </div>
+                    )}
+                    {rescheduleDate && !loadingSlots && rescheduleSlots.length === 0 && (
+                      <p className="font-body text-sm text-text-secondary">No available slots for this date.</p>
+                    )}
+                    {rescheduleDate && !loadingSlots && rescheduleSlots.length > 0 && (
+                      <div className="grid grid-cols-3 gap-2">
+                        {rescheduleSlots.filter((s) => !s.is_booked).map((s) => (
+                          <button
+                            key={s.id}
+                            onClick={() => setRescheduleTime(s.slot_time)}
+                            disabled={rescheduling}
+                            className={[
+                              "rounded-lg border px-3 py-2 font-body text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50",
+                              rescheduleTime === s.slot_time
+                                ? "border-primary bg-primary text-white"
+                                : "border-border bg-white text-text-primary hover:bg-bg-light",
+                            ].join(" ")}
+                          >
+                            {formatTime(s.slot_time)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {rescheduleError && (
+                  <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                    <p className="font-body text-sm text-danger">{rescheduleError}</p>
+                  </div>
+                )}
+
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    onClick={() => setRescheduleBooking(null)}
+                    disabled={rescheduling}
+                    className="rounded-lg border border-border bg-white px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={submitReschedule}
+                    disabled={rescheduling || !rescheduleDate || !rescheduleTime}
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+                  >
+                    {rescheduling ? (
+                      <>
+                        <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                        </svg>
+                        Rescheduling…
+                      </>
+                    ) : (
+                      "Confirm Reschedule"
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ===== Detail Modal ===== */}
       {selectedBooking && (
         <div
