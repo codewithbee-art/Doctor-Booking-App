@@ -101,10 +101,47 @@
 - [x] Add search (Phase 5B)
 - [x] Run npm run build successfully (Phase 5B)
 - [ ] Commit Phase 5B to Git
-- [ ] Add status update API (Phase 5C)
-- [ ] Add optimistic UI update (Phase 5C)
-- [ ] Run npm run build successfully (Phase 5C)
+- [x] Add status update API (Phase 5C)
+- [x] Add optimistic UI update (Phase 5C)
+- [x] Run npm run build successfully (Phase 5C)
+- [x] Add Completed filter tab (Phase 5C-fix)
+- [x] Fix booking list order to date ASC, time ASC (Phase 5C-fix)
+- [x] Improve action button logic per status (Phase 5C-fix)
+- [x] Add slot release on cancel and re-book on restore (Phase 5C-fix)
+- [x] Add View Details modal (Phase 5C-fix)
+- [x] Run npm run build successfully (Phase 5C-fix)
 - [ ] Commit Phase 5C to Git
+
+## Phase 5D: Admin Availability Management
+
+- [ ] Add unavailable slot management planning
+- [ ] Decide whether to update available_slots schema with:
+  - is_blocked boolean default false
+  - blocked_reason text
+- [ ] Add SQL migration for blocked/unavailable slots
+- [ ] Update slots API so blocked slots are unavailable to patients
+- [ ] Add admin availability page or dashboard section
+- [ ] Allow admin to block a single time slot
+- [ ] Allow admin to unblock a time slot
+- [ ] Allow admin to block a full day
+- [ ] Allow admin to add a reason, for example doctor unavailable, emergency, holiday, lunch break
+- [ ] Show blocked slots clearly in admin
+- [ ] Make blocked slots unavailable on the public booking page
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 5D to Git
+
+## Phase 5E: Admin Rescheduling
+
+- [ ] Add Reschedule action for pending and confirmed bookings
+- [ ] Allow admin to choose a new available date and time
+- [ ] Check selected new slot is available
+- [ ] Free the old slot when rescheduling
+- [ ] Mark the new slot as booked
+- [ ] Update booking appointment_date_ad, appointment_date_bs, and appointment_time
+- [ ] Show clear success/error messages
+- [ ] Add optional patient notification for rescheduled appointment
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 5E to Git
 
 ## Phase 6: Visiting Specialists
 

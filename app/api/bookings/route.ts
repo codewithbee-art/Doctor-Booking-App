@@ -22,7 +22,7 @@ export async function GET() {
       .select(
         "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, created_at"
       )
-      .order("appointment_date_ad", { ascending: false })
+      .order("appointment_date_ad", { ascending: true })
       .order("appointment_time", { ascending: true });
 
     if (fetchError) {
