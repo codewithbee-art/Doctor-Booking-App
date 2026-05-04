@@ -142,23 +142,23 @@
 - [x] API: allow PUT reschedule for cancelled bookings, skip freeing old slot, set status to pending (Phase 5E-fix)
 - [x] Dashboard: track restore-failed IDs, show Reschedule only after 409 restore failure (Phase 5E-fix)
 - [x] Run npm run build successfully (Phase 5E-fix)
-- [ ] Commit Phase 5E to Git
+- [x] Commit Phase 5E to Git
 
 ## Phase 5F: Availability and Booking Conflict Handling
 
-- [ ] In Availability Management, detect when a slot is already booked
-- [ ] Show patient/booking summary on booked slots
-- [ ] Prevent silent blocking of booked slots
-- [ ] Add View Booking action for booked slots
-- [ ] Add Reschedule Patient action from booked slots
-- [ ] Allow admin to choose a new available slot
-- [ ] After rescheduling, block the original slot with the selected reason
-- [ ] Update booking date/time to the new slot
-- [ ] Mark the new slot as booked
-- [ ] Show clear success/error messages
-- [ ] Add placeholder for patient notification later
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 5F to Git
+- [x] In Availability Management, detect when a slot is already booked (Phase 5F)
+- [x] Show patient/booking summary on booked slots (Phase 5F)
+- [x] Prevent silent blocking of booked slots (Phase 5F)
+- [x] Add View Booking action for booked slots (Phase 5F)
+- [x] Add Reschedule Patient action from booked slots (Phase 5F)
+- [x] Allow admin to choose a new available slot (Phase 5F)
+- [x] After rescheduling, block the original slot with the selected reason (Phase 5F)
+- [x] Update booking date/time to the new slot (Phase 5F)
+- [x] Mark the new slot as booked (Phase 5F)
+- [x] Show clear success/error messages (Phase 5F)
+- [x] Add placeholder for patient notification later (Phase 5F)
+- [x] Run npm run build successfully (Phase 5F)
+- [x] Commit Phase 5F to Git
 
 ## Phase 6: Patient Records and Treatment History
 
@@ -189,7 +189,7 @@
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 7 to Git
 
-## Phase 7: Blog
+## Phase 8: Blog
 
 - [ ] Create blog listing page
 - [ ] Create blog detail page
@@ -203,7 +203,7 @@
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 8 to Git
 
-## Phase 8: Medicine Shop
+## Phase 9: Medicine Shop
 
 - [ ] Create shop page
 - [ ] Create product detail page
@@ -212,13 +212,14 @@
 - [ ] Add cart functionality
 - [ ] Create products API
 - [ ] Create admin shop page
+- [ ] Create sell history
 - [ ] Add product CRUD
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 9 to Git
 
-## Phase 9: Checkout, Emails, Deployment
+## Phase 10: Checkout, Emails, Deployment
 
-- [ ] Add Stripe setup
+- [ ] Add payment gateway setup from nepal (esewa, khalti, direct bank card)
 - [ ] Create checkout API
 - [ ] Create orders
 - [ ] Create order items

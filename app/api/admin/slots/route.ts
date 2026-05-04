@@ -19,11 +19,18 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { data, error } = await supabaseAdmin
-      .from("available_slots")
-      .select("id, slot_date_ad, slot_date_bs, slot_time, is_booked, is_blocked, blocked_reason")
-      .eq("slot_date_ad", date)
-      .order("slot_time", { ascending: true });
+    const [{ data, error }, { data: bookings }] = await Promise.all([
+      supabaseAdmin
+        .from("available_slots")
+        .select("id, slot_date_ad, slot_date_bs, slot_time, is_booked, is_blocked, blocked_reason")
+        .eq("slot_date_ad", date)
+        .order("slot_time", { ascending: true }),
+      supabaseAdmin
+        .from("bookings")
+        .select("id, patient_name, patient_phone, status, appointment_time")
+        .eq("appointment_date_ad", date)
+        .neq("status", "cancelled"),
+    ]);
 
     if (error) {
       return NextResponse.json(
@@ -32,7 +39,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, slots: data ?? [] });
+    const bookingByTime = new Map(
+      (bookings ?? []).map((b) => [b.appointment_time, b])
+    );
+
+    const slots = (data ?? []).map((slot) => ({
+      ...slot,
+      booking_summary: slot.is_booked ? (bookingByTime.get(slot.slot_time) ?? null) : null,
+    }));
+
+    return NextResponse.json({ success: true, slots });
   } catch {
     return NextResponse.json(
       { success: false, error: "An unexpected error occurred." },
