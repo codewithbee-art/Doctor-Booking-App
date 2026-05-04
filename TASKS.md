@@ -162,21 +162,34 @@
 
 ## Phase 6: Patient Records and Treatment History
 
-- [ ] Plan patient history data structure
-- [ ] Decide how to identify returning patients: phone number, email, or patient profile
-- [ ] Create patients table
-- [ ] Create patient_visits or treatment_history table
-- [ ] Link bookings to patients where possible
+### Phase 6A: Patient Records Database
+- [x] Plan patient history data structure (Phase 6A)
+- [x] Decide how to identify returning patients: phone primary, email secondary (Phase 6A)
+- [x] Create patients table with phone unique constraint (Phase 6A)
+- [x] Create patient_visits table linked to patient_id and booking_id (Phase 6A)
+- [x] Add nullable patient_id FK to bookings (Phase 6A)
+- [x] Update TypeScript database types: Patient, PatientVisit, Booking.patient_id, AvailableSlot flags (Phase 6A)
+- [x] Add service_role permissions for patients and patient_visits (Phase 6A)
+- [x] Run npm run build successfully (Phase 6A)
+- [x] Commit Phase 6A to Git
+
+### Phase 6B: Patient Records Admin UI
 - [ ] Add doctor/admin view for patient history
+- [ ] Add search by patient name, phone, or email
+- [ ] Show patient profile details
 - [ ] Show past visits, problems, notes, medicines, and treatment duration
+- [ ] Protect patient records inside admin only
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 6B to Git
+
+### Phase 6C: Visit Notes and Treatment Updates
 - [ ] Allow doctor/admin to add current visit notes
 - [ ] Allow doctor/admin to add prescribed medicines
 - [ ] Allow doctor/admin to add follow-up instructions
 - [ ] Allow doctor/admin to update patient condition/history
-- [ ] Add search by patient name, phone, or email
-- [ ] Protect patient records inside admin only
+- [ ] Link new notes to the correct patient
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 6 to Git
+- [ ] Commit Phase 6C to Git
 
 ## Phase 7: Visiting Specialists
 
@@ -212,7 +225,7 @@
 - [ ] Add cart functionality
 - [ ] Create products API
 - [ ] Create admin shop page
-- [ ] Create sell history
+- [ ] Create sales/order history
 - [ ] Add product CRUD
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 9 to Git

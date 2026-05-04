@@ -19,12 +19,41 @@ export interface VisitingSpecialist {
   updated_at: string;
 }
 
+// ----- patients ---------------------------------------------------
+export interface Patient {
+  id: string;
+  phone: string;
+  email: string | null;
+  name: string;
+  date_of_birth: string | null; // ISO date string (YYYY-MM-DD)
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// ----- patient_visits ---------------------------------------------
+export interface PatientVisit {
+  id: string;
+  patient_id: string;
+  booking_id: string | null;
+  visit_date_ad: string; // ISO date string
+  visit_date_bs: string;
+  chief_complaint: string | null;
+  visit_notes: string | null;
+  prescribed_medicines: string | null;
+  follow_up_instructions: string | null;
+  condition_summary: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ----- bookings ----------------------------------------------------
 export type BookingType = "regular" | "specialist";
 export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
 
 export interface Booking {
   id: string;
+  patient_id: string | null; // linked after admin review; null for public bookings
   patient_name: string;
   patient_phone: string;
   patient_email: string | null;
@@ -46,6 +75,8 @@ export interface AvailableSlot {
   slot_date_bs: string;
   slot_time: string; // HH:MM:SS
   is_booked: boolean;
+  is_blocked: boolean;
+  blocked_reason: string | null;
 }
 
 // ----- products ----------------------------------------------------
@@ -140,6 +171,24 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Omit<VisitingSpecialist, "id" | "created_at" | "updated_at">>;
+      };
+      patients: {
+        Row: Patient;
+        Insert: Omit<Patient, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<Patient, "id" | "created_at" | "updated_at">>;
+      };
+      patient_visits: {
+        Row: PatientVisit;
+        Insert: Omit<PatientVisit, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<PatientVisit, "id" | "created_at" | "updated_at">>;
       };
       bookings: {
         Row: Booking;
