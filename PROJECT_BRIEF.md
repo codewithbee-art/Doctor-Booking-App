@@ -110,7 +110,7 @@ Phase 2: Complete (2C — health check route; schema + seed SQL run successfully
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
-Phase 6: In progress (6A — patients table, patient_visits table, bookings.patient_id FK, TypeScript types)  
+Phase 6: In progress (6A database, 6B admin patients UI — search, list, detail with bookings + visits)  
 Phase 7: Not started  
 Phase 8: Not started  
 Phase 9: Not started  
@@ -127,81 +127,149 @@ Phase 10: Not started
 - Add Navbar
 - Add Footer
 - Build homepage skeleton
+- Homepage UI polish
 
 ### Phase 2: Supabase Setup
 
-- Add Supabase client files
-- Add SQL schema
-- Add seed SQL
-- Add environment examples
+- Supabase schema
+- Seed slots
+- Supabase clients
+- Environment variables
+- Supabase health check
 
 ### Phase 3: Public Booking System
 
-- Build booking page
-- Add date selection
-- Add time slot selection
-- Add patient details form
-- Add booking confirmation UI
+- Booking page UI
+- BS/AD calendar toggle placeholder
+- Real available slots API
+- Connect booking page to real slots
+- Create booking API
+- Save appointments to Supabase
+- Mark booked slots unavailable
 
-### Phase 4: Booking API
+### Phase 4: Admin Authentication
 
-- Add slots API
-- Add booking creation API
-- Mark slots as booked
-- Add validation and error handling
+- Admin login
+- Supabase Auth email/password
+- Protected admin dashboard
+- Logout
 
-### Phase 5: Admin Authentication
+### Phase 5: Admin Booking Dashboard and Availability
 
-- Add admin login
-- Add protected admin routes
-- Add logout
+#### Phase 5A: Admin Bookings API
 
-### Phase 6: Admin Booking Dashboard
+- GET bookings API
+- Return admin booking data safely
 
-- Show booking stats
-- Show booking table
-- Add filters
-- Add search
-- Add status update actions
+#### Phase 5B: Admin Booking Dashboard UI
+
+- Dashboard layout
+- Booking stats
+- Bookings table
+- Filters
+- Search
+
+#### Phase 5C: Booking Status Workflow
+
+- Status update API
+- Optimistic UI updates
+- Completed filter tab
+- Correct status action logic
+- Cancel releases slot
+- Restore re-books slot
+- View Details modal
+
+#### Phase 5D: Admin Availability Management
+
+- Block/unblock individual slots
+- Block full days
+- Add blocked reason
+- Show blocked slots in admin
+- Hide blocked slots from public booking page
+
+#### Phase 5E: Admin Rescheduling
+
+- Reschedule pending and confirmed bookings
+- Conditional reschedule for cancelled bookings after restore failure
+- Free old slot
+- Book new slot
+- Update appointment date/time
+
+#### Phase 5F: Availability and Booking Conflict Handling
+
+- Detect booked slots inside Availability Management
+- Show patient summary on booked slots
+- Prevent silent blocking of booked slots
+- View booked patient details
+- Reschedule patient directly from booked slot
+- Block original slot after rescheduling
+
+### Phase 6: Patient Records and Treatment History
+
+#### Phase 6A: Patient Records Database
+
+- Create patients table
+- Create patient_visits table
+- Link bookings to patients
+- Match returning patients primarily by phone number
+- Use email as secondary identifier
+- Update TypeScript database types
+
+#### Phase 6B: Patient Records Admin UI
+
+- Admin patient records page
+- Search patients by name, phone, or email
+- Show patient profile
+- Show booking and visit history
+- Protect patient records inside admin only
+
+#### Phase 6C: Visit Notes and Treatment Updates
+
+- Add doctor visit notes
+- Add prescribed medicines
+- Add treatment duration
+- Add follow-up instructions
+- Update patient condition/history
 
 ### Phase 7: Visiting Specialists
 
 - Public specialists page
-- Specialists preview on homepage
-- Admin specialist management
+- Specialist cards
+- Homepage specialists preview
+- Specialists API
+- Admin specialists management
+- Specialist CRUD
 
 ### Phase 8: Blog
 
 - Blog listing page
 - Blog detail page
+- Blog cards
+- Blog API
 - Admin blog management
-- Blog editor
+- Create/edit blog posts
+- Rich text editor
+- SEO metadata
 
 ### Phase 9: Medicine Shop
 
-- Product listing page
+- Shop page
 - Product detail page
-- Cart
-- Admin inventory management
+- Product cards
+- Cart functionality
+- Products API
+- Admin shop management
+- Sales/order history
+- Product CRUD
 
 ### Phase 10: Checkout, Emails, SEO, Deployment
 
-- Stripe checkout
-- Orders
-- Resend email notifications
-- SEO metadata
-- Final responsive polish
+- Nepal payment gateway setup: eSewa, Khalti, or direct bank card
+- Checkout API
+- Orders and order items
+- Resend email setup
+- Booking confirmation email
+- Doctor notification email
+- OpenGraph metadata
+- Accessibility checks
 - Vercel deployment
-
-## Git Workflow
-
-After every completed phase:
-- Run npm run lint
-- Run npm run build
-- Commit only if both pass
-- Use clear commit messages like:
-  - Phase 1A: initial project setup
-  - Phase 1B: add layout and homepage skeleton
-  - Phase 2A: add Supabase schema
-
-  Do not commit automatically unless I ask. At the end, tell me the exact git commands to run.

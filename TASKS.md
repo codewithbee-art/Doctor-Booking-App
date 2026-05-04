@@ -174,13 +174,16 @@
 - [x] Commit Phase 6A to Git
 
 ### Phase 6B: Patient Records Admin UI
-- [ ] Add doctor/admin view for patient history
-- [ ] Add search by patient name, phone, or email
-- [ ] Show patient profile details
-- [ ] Show past visits, problems, notes, medicines, and treatment duration
-- [ ] Protect patient records inside admin only
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 6B to Git
+- [x] Create /app/admin/patients/page.tsx with auth guard (Phase 6B)
+- [x] Create GET /api/admin/patients route with search and detail modes (Phase 6B)
+- [x] Add patient search by name, phone, or email (Phase 6B)
+- [x] Show patient list with name, phone, email, created_at (Phase 6B)
+- [x] Show patient detail: profile, linked bookings, visit history (Phase 6B)
+- [x] Show empty states for no patients, no bookings, no visits (Phase 6B)
+- [x] Add Patients link in admin dashboard header (Phase 6B)
+- [x] Protect patient records inside admin only (Phase 6B)
+- [x] Run npm run build successfully (Phase 6B)
+- [x] Commit Phase 6B to Git
 
 ### Phase 6C: Visit Notes and Treatment Updates
 - [ ] Allow doctor/admin to add current visit notes
