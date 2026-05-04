@@ -186,13 +186,14 @@
 - [x] Commit Phase 6B to Git
 
 ### Phase 6C: Visit Notes and Treatment Updates
-- [ ] Allow doctor/admin to add current visit notes
-- [ ] Allow doctor/admin to add prescribed medicines
-- [ ] Allow doctor/admin to add follow-up instructions
-- [ ] Allow doctor/admin to update patient condition/history
-- [ ] Link new notes to the correct patient
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 6C to Git
+- [x] Create POST /api/admin/patients/visits route (Phase 6C)
+- [x] Add "Add Visit" form in patient detail with all fields (Phase 6C)
+- [x] Allow doctor/admin to add visit date, complaint, notes, medicines, follow-up, condition (Phase 6C)
+- [x] Link new visit to correct patient_id (Phase 6C)
+- [x] Show success/error messages on save (Phase 6C)
+- [x] Refresh patient detail after saving visit (Phase 6C)
+- [x] Run npm run build successfully (Phase 6C)
+- [x] Commit Phase 6C to Git
 
 ## Phase 7: Visiting Specialists
 

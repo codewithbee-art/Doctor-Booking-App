@@ -110,7 +110,7 @@ Phase 2: Complete (2C — health check route; schema + seed SQL run successfully
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
-Phase 6: In progress (6A database, 6B admin patients UI — search, list, detail with bookings + visits)  
+Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes and treatment updates)  
 Phase 7: Not started  
 Phase 8: Not started  
 Phase 9: Not started  

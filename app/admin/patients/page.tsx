@@ -112,6 +112,18 @@ export default function AdminPatientsPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
+  // Visit form state
+  const [showVisitForm, setShowVisitForm] = useState(false);
+  const [visitDate, setVisitDate] = useState("");
+  const [visitComplaint, setVisitComplaint] = useState("");
+  const [visitNotes, setVisitNotes] = useState("");
+  const [visitMedicines, setVisitMedicines] = useState("");
+  const [visitFollowUp, setVisitFollowUp] = useState("");
+  const [visitCondition, setVisitCondition] = useState("");
+  const [savingVisit, setSavingVisit] = useState(false);
+  const [visitSaveError, setVisitSaveError] = useState<string | null>(null);
+  const [visitSaveSuccess, setVisitSaveSuccess] = useState(false);
+
   // Auth check
   useEffect(() => {
     async function checkSession() {
@@ -168,6 +180,52 @@ export default function AdminPatientsPage() {
       setLoadingDetail(false);
     }
   }, []);
+
+  // Reset visit form
+  const resetVisitForm = useCallback(() => {
+    setVisitDate("");
+    setVisitComplaint("");
+    setVisitNotes("");
+    setVisitMedicines("");
+    setVisitFollowUp("");
+    setVisitCondition("");
+    setVisitSaveError(null);
+    setVisitSaveSuccess(false);
+  }, []);
+
+  // Submit new visit
+  const submitVisit = useCallback(async () => {
+    if (!selectedPatient || !visitDate) return;
+    setSavingVisit(true);
+    setVisitSaveError(null);
+    setVisitSaveSuccess(false);
+    try {
+      const res = await fetch("/api/admin/patients/visits", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: selectedPatient.id,
+          visit_date_ad: visitDate,
+          chief_complaint: visitComplaint.trim() || null,
+          visit_notes: visitNotes.trim() || null,
+          prescribed_medicines: visitMedicines.trim() || null,
+          follow_up_instructions: visitFollowUp.trim() || null,
+          condition_summary: visitCondition.trim() || null,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to save visit.");
+      resetVisitForm();
+      setShowVisitForm(false);
+      setVisitSaveSuccess(true);
+      // Refresh detail
+      openDetail(selectedPatient.id);
+    } catch (err) {
+      setVisitSaveError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setSavingVisit(false);
+    }
+  }, [selectedPatient, visitDate, visitComplaint, visitNotes, visitMedicines, visitFollowUp, visitCondition, resetVisitForm, openDetail]);
 
   // Search handler
   const handleSearch = (e: React.FormEvent) => {
@@ -405,10 +463,138 @@ export default function AdminPatientsPage() {
 
                 {/* Visit history */}
                 <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-                  <h2 className="font-heading text-lg font-bold text-text-primary mb-4">Visit History</h2>
-                  {patientVisits.length === 0 ? (
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-heading text-lg font-bold text-text-primary">Visit History</h2>
+                    {!showVisitForm && (
+                      <button
+                        onClick={() => { resetVisitForm(); setShowVisitForm(true); }}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        Add Visit
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Visit save success */}
+                  {visitSaveSuccess && (
+                    <div className="mb-4 rounded-lg border border-green-300 bg-green-50 px-4 py-3">
+                      <p className="font-body text-sm text-green-800">Visit record saved successfully.</p>
+                    </div>
+                  )}
+
+                  {/* Add visit form */}
+                  {showVisitForm && (
+                    <div className="mb-6 rounded-xl border border-primary/30 bg-primary/5 p-5">
+                      <h3 className="font-heading text-base font-bold text-text-primary mb-4">New Visit Record</h3>
+                      <div className="space-y-4">
+                        <div>
+                          <label htmlFor="visit-date" className="block font-body text-sm font-semibold text-text-secondary mb-1">
+                            Visit Date <span className="text-danger">*</span>
+                          </label>
+                          <input
+                            id="visit-date"
+                            type="date"
+                            value={visitDate}
+                            onChange={(e) => setVisitDate(e.target.value)}
+                            className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="visit-complaint" className="block font-body text-sm font-semibold text-text-secondary mb-1">Problem / Reason for Visit</label>
+                          <input
+                            id="visit-complaint"
+                            type="text"
+                            value={visitComplaint}
+                            onChange={(e) => setVisitComplaint(e.target.value)}
+                            placeholder="e.g. Headache, follow-up check"
+                            className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="visit-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">Doctor Notes</label>
+                          <textarea
+                            id="visit-notes"
+                            rows={3}
+                            value={visitNotes}
+                            onChange={(e) => setVisitNotes(e.target.value)}
+                            placeholder="Examination findings, diagnosis…"
+                            className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="visit-medicines" className="block font-body text-sm font-semibold text-text-secondary mb-1">Prescribed Medicines</label>
+                          <textarea
+                            id="visit-medicines"
+                            rows={2}
+                            value={visitMedicines}
+                            onChange={(e) => setVisitMedicines(e.target.value)}
+                            placeholder="Medicine name, dosage, duration…"
+                            className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="visit-followup" className="block font-body text-sm font-semibold text-text-secondary mb-1">Follow-up Instructions</label>
+                          <textarea
+                            id="visit-followup"
+                            rows={2}
+                            value={visitFollowUp}
+                            onChange={(e) => setVisitFollowUp(e.target.value)}
+                            placeholder="Return in 2 weeks, blood test before next visit…"
+                            className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="visit-condition" className="block font-body text-sm font-semibold text-text-secondary mb-1">Condition / Status Update</label>
+                          <input
+                            id="visit-condition"
+                            type="text"
+                            value={visitCondition}
+                            onChange={(e) => setVisitCondition(e.target.value)}
+                            placeholder="e.g. Improving, Stable, Needs further tests"
+                            className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+
+                        {visitSaveError && (
+                          <div className="rounded-lg border border-danger/40 bg-danger/10 px-4 py-2">
+                            <p className="font-body text-sm text-danger">{visitSaveError}</p>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-3 pt-1">
+                          <button
+                            onClick={submitVisit}
+                            disabled={savingVisit || !visitDate}
+                            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                          >
+                            {savingVisit ? (
+                              <>
+                                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                                </svg>
+                                Saving…
+                              </>
+                            ) : "Save Visit"}
+                          </button>
+                          <button
+                            onClick={() => { setShowVisitForm(false); resetVisitForm(); }}
+                            disabled={savingVisit}
+                            className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {patientVisits.length === 0 && !showVisitForm ? (
                     <p className="font-body text-sm text-text-secondary">No visit records yet.</p>
-                  ) : (
+                  ) : patientVisits.length > 0 ? (
                     <div className="space-y-4">
                       {patientVisits.map((v) => (
                         <div key={v.id} className="rounded-xl border border-border p-4">
@@ -455,7 +641,7 @@ export default function AdminPatientsPage() {
                         </div>
                       ))}
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             )}
