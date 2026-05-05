@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState, useCallback, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import LogoutButton from "../dashboard/LogoutButton";
 
@@ -45,6 +45,7 @@ interface PatientBooking {
 
 interface PatientVisit {
   id: string;
+  booking_id: string | null;
   visit_date_ad: string;
   visit_date_bs: string;
   chief_complaint: string | null;
@@ -53,6 +54,7 @@ interface PatientVisit {
   follow_up_instructions: string | null;
   condition_summary: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -89,12 +91,35 @@ const STATUS_STYLES: Record<string, string> = {
   completed: "border-slate-300 bg-slate-100 text-slate-700",
 };
 
+function todayAD() {
+  return new Date().toISOString().split("T")[0];
+}
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
 export default function AdminPatientsPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-bg-light flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <svg className="h-5 w-5 animate-spin text-primary" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+          <span className="font-body text-base text-text-secondary">Loading…</span>
+        </div>
+      </main>
+    }>
+      <AdminPatientsContent />
+    </Suspense>
+  );
+}
+
+function AdminPatientsContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [checking, setChecking] = useState(true);
 
@@ -112,7 +137,7 @@ export default function AdminPatientsPage() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
 
-  // Visit form state
+  // Visit form state (Add Visit for general/manual entries)
   const [showVisitForm, setShowVisitForm] = useState(false);
   const [visitDate, setVisitDate] = useState("");
   const [visitComplaint, setVisitComplaint] = useState("");
@@ -123,6 +148,30 @@ export default function AdminPatientsPage() {
   const [savingVisit, setSavingVisit] = useState(false);
   const [visitSaveError, setVisitSaveError] = useState<string | null>(null);
   const [visitSaveSuccess, setVisitSaveSuccess] = useState(false);
+
+  // Edit visit state
+  const [editingVisit, setEditingVisit] = useState<PatientVisit | null>(null);
+  const [editDate, setEditDate] = useState("");
+  const [editComplaint, setEditComplaint] = useState("");
+  const [editNotes, setEditNotes] = useState("");
+  const [editMedicines, setEditMedicines] = useState("");
+  const [editFollowUp, setEditFollowUp] = useState("");
+  const [editCondition, setEditCondition] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  // Checkup from booking state
+  const [checkupBookingId, setCheckupBookingId] = useState<string | null>(null);
+  const [checkupDate, setCheckupDate] = useState("");
+  const [checkupComplaint, setCheckupComplaint] = useState("");
+  const [checkupNotes, setCheckupNotes] = useState("");
+  const [checkupMedicines, setCheckupMedicines] = useState("");
+  const [checkupFollowUp, setCheckupFollowUp] = useState("");
+  const [checkupCondition, setCheckupCondition] = useState("");
+  const [savingCheckup, setSavingCheckup] = useState(false);
+  const [checkupError, setCheckupError] = useState<string | null>(null);
+  const [checkupSuccess, setCheckupSuccess] = useState<string | null>(null);
+  const [checkupHasVisit, setCheckupHasVisit] = useState(false);
 
   // Auth check
   useEffect(() => {
@@ -226,6 +275,124 @@ export default function AdminPatientsPage() {
       setSavingVisit(false);
     }
   }, [selectedPatient, visitDate, visitComplaint, visitNotes, visitMedicines, visitFollowUp, visitCondition, resetVisitForm, openDetail]);
+
+  // Auto-open patient from URL ?id= param
+  useEffect(() => {
+    if (checking) return;
+    const idParam = searchParams.get("id");
+    if (idParam) {
+      openDetail(idParam);
+    }
+  }, [checking, searchParams, openDetail]);
+
+  // Active bookings: pending or confirmed
+  const activeBookings = useMemo(
+    () => patientBookings.filter((b) => b.status === "pending" || b.status === "confirmed"),
+    [patientBookings]
+  );
+
+  // Open edit visit
+  const openEditVisit = useCallback((v: PatientVisit) => {
+    setEditingVisit(v);
+    setEditDate(v.visit_date_ad);
+    setEditComplaint(v.chief_complaint || "");
+    setEditNotes(v.visit_notes || "");
+    setEditMedicines(v.prescribed_medicines || "");
+    setEditFollowUp(v.follow_up_instructions || "");
+    setEditCondition(v.condition_summary || "");
+    setEditError(null);
+  }, []);
+
+  // Submit edit visit
+  const submitEditVisit = useCallback(async () => {
+    if (!editingVisit || !editDate || !selectedPatient) return;
+    setSavingEdit(true);
+    setEditError(null);
+    try {
+      const res = await fetch("/api/admin/patients/visits", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          visit_id: editingVisit.id,
+          visit_date_ad: editDate,
+          chief_complaint: editComplaint.trim() || null,
+          visit_notes: editNotes.trim() || null,
+          prescribed_medicines: editMedicines.trim() || null,
+          follow_up_instructions: editFollowUp.trim() || null,
+          condition_summary: editCondition.trim() || null,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to update visit.");
+      setEditingVisit(null);
+      openDetail(selectedPatient.id);
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setSavingEdit(false);
+    }
+  }, [editingVisit, editDate, editComplaint, editNotes, editMedicines, editFollowUp, editCondition, selectedPatient, openDetail]);
+
+  // Open checkup from active booking
+  const openCheckupFromBooking = useCallback(async (booking: PatientBooking) => {
+    setCheckupBookingId(booking.id);
+    setCheckupDate(todayAD());
+    setCheckupComplaint(booking.problem || "");
+    setCheckupNotes("");
+    setCheckupMedicines("");
+    setCheckupFollowUp("");
+    setCheckupCondition("");
+    setCheckupError(null);
+    setCheckupSuccess(null);
+    setCheckupHasVisit(false);
+
+    // Check if visit already exists
+    try {
+      const res = await fetch(`/api/admin/bookings/${booking.id}/checkup`);
+      const json = await res.json();
+      if (json.visit) {
+        setCheckupHasVisit(true);
+        setCheckupDate(json.visit.visit_date_ad || todayAD());
+        setCheckupComplaint(json.visit.chief_complaint || "");
+        setCheckupNotes(json.visit.visit_notes || "");
+        setCheckupMedicines(json.visit.prescribed_medicines || "");
+        setCheckupFollowUp(json.visit.follow_up_instructions || "");
+        setCheckupCondition(json.visit.condition_summary || "");
+      }
+    } catch { /* use defaults */ }
+  }, []);
+
+  // Submit checkup from booking
+  const submitCheckupFromBooking = useCallback(async (completeBooking: boolean) => {
+    if (!checkupBookingId || !checkupDate) return;
+    setSavingCheckup(true);
+    setCheckupError(null);
+    setCheckupSuccess(null);
+    try {
+      const res = await fetch(`/api/admin/bookings/${checkupBookingId}/checkup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          visit_date_ad: checkupDate,
+          chief_complaint: checkupComplaint.trim() || null,
+          visit_notes: checkupNotes.trim() || null,
+          prescribed_medicines: checkupMedicines.trim() || null,
+          follow_up_instructions: checkupFollowUp.trim() || null,
+          condition_summary: checkupCondition.trim() || null,
+          complete_booking: completeBooking,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to save visit.");
+      setCheckupSuccess(completeBooking ? "Visit saved and appointment completed." : "Visit record saved.");
+      // Refresh detail
+      if (selectedPatient) openDetail(selectedPatient.id);
+    } catch (err) {
+      setCheckupError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setSavingCheckup(false);
+    }
+  }, [checkupBookingId, checkupDate, checkupComplaint, checkupNotes, checkupMedicines, checkupFollowUp, checkupCondition, selectedPatient, openDetail]);
 
   // Search handler
   const handleSearch = (e: React.FormEvent) => {
@@ -426,6 +593,39 @@ export default function AdminPatientsPage() {
                   </dl>
                 </div>
 
+                {/* Active Bookings */}
+                {activeBookings.length > 0 && (
+                  <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 shadow-sm">
+                    <h2 className="font-heading text-lg font-bold text-text-primary mb-4">Active Bookings</h2>
+                    <div className="space-y-3">
+                      {activeBookings.map((b) => {
+                        const hasLinkedVisit = patientVisits.some((v) => v.booking_id === b.id);
+                        return (
+                          <div key={b.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-white p-4">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-body text-sm font-semibold text-text-primary">
+                                {formatDate(b.appointment_date_ad)} at {formatTime(b.appointment_time)}
+                              </p>
+                              <p className="font-body text-xs text-text-secondary truncate">{b.problem}</p>
+                              <span className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[b.status] || ""}`}>
+                                {b.status}
+                              </span>
+                            </div>
+                            {b.status === "confirmed" && (
+                              <button
+                                onClick={() => openCheckupFromBooking(b)}
+                                className="flex-shrink-0 rounded-lg bg-primary px-3 py-1.5 font-body text-xs font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                              >
+                                {hasLinkedVisit ? "Continue Checkup" : "Start Checkup"}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {/* Booking history */}
                 <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
                   <h2 className="font-heading text-lg font-bold text-text-primary mb-4">Booking History</h2>
@@ -599,14 +799,25 @@ export default function AdminPatientsPage() {
                       {patientVisits.map((v) => (
                         <div key={v.id} className="rounded-xl border border-border p-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-body text-sm font-semibold text-text-primary">
-                              {formatDate(v.visit_date_ad)}
-                            </span>
+                            <div>
+                              <span className="font-body text-sm font-semibold text-text-primary">
+                                {formatDate(v.visit_date_ad)}
+                              </span>
+                              {v.booking_id && (
+                                <span className="ml-2 inline-block rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 font-body text-xs text-primary">Linked to booking</span>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => openEditVisit(v)}
+                              className="rounded-md border border-border bg-white px-2.5 py-1 font-body text-xs font-semibold text-text-secondary hover:text-primary hover:border-primary/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            >
+                              Edit
+                            </button>
                           </div>
                           <dl className="space-y-2 font-body text-sm">
                             {v.chief_complaint && (
                               <div>
-                                <dt className="font-semibold text-text-secondary">Chief Complaint</dt>
+                                <dt className="font-semibold text-text-secondary">Main Problem / Reason for Visit</dt>
                                 <dd className="text-text-primary mt-0.5">{v.chief_complaint}</dd>
                               </div>
                             )}
@@ -638,6 +849,11 @@ export default function AdminPatientsPage() {
                               <p className="text-text-secondary italic">No notes recorded for this visit.</p>
                             )}
                           </dl>
+                          {v.updated_at && v.updated_at !== v.created_at && (
+                            <p className="mt-2 font-body text-xs text-text-secondary/70">
+                              Last updated: {new Date(v.updated_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -648,6 +864,182 @@ export default function AdminPatientsPage() {
           </div>
         </div>
       </div>
+
+      {/* ===== Edit Visit Modal ===== */}
+      {editingVisit && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !savingEdit && setEditingVisit(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Edit visit"
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">Edit Visit</h2>
+              <button
+                onClick={() => setEditingVisit(null)}
+                disabled={savingEdit}
+                aria-label="Close"
+                className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="edit-visit-date" className="block font-body text-sm font-semibold text-text-secondary mb-1">Visit Date <span className="text-danger">*</span></label>
+                <input id="edit-visit-date" type="date" value={editDate} onChange={(e) => setEditDate(e.target.value)} disabled={savingEdit} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="edit-visit-complaint" className="block font-body text-sm font-semibold text-text-secondary mb-1">Problem / Reason</label>
+                <input id="edit-visit-complaint" type="text" value={editComplaint} onChange={(e) => setEditComplaint(e.target.value)} disabled={savingEdit} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="edit-visit-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">Doctor Notes</label>
+                <textarea id="edit-visit-notes" rows={3} value={editNotes} onChange={(e) => setEditNotes(e.target.value)} disabled={savingEdit} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="edit-visit-medicines" className="block font-body text-sm font-semibold text-text-secondary mb-1">Prescribed Medicines</label>
+                <textarea id="edit-visit-medicines" rows={2} value={editMedicines} onChange={(e) => setEditMedicines(e.target.value)} disabled={savingEdit} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="edit-visit-followup" className="block font-body text-sm font-semibold text-text-secondary mb-1">Follow-up Instructions</label>
+                <textarea id="edit-visit-followup" rows={2} value={editFollowUp} onChange={(e) => setEditFollowUp(e.target.value)} disabled={savingEdit} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="edit-visit-condition" className="block font-body text-sm font-semibold text-text-secondary mb-1">Condition / Status</label>
+                <input id="edit-visit-condition" type="text" value={editCondition} onChange={(e) => setEditCondition(e.target.value)} disabled={savingEdit} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+            </div>
+            {editError && (
+              <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                <p className="font-body text-sm text-danger">{editError}</p>
+              </div>
+            )}
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={submitEditVisit}
+                disabled={savingEdit || !editDate}
+                className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                {savingEdit ? "Saving…" : "Save Changes"}
+              </button>
+              <button
+                onClick={() => setEditingVisit(null)}
+                disabled={savingEdit}
+                className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Checkup from Booking Modal ===== */}
+      {checkupBookingId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !savingCheckup && !checkupSuccess && setCheckupBookingId(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Patient checkup"
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">
+                {checkupHasVisit ? "Continue Checkup" : "Start Checkup"}
+              </h2>
+              <button
+                onClick={() => setCheckupBookingId(null)}
+                disabled={savingCheckup}
+                aria-label="Close"
+                className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {checkupSuccess ? (
+              <div className="py-6 text-center">
+                <svg className="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="mt-3 font-body text-base font-semibold text-text-primary">{checkupSuccess}</p>
+                <button onClick={() => setCheckupBookingId(null)} className="mt-5 rounded-lg border border-border bg-white px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Close</button>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="bk-checkup-date" className="block font-body text-sm font-semibold text-text-secondary mb-1">Visit Date <span className="text-danger">*</span></label>
+                    <input id="bk-checkup-date" type="date" value={checkupDate} onChange={(e) => setCheckupDate(e.target.value)} disabled={savingCheckup} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="bk-checkup-complaint" className="block font-body text-sm font-semibold text-text-secondary mb-1">Problem / Reason</label>
+                    <input id="bk-checkup-complaint" type="text" value={checkupComplaint} onChange={(e) => setCheckupComplaint(e.target.value)} disabled={savingCheckup} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="bk-checkup-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">Doctor Notes</label>
+                    <textarea id="bk-checkup-notes" rows={3} value={checkupNotes} onChange={(e) => setCheckupNotes(e.target.value)} disabled={savingCheckup} placeholder="Examination findings, diagnosis…" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="bk-checkup-medicines" className="block font-body text-sm font-semibold text-text-secondary mb-1">Prescribed Medicines</label>
+                    <textarea id="bk-checkup-medicines" rows={2} value={checkupMedicines} onChange={(e) => setCheckupMedicines(e.target.value)} disabled={savingCheckup} placeholder="Medicine name, dosage, duration…" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="bk-checkup-followup" className="block font-body text-sm font-semibold text-text-secondary mb-1">Follow-up Instructions</label>
+                    <textarea id="bk-checkup-followup" rows={2} value={checkupFollowUp} onChange={(e) => setCheckupFollowUp(e.target.value)} disabled={savingCheckup} placeholder="Return in 2 weeks…" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+                  </div>
+                  <div>
+                    <label htmlFor="bk-checkup-condition" className="block font-body text-sm font-semibold text-text-secondary mb-1">Condition / Status</label>
+                    <input id="bk-checkup-condition" type="text" value={checkupCondition} onChange={(e) => setCheckupCondition(e.target.value)} disabled={savingCheckup} placeholder="e.g. Improving, Stable" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+                  </div>
+                </div>
+                {checkupError && (
+                  <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                    <p className="font-body text-sm text-danger">{checkupError}</p>
+                  </div>
+                )}
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => submitCheckupFromBooking(false)}
+                    disabled={savingCheckup || !checkupDate}
+                    className="inline-flex items-center gap-2 rounded-lg border border-primary bg-white px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    {savingCheckup ? "Saving…" : "Save Visit"}
+                  </button>
+                  <button
+                    onClick={() => submitCheckupFromBooking(true)}
+                    disabled={savingCheckup || !checkupDate}
+                    className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    {savingCheckup ? "Saving…" : "Save Visit & Complete"}
+                  </button>
+                  <button
+                    onClick={() => setCheckupBookingId(null)}
+                    disabled={savingCheckup}
+                    className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -110,7 +110,7 @@ Phase 2: Complete (2C — health check route; schema + seed SQL run successfully
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
-Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes and treatment updates)  
+Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow complete)  
 Phase 7: Not started  
 Phase 8: Not started  
 Phase 9: Not started  
@@ -230,6 +230,54 @@ Phase 10: Not started
 - Add treatment duration
 - Add follow-up instructions
 - Update patient condition/history
+
+#### Phase 6D: Connect Booking Flow to Patient Records
+
+- Automatically create or match patient records when a booking is made
+- Match returning patients primarily by phone number
+- Use email as an optional secondary identifier
+- Save patient_id on each booking
+- Backfill existing bookings into patient records where possible
+- Show New Patient / Returning Patient indicators in the admin booking dashboard
+- Show previous visit count for returning patients
+- Link booking history and treatment history under each patient profile
+- Allow doctor/admin to start a checkup from a confirmed booking
+- Link visit notes to both patient_id and booking_id where applicable
+- Add Save Visit and Save Visit & Complete Appointment workflow
+- Keep the booking table clean by showing only a primary View action
+- Move booking actions into the View Details panel to avoid clutter, especially on mobile
+- Keep all patient records and checkup workflows admin-only
+
+#### Phase 6D-fix: Booking-linked Checkup Workflow
+
+- Improve the checkup workflow so each booking normally has one linked visit/checkup record
+- Make "View Patient Record" open the exact patient record automatically
+- Show "Start Checkup" only when a confirmed booking has no linked visit record
+- Show "Continue Checkup" when a booking already has a linked visit record
+- Load existing visit details when continuing a checkup
+- Make "Save Visit" update the existing booking-linked visit instead of creating duplicate visits
+- Keep booking status as confirmed when using "Save Visit"
+- Make "Save Visit & Complete Appointment" update the visit record and mark the booking as completed
+- Show active bookings inside each patient record
+- Allow Start/Continue Checkup from the patient record page
+- Keep "Add Visit" inside Patient Records for general/manual history entries
+- Allow doctor/admin to edit an existing visit record from Patient Records
+- Allow doctor/admin to edit a booking-linked visit after an appointment is completed
+- Editing a completed visit should not change the booking status
+- Show last updated date/time for visit records where available
+- Keep all checkup and patient history workflows admin-only
+
+#### Phase 6E: Patient Identity and Record Merge
+
+- Improve long-term patient identity handling beyond phone-only matching
+- Add duplicate patient detection using phone, email, similar name, and optional date of birth
+- Allow admin to manually link a booking to an existing patient
+- Allow admin to update patient phone/email safely
+- Allow admin to merge duplicate patient records
+- Preserve all bookings and visit history when merging patient records
+- Add patient identity notes, for example "Uses son's phone number"
+- Normalize phone numbers before matching where possible
+- Keep patient identity management admin-only
 
 ### Phase 7: Visiting Specialists
 

@@ -11,6 +11,7 @@ import LogoutButton from "./LogoutButton";
 
 interface Booking {
   id: string;
+  patient_id: string | null;
   patient_name: string;
   patient_phone: string;
   patient_email: string | null;
@@ -22,6 +23,9 @@ interface Booking {
   specialist_id: string | null;
   status: string;
   created_at: string;
+  visit_count: number;
+  is_new_patient: boolean;
+  has_visit: boolean;
 }
 
 type FilterTab = "all" | "today" | "pending" | "confirmed" | "cancelled" | "completed";
@@ -93,6 +97,18 @@ export default function AdminDashboardPage() {
   const [rescheduling, setRescheduling] = useState(false);
   const [rescheduleError, setRescheduleError] = useState<string | null>(null);
   const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
+
+  // Checkup state
+  const [checkupBooking, setCheckupBooking] = useState<Booking | null>(null);
+  const [checkupDate, setCheckupDate] = useState("");
+  const [checkupComplaint, setCheckupComplaint] = useState("");
+  const [checkupNotes, setCheckupNotes] = useState("");
+  const [checkupMedicines, setCheckupMedicines] = useState("");
+  const [checkupFollowUp, setCheckupFollowUp] = useState("");
+  const [checkupCondition, setCheckupCondition] = useState("");
+  const [savingCheckup, setSavingCheckup] = useState(false);
+  const [checkupError, setCheckupError] = useState<string | null>(null);
+  const [checkupSuccess, setCheckupSuccess] = useState<string | null>(null);
 
   /* ---- Auth ---- */
   useEffect(() => {
@@ -241,6 +257,77 @@ export default function AdminDashboardPage() {
       setRescheduling(false);
     }
   }, [rescheduleBooking, rescheduleDate, rescheduleTime]);
+
+  /* ---- Refresh bookings ---- */
+  const refreshBookings = useCallback(async () => {
+    try {
+      const res = await fetch("/api/bookings");
+      const json = await res.json();
+      if (res.ok) setBookings(json.bookings ?? []);
+    } catch { /* ignore */ }
+  }, []);
+
+  /* ---- Checkup: open ---- */
+  const openCheckup = useCallback(async (b: Booking) => {
+    setCheckupBooking(b);
+    setCheckupDate(todayAD());
+    setCheckupComplaint(b.problem || "");
+    setCheckupNotes("");
+    setCheckupMedicines("");
+    setCheckupFollowUp("");
+    setCheckupCondition("");
+    setCheckupError(null);
+    setCheckupSuccess(null);
+    setSelectedBooking(null);
+
+    // If a visit already exists for this booking, load it
+    if (b.has_visit) {
+      try {
+        const res = await fetch(`/api/admin/bookings/${b.id}/checkup`);
+        const json = await res.json();
+        if (json.visit) {
+          setCheckupDate(json.visit.visit_date_ad || todayAD());
+          setCheckupComplaint(json.visit.chief_complaint || "");
+          setCheckupNotes(json.visit.visit_notes || "");
+          setCheckupMedicines(json.visit.prescribed_medicines || "");
+          setCheckupFollowUp(json.visit.follow_up_instructions || "");
+          setCheckupCondition(json.visit.condition_summary || "");
+        }
+      } catch { /* use defaults */ }
+    }
+  }, []);
+
+  /* ---- Checkup: submit ---- */
+  const submitCheckup = useCallback(async (completeBooking: boolean) => {
+    if (!checkupBooking || !checkupDate) return;
+    setSavingCheckup(true);
+    setCheckupError(null);
+    setCheckupSuccess(null);
+    try {
+      const res = await fetch(`/api/admin/bookings/${checkupBooking.id}/checkup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          visit_date_ad: checkupDate,
+          chief_complaint: checkupComplaint.trim() || null,
+          visit_notes: checkupNotes.trim() || null,
+          prescribed_medicines: checkupMedicines.trim() || null,
+          follow_up_instructions: checkupFollowUp.trim() || null,
+          condition_summary: checkupCondition.trim() || null,
+          complete_booking: completeBooking,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to save visit.");
+      setCheckupSuccess(completeBooking ? "Visit saved and appointment completed." : "Visit record saved.");
+      // Refresh bookings to reflect status change
+      await refreshBookings();
+    } catch (err) {
+      setCheckupError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setSavingCheckup(false);
+    }
+  }, [checkupBooking, checkupDate, checkupComplaint, checkupNotes, checkupMedicines, checkupFollowUp, checkupCondition, refreshBookings]);
 
   /* ---- Loading gate ---- */
   if (checking) {
@@ -400,114 +487,50 @@ export default function AdminDashboardPage() {
             {/* Table */}
             {!loading && !fetchError && filtered.length > 0 && (
               <div className="overflow-x-auto -mx-4 sm:-mx-6">
-                <table className="w-full min-w-[850px] text-left">
+                <table className="w-full min-w-[600px] text-left">
                   <thead>
                     <tr className="border-b border-border">
                       <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">#</th>
                       <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Patient</th>
-                      <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Phone</th>
-                      <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Problem</th>
-                      <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Date</th>
-                      <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Time</th>
+                      <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Date &amp; Time</th>
                       <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Status</th>
-                      <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Actions</th>
+                      <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary sr-only sm:not-sr-only">Type</th>
+                      <th className="px-4 py-3 font-body text-xs font-semibold uppercase tracking-wider text-text-secondary"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((b, i) => (
                       <tr key={b.id} className="border-b border-border last:border-b-0 hover:bg-bg-light/60 transition-colors">
                         <td className="px-4 py-3 font-body text-sm text-text-secondary">{i + 1}</td>
-                        <td className="px-4 py-3 font-body text-sm font-semibold text-text-primary">{b.patient_name}</td>
-                        <td className="px-4 py-3 font-body text-sm text-text-primary">{b.patient_phone}</td>
-                        <td className="px-4 py-3 font-body text-sm text-text-secondary max-w-[200px]">
-                          <span className="block truncate" title={b.problem}>{b.problem}</span>
+                        <td className="px-4 py-3">
+                          <p className="font-body text-sm font-semibold text-text-primary">{b.patient_name}</p>
+                          <p className="font-body text-xs text-text-secondary">{b.patient_phone}</p>
                         </td>
-                        <td className="px-4 py-3 font-body text-sm text-text-primary whitespace-nowrap">{formatDate(b.appointment_date_ad)}</td>
-                        <td className="px-4 py-3 font-body text-sm text-text-primary whitespace-nowrap">{formatTime(b.appointment_time)}</td>
+                        <td className="px-4 py-3 font-body text-sm text-text-primary whitespace-nowrap">
+                          {formatDate(b.appointment_date_ad)}<br />
+                          <span className="text-text-secondary text-xs">{formatTime(b.appointment_time)}</span>
+                        </td>
                         <td className="px-4 py-3">
                           <span className={`inline-block rounded-full border px-3 py-0.5 font-body text-xs font-semibold capitalize ${STATUS_STYLES[b.status] ?? "border-border bg-bg-light text-text-secondary"}`}>
                             {b.status}
                           </span>
                         </td>
+                        <td className="px-4 py-3 hidden sm:table-cell">
+                          {b.is_new_patient ? (
+                            <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-body text-xs font-semibold text-blue-700">New</span>
+                          ) : (
+                            <span className="inline-block rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 font-body text-xs font-semibold text-green-700">
+                              Returning{b.visit_count > 0 ? ` (${b.visit_count})` : ""}
+                            </span>
+                          )}
+                        </td>
                         <td className="px-4 py-3">
-                          <div className="flex flex-wrap gap-1">
-                            <button
-                              onClick={() => setSelectedBooking(b)}
-                              className="rounded-md bg-primary/10 border border-primary/30 px-2.5 py-1 font-body text-xs font-semibold text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                            >
-                              View
-                            </button>
-                            {b.status === "pending" && (
-                              <>
-                                <button
-                                  onClick={() => updateStatus(b.id, "confirmed")}
-                                  disabled={updatingId !== null}
-                                  className="rounded-md bg-green-50 border border-green-300 px-2.5 py-1 font-body text-xs font-semibold text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-                                >
-                                  Confirm
-                                </button>
-                                <button
-                                  onClick={() => openReschedule(b)}
-                                  disabled={updatingId !== null}
-                                  className="rounded-md bg-blue-50 border border-blue-300 px-2.5 py-1 font-body text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                                >
-                                  Reschedule
-                                </button>
-                                <button
-                                  onClick={() => updateStatus(b.id, "cancelled")}
-                                  disabled={updatingId !== null}
-                                  className="rounded-md bg-red-50 border border-red-300 px-2.5 py-1 font-body text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            )}
-                            {b.status === "confirmed" && (
-                              <>
-                                <button
-                                  onClick={() => updateStatus(b.id, "completed")}
-                                  disabled={updatingId !== null}
-                                  className="rounded-md bg-slate-50 border border-slate-300 px-2.5 py-1 font-body text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
-                                >
-                                  Complete
-                                </button>
-                                <button
-                                  onClick={() => openReschedule(b)}
-                                  disabled={updatingId !== null}
-                                  className="rounded-md bg-blue-50 border border-blue-300 px-2.5 py-1 font-body text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                                >
-                                  Reschedule
-                                </button>
-                                <button
-                                  onClick={() => updateStatus(b.id, "cancelled")}
-                                  disabled={updatingId !== null}
-                                  className="rounded-md bg-red-50 border border-red-300 px-2.5 py-1 font-body text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            )}
-                            {b.status === "cancelled" && (
-                              <>
-                                <button
-                                  onClick={() => updateStatus(b.id, "pending")}
-                                  disabled={updatingId !== null}
-                                  className="rounded-md bg-amber-50 border border-amber-300 px-2.5 py-1 font-body text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
-                                >
-                                  Restore
-                                </button>
-                                {restoreFailedIds.has(b.id) && (
-                                  <button
-                                    onClick={() => openReschedule(b)}
-                                    disabled={updatingId !== null}
-                                    className="rounded-md bg-blue-50 border border-blue-300 px-2.5 py-1 font-body text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                                  >
-                                    Reschedule
-                                  </button>
-                                )}
-                              </>
-                            )}
-                          </div>
+                          <button
+                            onClick={() => setSelectedBooking(b)}
+                            className="rounded-md bg-primary/10 border border-primary/30 px-3 py-1.5 font-body text-xs font-semibold text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                          >
+                            View
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -686,7 +709,7 @@ export default function AdminDashboardPage() {
           aria-label="Booking details"
         >
           <div
-            className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-xl"
+            className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -701,6 +724,18 @@ export default function AdminDashboardPage() {
                 </svg>
               </button>
             </div>
+
+            {/* Patient type badge */}
+            <div className="mb-4">
+              {selectedBooking.is_new_patient ? (
+                <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-3 py-0.5 font-body text-xs font-semibold text-blue-700">New Patient</span>
+              ) : (
+                <span className="inline-block rounded-full border border-green-200 bg-green-50 px-3 py-0.5 font-body text-xs font-semibold text-green-700">
+                  Returning Patient{selectedBooking.visit_count > 0 ? ` — ${selectedBooking.visit_count} visit${selectedBooking.visit_count !== 1 ? "s" : ""}` : ""}
+                </span>
+              )}
+            </div>
+
             <dl className="space-y-3 font-body text-sm">
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Patient</dt><dd className="text-text-primary">{selectedBooking.patient_name}</dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Phone</dt><dd className="text-text-primary">{selectedBooking.patient_phone}</dd></div>
@@ -711,14 +746,286 @@ export default function AdminDashboardPage() {
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Status</dt><dd><span className={`inline-block rounded-full border px-3 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[selectedBooking.status] ?? "border-border bg-bg-light text-text-secondary"}`}>{selectedBooking.status}</span></dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Created</dt><dd className="text-text-primary">{new Date(selectedBooking.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</dd></div>
             </dl>
-            <div className="mt-6 flex justify-end">
+
+            {/* Status-specific actions */}
+            <div className="mt-6 border-t border-border pt-4">
+              <p className="font-body text-xs font-semibold uppercase tracking-wider text-text-secondary mb-3">Actions</p>
+              <div className="flex flex-wrap gap-2">
+                {/* Pending: Confirm, Cancel, Reschedule */}
+                {selectedBooking.status === "pending" && (
+                  <>
+                    <button
+                      onClick={() => { updateStatus(selectedBooking.id, "confirmed"); setSelectedBooking(null); }}
+                      disabled={updatingId !== null}
+                      className="rounded-lg bg-green-50 border border-green-300 px-4 py-2 font-body text-sm font-semibold text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      onClick={() => { updateStatus(selectedBooking.id, "cancelled"); setSelectedBooking(null); }}
+                      disabled={updatingId !== null}
+                      className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => { setSelectedBooking(null); openReschedule(selectedBooking); }}
+                      disabled={updatingId !== null}
+                      className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    >
+                      Reschedule
+                    </button>
+                  </>
+                )}
+
+                {/* Confirmed: Start/Continue Checkup, Reschedule, Cancel */}
+                {selectedBooking.status === "confirmed" && (
+                  <>
+                    <button
+                      onClick={() => openCheckup(selectedBooking)}
+                      className="rounded-lg bg-primary px-4 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      {selectedBooking.has_visit ? "Continue Checkup" : "Start Checkup"}
+                    </button>
+                    <button
+                      onClick={() => { setSelectedBooking(null); openReschedule(selectedBooking); }}
+                      disabled={updatingId !== null}
+                      className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                    >
+                      Reschedule
+                    </button>
+                    <button
+                      onClick={() => { updateStatus(selectedBooking.id, "cancelled"); setSelectedBooking(null); }}
+                      disabled={updatingId !== null}
+                      className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                )}
+
+                {/* Completed: View Patient Record + Edit Visit */}
+                {selectedBooking.status === "completed" && selectedBooking.patient_id && (
+                  <>
+                    <a
+                      href={`/admin/patients?id=${selectedBooking.patient_id}`}
+                      className="rounded-lg bg-primary/10 border border-primary/30 px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      View Patient Record
+                    </a>
+                    {selectedBooking.has_visit && (
+                      <button
+                        onClick={() => openCheckup(selectedBooking)}
+                        className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      >
+                        Edit Visit
+                      </button>
+                    )}
+                  </>
+                )}
+
+                {/* Cancelled: Restore, and Reschedule only after restore fails */}
+                {selectedBooking.status === "cancelled" && (
+                  <>
+                    <button
+                      onClick={() => { updateStatus(selectedBooking.id, "pending"); setSelectedBooking(null); }}
+                      disabled={updatingId !== null}
+                      className="rounded-lg bg-amber-50 border border-amber-300 px-4 py-2 font-body text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                    >
+                      Restore
+                    </button>
+                    {restoreFailedIds.has(selectedBooking.id) && (
+                      <button
+                        onClick={() => { setSelectedBooking(null); openReschedule(selectedBooking); }}
+                        disabled={updatingId !== null}
+                        className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                      >
+                        Reschedule
+                      </button>
+                    )}
+                  </>
+                )}
+
+                <button
+                  onClick={() => setSelectedBooking(null)}
+                  className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Checkup Modal ===== */}
+      {checkupBooking && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !savingCheckup && !checkupSuccess && setCheckupBooking(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Patient checkup"
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">
+                {checkupBooking.has_visit ? (checkupBooking.status === "completed" ? "Edit Visit" : "Continue Checkup") : "Patient Checkup"}
+              </h2>
               <button
-                onClick={() => setSelectedBooking(null)}
-                className="rounded-lg border border-border bg-white px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                onClick={() => setCheckupBooking(null)}
+                disabled={savingCheckup}
+                aria-label="Close checkup"
+                className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
               >
-                Close
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
+
+            {/* Success state */}
+            {checkupSuccess ? (
+              <div className="py-6 text-center">
+                <svg className="mx-auto h-12 w-12 text-green-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="mt-3 font-body text-base font-semibold text-text-primary">{checkupSuccess}</p>
+                <button
+                  onClick={() => setCheckupBooking(null)}
+                  className="mt-5 rounded-lg border border-border bg-white px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Booking context */}
+                <div className="font-body text-sm space-y-1 mb-5 rounded-lg bg-bg-light p-3 border border-border">
+                  <p><span className="font-semibold text-text-secondary">Patient:</span> <span className="text-text-primary">{checkupBooking.patient_name}</span></p>
+                  <p><span className="font-semibold text-text-secondary">Appointment:</span> <span className="text-text-primary">{formatDate(checkupBooking.appointment_date_ad)} at {formatTime(checkupBooking.appointment_time)}</span></p>
+                </div>
+
+                {/* Checkup form */}
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="checkup-date" className="block font-body text-sm font-semibold text-text-secondary mb-1">
+                      Visit Date <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      id="checkup-date"
+                      type="date"
+                      value={checkupDate}
+                      onChange={(e) => setCheckupDate(e.target.value)}
+                      disabled={savingCheckup}
+                      className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="checkup-complaint" className="block font-body text-sm font-semibold text-text-secondary mb-1">Problem / Reason</label>
+                    <input
+                      id="checkup-complaint"
+                      type="text"
+                      value={checkupComplaint}
+                      onChange={(e) => setCheckupComplaint(e.target.value)}
+                      disabled={savingCheckup}
+                      className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="checkup-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">Doctor Notes</label>
+                    <textarea
+                      id="checkup-notes"
+                      rows={3}
+                      value={checkupNotes}
+                      onChange={(e) => setCheckupNotes(e.target.value)}
+                      disabled={savingCheckup}
+                      placeholder="Examination findings, diagnosis..."
+                      className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="checkup-medicines" className="block font-body text-sm font-semibold text-text-secondary mb-1">Prescribed Medicines</label>
+                    <textarea
+                      id="checkup-medicines"
+                      rows={2}
+                      value={checkupMedicines}
+                      onChange={(e) => setCheckupMedicines(e.target.value)}
+                      disabled={savingCheckup}
+                      placeholder="Medicine name, dosage, duration..."
+                      className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="checkup-followup" className="block font-body text-sm font-semibold text-text-secondary mb-1">Follow-up Instructions</label>
+                    <textarea
+                      id="checkup-followup"
+                      rows={2}
+                      value={checkupFollowUp}
+                      onChange={(e) => setCheckupFollowUp(e.target.value)}
+                      disabled={savingCheckup}
+                      placeholder="Return in 2 weeks, blood test..."
+                      className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="checkup-condition" className="block font-body text-sm font-semibold text-text-secondary mb-1">Condition / Status</label>
+                    <input
+                      id="checkup-condition"
+                      type="text"
+                      value={checkupCondition}
+                      onChange={(e) => setCheckupCondition(e.target.value)}
+                      disabled={savingCheckup}
+                      placeholder="e.g. Improving, Stable"
+                      className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+                    />
+                  </div>
+                </div>
+
+                {checkupError && (
+                  <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                    <p className="font-body text-sm text-danger">{checkupError}</p>
+                  </div>
+                )}
+
+                <div className="mt-6 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => submitCheckup(false)}
+                    disabled={savingCheckup || !checkupDate}
+                    className="inline-flex items-center gap-2 rounded-lg border border-primary bg-white px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-primary/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    {savingCheckup ? (
+                      <>
+                        <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                        </svg>
+                        Saving...
+                      </>
+                    ) : "Save Visit"}
+                  </button>
+                  {checkupBooking.status !== "completed" && (
+                    <button
+                      onClick={() => submitCheckup(true)}
+                      disabled={savingCheckup || !checkupDate}
+                      className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    >
+                      {savingCheckup ? "Saving..." : "Save Visit & Complete"}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setCheckupBooking(null)}
+                    disabled={savingCheckup}
+                    className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

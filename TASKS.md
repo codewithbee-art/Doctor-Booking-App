@@ -195,6 +195,59 @@
 - [x] Run npm run build successfully (Phase 6C)
 - [x] Commit Phase 6C to Git
 
+### Phase 6D: Connect Booking Flow to Patient Records
+
+- [x] Update booking creation to auto-match/create patient by phone (Phase 6D)
+- [x] Use email as secondary optional match field (Phase 6D)
+- [x] Save patient_id into bookings (Phase 6D)
+- [x] Create backfill SQL migration 003_backfill_patient_bookings.sql (Phase 6D)
+- [x] Show New Patient / Returning Patient indicator in admin bookings table (Phase 6D)
+- [x] Show previous visit count in table and detail modal (Phase 6D)
+- [x] Booking history already linked via patient_id in patient detail view (Phase 6D)
+- [x] Create POST /api/admin/bookings/[id]/checkup linking visit to booking_id (Phase 6D)
+- [x] Add Start Checkup action for confirmed bookings in detail modal (Phase 6D)
+- [x] Clean booking table with single View action per row (Phase 6D)
+- [x] Move all booking actions into View Details modal (Phase 6D)
+- [x] Status-specific actions: Pending (Confirm, Cancel, Reschedule), Confirmed (Start Checkup, Reschedule, Cancel), Completed (View Patient Record), Cancelled (Restore, Reschedule on fail) (Phase 6D)
+- [x] Add Save Visit and Save Visit & Complete Appointment buttons in checkup modal (Phase 6D)
+- [x] Save Visit & Complete creates visit record and marks booking completed (Phase 6D)
+- [x] Admin dashboard mobile-friendly and accessible (Phase 6D)
+- [x] Run npm run build successfully (Phase 6D)
+- [ ] Commit Phase 6D to Git
+
+### Phase 6D-fix: Booking-linked Checkup Workflow
+
+- [x] View Patient Record opens the exact patient automatically
+- [x] Dashboard View Details shows Start Checkup only if no visit exists for that booking
+- [x] If a visit already exists for the booking, show Continue Checkup
+- [x] Continue Checkup loads existing visit details for editing
+- [x] Save Visit updates existing booking-linked visit instead of creating duplicates
+- [x] Save Visit keeps booking status confirmed
+- [x] Save Visit & Complete updates visit and marks booking completed
+- [x] Patient Records page shows active bookings for each patient
+- [x] Patient Records page allows Start/Continue Checkup from active booking
+- [x] Patient Records Add Visit remains for general/manual history entries
+- [x] Allow doctor/admin to edit an existing visit record from Patient Records
+- [x] Allow doctor/admin to edit a booking-linked visit after appointment is completed
+- [x] Editing a completed visit should not change booking status
+- [x] Show last updated date/time for visit records where available
+- [x] Run npm run build successfully
+- [ ] Commit Phase 6D-fix to Git
+
+### Phase 6E: Patient Identity and Record Merge
+
+- [ ] Improve long-term patient identity handling beyond phone-only matching
+- [ ] Add patient duplicate detection by phone, email, similar name, and optional date of birth
+- [ ] Allow admin to manually link a booking to an existing patient
+- [ ] Allow admin to update patient phone/email safely
+- [ ] Allow admin to merge duplicate patient records safely
+- [ ] Preserve all bookings and visit history when merging patient records
+- [ ] Add patient identity notes, for example "Uses son's phone number"
+- [ ] Normalize phone numbers before matching where possible
+- [ ] Keep patient identity management admin-only
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 6E to Git
+
 ## Phase 7: Visiting Specialists
 
 - [ ] Create public specialists page
