@@ -296,10 +296,28 @@
 - [x] Run npm run build successfully
 - [x] Commit Phase 6E-fix to Git
 
+### Phase 6F: Ayurveda Education Page
+
+- [x] Create CONTENT_AYURVEDA.md with final Ayurveda education content
+- [x] Add Ayurveda image to `/public/images/ayurveda/doshas-chart.png`
+- [x] Add homepage preview section: Understanding Ayurveda
+- [x] Place Ayurveda homepage preview after About and before Services
+- [x] Create public `/ayurveda` page
+- [x] Use the full content from `CONTENT_AYURVEDA.md`
+- [x] Add the doshas chart image after the "Understanding the Three Doshas" section
+- [x] Use Next.js Image for the doshas chart
+- [x] Add clear image alt text: "Ayurveda five elements and three doshas chart"
+- [x] Structure long content into readable sections, cards, and accordions
+- [x] Explain Ayurveda, five elements, three Doshas, Prakriti, and Vikriti clearly
+- [x] Add CTA button to book an Ayurvedic consultation
+- [x] Keep design calm, readable, accessible, and easy for all age groups
+- [x] Keep homepage preview short and link to `/ayurveda`
+- [x] Run npm run build successfully
+- [x] Commit Phase 6F to Git
+
 ## Phase 7: Visiting Specialists
 
 - [ ] Create public specialists page
-- [ ] Create specialist cards
 - [ ] Add homepage specialists preview
 - [ ] Create specialists API
 - [ ] Create admin specialists page

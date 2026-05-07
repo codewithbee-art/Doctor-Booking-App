@@ -223,8 +223,53 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Ayurveda Preview Section */}
+      <section className="bg-bg-light px-4 py-16 md:py-20">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-2 items-center">
+            <div className="order-2 md:order-1">
+              <span className="mb-3 inline-block rounded-full bg-secondary/10 px-4 py-1 font-body text-sm font-semibold uppercase tracking-wider text-secondary">
+                Understanding Ayurveda
+              </span>
+              <h2 className="mb-4 text-3xl font-bold md:text-4xl">
+                The Science of Life
+              </h2>
+              <p className="mb-4 font-body text-base text-text-secondary leading-relaxed">
+                Ayurveda teaches that health is harmony between mind, body, and spirit. 
+                It looks beyond symptoms to understand the root cause of imbalance, treating 
+                each person as a unique individual.
+              </p>
+              <p className="mb-6 font-body text-base text-text-secondary leading-relaxed">
+                Discover your natural constitution (Prakriti) and learn how the five elements 
+                and three Doshas—Vata, Pitta, and Kapha—shape your health and wellbeing.
+              </p>
+              <Link
+                href="/ayurveda"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-body text-base font-semibold text-white hover:bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+              >
+                Learn About Ayurveda
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="order-1 md:order-2 flex items-center justify-center">
+              <div className="relative">
+                <Image
+                  src="/images/ayurveda/doshas-chart2.png"
+                  alt="Ayurveda five elements and three doshas chart"
+                  width={400}
+                  height={400}
+                  className="rounded-2xl object-contain shadow-lg"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Services Section */}
-      <section id="services" className="bg-bg-light px-4 py-16 md:py-20">
+      <section id="services" className="bg-white px-4 py-16 md:py-20">
         <div className="mx-auto max-w-7xl">
           <h2 className="mb-10 text-center text-3xl font-bold md:text-4xl">
             What We Treat
@@ -233,7 +278,7 @@ export default function HomePage() {
             {services.map((service) => (
               <div
                 key={service.title}
-                className="rounded-lg bg-white p-6 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:border-secondary/30 hover:shadow-md"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-light-blue">
                   <svg
@@ -292,7 +337,7 @@ export default function HomePage() {
           </p>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="rounded-lg bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div key={item} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:border-secondary/30 hover:shadow-md">
                 <div className="mb-4 flex h-32 items-center justify-center rounded-lg bg-bg-off">
                   <svg className="h-10 w-10 text-border" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
@@ -417,7 +462,7 @@ export default function HomePage() {
                   "M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
               },
             ].map((item) => (
-              <div key={item.step} className="rounded-xl bg-white/60 px-6 py-8 text-center shadow-sm">
+              <div key={item.step} className="rounded-xl border border-slate-200 bg-white/80 px-6 py-8 text-center shadow-sm transition-all hover:border-secondary/30 hover:shadow-md">
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary shadow-md">
                   <svg
                     className="h-7 w-7 text-white"

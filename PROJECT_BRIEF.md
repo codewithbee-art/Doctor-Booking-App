@@ -110,8 +110,8 @@ Phase 2: Complete (2C — health check route; schema + seed SQL run successfully
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
-Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, Phase 6E-fix: Patient Identity Safety and Duplicate Review)  
-Phase 7: Not started  
+Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, 6E-fix patient identity safety, 6F Ayurveda education page)
+Phase 7: Current (Visiting Specialists)  
 Phase 8: Not started  
 Phase 9: Not started  
 Phase 10: Not started  
@@ -313,6 +313,23 @@ Phase 10: Not started
 - Phone normalization should be consistent across booking creation, patient search, and duplicate detection
 - Booking-linked visits should default to the appointment date, and if a visit date differs from the booking date, both should be shown clearly
 - All patient identity management must remain admin-only
+
+#### Phase 6F: Ayurveda Education Page
+
+- Add an educational Ayurveda section to the homepage after About and before Services
+- Keep the homepage Ayurveda section short, with a clear link to the full `/ayurveda` page
+- Create a dedicated public `/ayurveda` page for the full educational content
+- Use `CONTENT_AYURVEDA.md` as the source of truth for Ayurveda content
+- Use the image at `/public/images/ayurveda/doshas-chart.png`
+- Place the doshas chart image after the “Understanding the Three Doshas” section
+- Use Next.js Image with clear alt text: “Ayurveda five elements and three doshas chart”
+- Explain Ayurveda as “The Science of Life” and a holistic approach to mind, body, and spirit
+- Explain the five elements: Space, Air, Fire, Water, and Earth
+- Explain the three Doshas: Vata, Pitta, and Kapha
+- Explain Prakriti as natural constitution and Vikriti as current imbalance
+- Present long content in readable sections, cards, and accordions
+- Keep the design calm, professional, accessible, and easy for all age groups
+- Add a consultation CTA at the bottom
 
 ### Phase 7: Visiting Specialists
 
