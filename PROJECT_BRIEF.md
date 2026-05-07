@@ -110,7 +110,7 @@ Phase 2: Complete (2C — health check route; schema + seed SQL run successfully
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
-Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow complete)  
+Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, Phase 6E-fix: Patient Identity Safety and Duplicate Review)  
 Phase 7: Not started  
 Phase 8: Not started  
 Phase 9: Not started  
@@ -278,6 +278,41 @@ Phase 10: Not started
 - Add patient identity notes, for example "Uses son's phone number"
 - Normalize phone numbers before matching where possible
 - Keep patient identity management admin-only
+
+#### Phase 6E-fix: Patient Identity Safety and Duplicate Review
+
+- Phone number must not be treated as a guaranteed patient identity
+- Phone number is a contact method, not a unique patient identity
+- Multiple patients may share the same phone number, for example family members using one contact number
+- The system must never automatically merge patient records based on phone number alone
+- The system must never silently overwrite patient name, phone, email, notes, or identity notes during booking creation
+- New bookings should create or link patient records safely using a combination of phone, email, name similarity, and optional date of birth
+- If the same phone number is used with a clearly different patient name, the system should keep the records separate and flag the case for admin review
+- Potential duplicate or shared-contact cases should be shown clearly in admin with badges such as Possible Duplicate, Shared Phone, or Needs Review
+- Duplicate detection should suggest possible matches using same phone, same email, similar name, and optional date of birth
+- Admin/doctor should manually decide whether to keep records separate, link a booking to an existing patient, or merge patient records
+- Manual patient merge must preserve all bookings and visit history
+- Bookings must not be deleted automatically during patient merge
+- If a merge creates multiple active bookings for one patient, the patient record should show a warning and allow admin to cancel or reschedule duplicate active bookings
+- Patient profile should clearly separate General Patient Notes from Identity / Contact Notes
+- Booking detail panels should show View Patient Record for every linked booking, not only completed bookings
+- If a booking is not safely linked to a patient, the system should show Link to Patient instead
+- Patient record links should open the exact patient automatically
+- Active booking cards inside Patient Records should stay clean and mobile-friendly
+- For confirmed active bookings inside Patient Records, show a primary Start Checkup button, or Continue Checkup if a booking-linked visit already exists
+- Confirmed active bookings should also show a View button for booking details and secondary actions
+- Pending, completed, and cancelled active bookings inside Patient Records should show only one primary View button
+- Secondary active booking actions should appear inside the View Booking modal/panel
+- The Patient Records View Booking modal/panel should not show View Patient Record because the doctor is already inside that patient record
+- The Patient Records View Booking modal/panel should show status-specific actions:
+  - Pending: Confirm, Cancel, Reschedule
+  - Confirmed: Reschedule, Cancel
+  - Completed: View/Edit Visit
+  - Cancelled: Restore, and Reschedule only after restore fails
+- Public booking phone validation should accept common real-world formats, including spaces, dashes, and country codes
+- Phone normalization should be consistent across booking creation, patient search, and duplicate detection
+- Booking-linked visits should default to the appointment date, and if a visit date differs from the booking date, both should be shown clearly
+- All patient identity management must remain admin-only
 
 ### Phase 7: Visiting Specialists
 

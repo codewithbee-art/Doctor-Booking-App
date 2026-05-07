@@ -232,21 +232,69 @@
 - [x] Editing a completed visit should not change booking status
 - [x] Show last updated date/time for visit records where available
 - [x] Run npm run build successfully
-- [ ] Commit Phase 6D-fix to Git
+- [x] Commit Phase 6D-fix to Git
 
 ### Phase 6E: Patient Identity and Record Merge
 
-- [ ] Improve long-term patient identity handling beyond phone-only matching
-- [ ] Add patient duplicate detection by phone, email, similar name, and optional date of birth
-- [ ] Allow admin to manually link a booking to an existing patient
-- [ ] Allow admin to update patient phone/email safely
-- [ ] Allow admin to merge duplicate patient records safely
+- [x] Improve long-term patient identity handling beyond phone-only matching
+- [x] Add patient duplicate detection by phone, email, similar name, and optional date of birth
+- [x] Allow admin to manually link a booking to an existing patient
+- [x] Allow admin to update patient phone/email safely
+- [x] Allow admin to merge duplicate patient records safely
+- [x] Preserve all bookings and visit history when merging patient records
+- [x] Add patient identity notes, for example "Uses son's phone number"
+- [x] Normalize phone numbers before matching where possible
+- [x] Keep patient identity management admin-only
+- [x] Run npm run build successfully
+- [ ] Commit Phase 6E to Git
+
+### Phase 6E-fix: Patient Identity Safety and Duplicate Review
+
+- [ ] Stop treating phone number as a guaranteed patient identity
+- [ ] Remove or replace the unique constraint on patients.phone if required
+- [ ] Allow multiple patient records to share the same phone number when appropriate
+- [ ] Never automatically merge patient records during booking creation
+- [ ] Never silently overwrite patient name, phone, email, notes, or identity notes during booking creation
+- [ ] When a new booking has same phone and same/similar name, allow safe linking to existing patient
+- [ ] When a new booking has same phone but different name, create a separate patient record or mark the booking/patient for review
+- [ ] Add optional date of birth support for safer patient identity checks
+- [ ] Add identity status support if needed, for example normal, possible_duplicate, shared_contact, needs_review
+- [ ] Add clear patient identity badges in admin, for example New Patient, Returning Patient, Possible Duplicate, Shared Phone, Needs Review
+- [ ] Fix duplicate detection so it finds patients with same phone, same email, similar name, and optional date of birth
+- [ ] Make duplicate detection suggest matches only, not merge automatically
+- [ ] Keep manual patient merge as an admin-only confirmed action
+- [ ] Improve merge success message to include name and phone/email, for example "Merged Lorel (9877654321) into Lorel (9877654098)"
 - [ ] Preserve all bookings and visit history when merging patient records
-- [ ] Add patient identity notes, for example "Uses son's phone number"
-- [ ] Normalize phone numbers before matching where possible
+- [ ] Add clear warning before merging patient records
+- [ ] Add General Patient Notes field to the edit patient profile form
+- [ ] Keep Identity / Contact Notes as a separate field
+- [ ] Rename labels clearly:
+  - General Patient Notes
+  - Identity / Contact Notes
+- [ ] Hide empty note sections or display them clearly without confusion
+- [ ] Allow View Patient Record for every booking that has a linked patient_id, not only completed bookings
+- [ ] If a booking is not safely linked to a patient, show Link to Patient instead of View Patient Record
+- [ ] Keep patient record links opening the exact patient automatically
+- [ ] Improve booking history display inside patient record so active bookings and full booking history are not confusing
+- [ ] If a patient has multiple active bookings after merge, show a clear warning
+- [ ] Keep active booking cards inside Patient Records clean and mobile-friendly
+- [ ] For confirmed active bookings inside Patient Records, show a primary Start Checkup button, or Continue Checkup if a booking-linked visit already exists
+- [ ] For confirmed active bookings, also show a View button for booking details and secondary actions
+- [ ] For pending, completed, and cancelled active bookings inside Patient Records, show only one primary View button
+- [ ] Move secondary active booking actions into the View Booking modal/panel
+- [ ] Inside the Patient Records View Booking modal/panel, do not show View Patient Record because the doctor is already inside that patient record
+- [ ] Inside the Patient Records View Booking modal/panel, show status-specific actions:
+  - Pending: Confirm, Cancel, Reschedule
+  - Confirmed: Reschedule, Cancel
+  - Completed: View/Edit Visit
+  - Cancelled: Restore, and Reschedule only after restore fails
+- [ ] Allow admin to cancel duplicate active bookings from inside Patient Records
+- [ ] Do not automatically delete bookings during patient merge
+- [ ] Public booking phone validation should accept common formats with spaces, dashes, and country codes
+- [ ] Normalize phone numbers consistently in booking creation, patient search, and duplicate detection
 - [ ] Keep patient identity management admin-only
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 6E to Git
+- [ ] Commit Phase 6E-fix to Git
 
 ## Phase 7: Visiting Specialists
 
@@ -300,3 +348,6 @@
 - [ ] Add final accessibility checks
 - [ ] Add Vercel deployment instructions
 - [ ] Deploy to Vercel
+
+### UI/UX polish
+- [ ] Improve admin patient search so formatted phone numbers like +977-98-1234-5678 match normalized stored numbers

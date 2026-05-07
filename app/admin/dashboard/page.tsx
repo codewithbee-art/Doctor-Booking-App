@@ -804,24 +804,24 @@ export default function AdminDashboardPage() {
                   </>
                 )}
 
-                {/* Completed: View Patient Record + Edit Visit */}
-                {selectedBooking.status === "completed" && selectedBooking.patient_id && (
-                  <>
-                    <a
-                      href={`/admin/patients?id=${selectedBooking.patient_id}`}
-                      className="rounded-lg bg-primary/10 border border-primary/30 px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                    >
-                      View Patient Record
-                    </a>
-                    {selectedBooking.has_visit && (
-                      <button
-                        onClick={() => openCheckup(selectedBooking)}
-                        className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                      >
-                        Edit Visit
-                      </button>
-                    )}
-                  </>
+                {/* Completed: Edit Visit */}
+                {selectedBooking.status === "completed" && selectedBooking.has_visit && (
+                  <button
+                    onClick={() => openCheckup(selectedBooking)}
+                    className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    View/Edit Visit
+                  </button>
+                )}
+
+                {/* View Patient Record — for any booking with patient_id */}
+                {selectedBooking.patient_id && (
+                  <a
+                    href={`/admin/patients?id=${selectedBooking.patient_id}`}
+                    className="rounded-lg bg-primary/10 border border-primary/30 px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    View Patient Record
+                  </a>
                 )}
 
                 {/* Cancelled: Restore, and Reschedule only after restore fails */}
@@ -844,6 +844,16 @@ export default function AdminDashboardPage() {
                       </button>
                     )}
                   </>
+                )}
+
+                {/* Link to Patient — for unlinked bookings */}
+                {!selectedBooking.patient_id && (
+                  <a
+                    href={`/admin/patients`}
+                    className="rounded-lg bg-amber-50 border border-amber-300 px-4 py-2 font-body text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                  >
+                    Link to Patient
+                  </a>
                 )}
 
                 <button

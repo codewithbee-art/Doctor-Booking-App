@@ -20,6 +20,8 @@ export interface VisitingSpecialist {
 }
 
 // ----- patients ---------------------------------------------------
+export type PatientIdentityStatus = "normal" | "possible_duplicate" | "shared_contact" | "needs_review";
+
 export interface Patient {
   id: string;
   phone: string;
@@ -27,6 +29,8 @@ export interface Patient {
   name: string;
   date_of_birth: string | null; // ISO date string (YYYY-MM-DD)
   notes: string | null;
+  identity_notes: string | null;
+  identity_status: PatientIdentityStatus;
   created_at: string;
   updated_at: string;
 }

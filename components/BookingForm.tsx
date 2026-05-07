@@ -66,7 +66,7 @@ export default function BookingForm({
 
     if (!form.phone.trim()) {
       newErrors.phone = "Phone number is required.";
-    } else if (!/^[0-9+\-\s]{7,15}$/.test(form.phone.trim())) {
+    } else if (!/^[0-9+\-\s()]{7,20}$/.test(form.phone.trim())) {
       newErrors.phone = "Please enter a valid phone number.";
     }
 

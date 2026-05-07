@@ -25,8 +25,20 @@ interface PatientDetail {
   name: string;
   date_of_birth: string | null;
   notes: string | null;
+  identity_notes: string | null;
+  identity_status: string;
   created_at: string;
   updated_at: string;
+}
+
+interface DuplicatePatient {
+  id: string;
+  phone: string;
+  email: string | null;
+  name: string;
+  date_of_birth: string | null;
+  identity_notes: string | null;
+  created_at: string;
 }
 
 interface PatientBooking {
@@ -172,6 +184,41 @@ function AdminPatientsContent() {
   const [checkupError, setCheckupError] = useState<string | null>(null);
   const [checkupSuccess, setCheckupSuccess] = useState<string | null>(null);
   const [checkupHasVisit, setCheckupHasVisit] = useState(false);
+
+  // Edit patient profile state
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [epName, setEpName] = useState("");
+  const [epPhone, setEpPhone] = useState("");
+  const [epEmail, setEpEmail] = useState("");
+  const [epDob, setEpDob] = useState("");
+  const [epNotes, setEpNotes] = useState("");
+  const [epIdentityNotes, setEpIdentityNotes] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState<string | null>(null);
+
+  // View Booking modal state (inside patient record)
+  const [viewBooking, setViewBooking] = useState<PatientBooking | null>(null);
+  const [viewBookingUpdating, setViewBookingUpdating] = useState(false);
+  const [viewBookingError, setViewBookingError] = useState<string | null>(null);
+  const [restoreFailedIds, setRestoreFailedIds] = useState<Set<string>>(new Set());
+
+  // Duplicate detection state
+  const [duplicates, setDuplicates] = useState<DuplicatePatient[]>([]);
+  const [loadingDuplicates, setLoadingDuplicates] = useState(false);
+  const [showDuplicates, setShowDuplicates] = useState(false);
+
+  // Merge state
+  const [mergeTarget, setMergeTarget] = useState<DuplicatePatient | null>(null);
+  const [mergingPatient, setMergingPatient] = useState(false);
+  const [mergeError, setMergeError] = useState<string | null>(null);
+  const [mergeSuccess, setMergeSuccess] = useState<string | null>(null);
+
+  // Link booking state
+  const [linkingBookingId, setLinkingBookingId] = useState<string | null>(null);
+  const [linkPatientSearch, setLinkPatientSearch] = useState("");
+  const [linkSearchResults, setLinkSearchResults] = useState<PatientListItem[]>([]);
+  const [linkingInProgress, setLinkingInProgress] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
   // Auth check
   useEffect(() => {
@@ -394,6 +441,156 @@ function AdminPatientsContent() {
     }
   }, [checkupBookingId, checkupDate, checkupComplaint, checkupNotes, checkupMedicines, checkupFollowUp, checkupCondition, selectedPatient, openDetail]);
 
+  // Open edit profile
+  const openEditProfile = useCallback(() => {
+    if (!selectedPatient) return;
+    setEpName(selectedPatient.name);
+    setEpPhone(selectedPatient.phone);
+    setEpEmail(selectedPatient.email || "");
+    setEpDob(selectedPatient.date_of_birth || "");
+    setEpNotes(selectedPatient.notes || "");
+    setEpIdentityNotes(selectedPatient.identity_notes || "");
+    setProfileError(null);
+    setShowEditProfile(true);
+  }, [selectedPatient]);
+
+  // Submit edit profile
+  const submitEditProfile = useCallback(async () => {
+    if (!selectedPatient) return;
+    setSavingProfile(true);
+    setProfileError(null);
+    try {
+      const res = await fetch("/api/admin/patients", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedPatient.id,
+          name: epName.trim(),
+          phone: epPhone.trim(),
+          email: epEmail.trim() || null,
+          date_of_birth: epDob || null,
+          notes: epNotes.trim() || null,
+          identity_notes: epIdentityNotes.trim() || null,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to update patient.");
+      setShowEditProfile(false);
+      openDetail(selectedPatient.id);
+      fetchPatients(search);
+    } catch (err) {
+      setProfileError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setSavingProfile(false);
+    }
+  }, [selectedPatient, epName, epPhone, epEmail, epDob, epNotes, epIdentityNotes, openDetail, fetchPatients, search]);
+
+  // Find duplicates
+  const findDuplicates = useCallback(async () => {
+    if (!selectedPatient) return;
+    setLoadingDuplicates(true);
+    setDuplicates([]);
+    setShowDuplicates(true);
+    setMergeSuccess(null);
+    try {
+      const res = await fetch(`/api/admin/patients?duplicates=${encodeURIComponent(selectedPatient.id)}`);
+      const json = await res.json();
+      if (res.ok) setDuplicates(json.duplicates ?? []);
+    } catch { /* ignore */ } finally {
+      setLoadingDuplicates(false);
+    }
+  }, [selectedPatient]);
+
+  // Merge patients (source into current selected as target)
+  const confirmMerge = useCallback(async () => {
+    if (!selectedPatient || !mergeTarget) return;
+    setMergingPatient(true);
+    setMergeError(null);
+    setMergeSuccess(null);
+    try {
+      const res = await fetch("/api/admin/patients/merge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target_id: selectedPatient.id,
+          source_id: mergeTarget.id,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to merge patients.");
+      setMergeSuccess(json.message || "Patients merged successfully.");
+      setMergeTarget(null);
+      openDetail(selectedPatient.id);
+      fetchPatients(search);
+    } catch (err) {
+      setMergeError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setMergingPatient(false);
+    }
+  }, [selectedPatient, mergeTarget, openDetail, fetchPatients, search]);
+
+  // Search patients for linking
+  const searchForLink = useCallback(async (term: string) => {
+    if (!term.trim()) { setLinkSearchResults([]); return; }
+    try {
+      const res = await fetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
+      const json = await res.json();
+      if (res.ok) setLinkSearchResults(json.patients ?? []);
+    } catch { /* ignore */ }
+  }, []);
+
+  // Link booking to patient
+  const linkBookingToPatient = useCallback(async (patientId: string) => {
+    if (!linkingBookingId) return;
+    setLinkingInProgress(true);
+    setLinkError(null);
+    try {
+      const res = await fetch(`/api/admin/bookings/${linkingBookingId}/link`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ patient_id: patientId }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to link booking.");
+      setLinkingBookingId(null);
+      setLinkPatientSearch("");
+      setLinkSearchResults([]);
+      if (selectedPatient) openDetail(selectedPatient.id);
+    } catch (err) {
+      setLinkError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setLinkingInProgress(false);
+    }
+  }, [linkingBookingId, selectedPatient, openDetail]);
+
+  // Update booking status from View Booking modal
+  const updateBookingStatusFromModal = useCallback(async (bookingId: string, newStatus: string) => {
+    setViewBookingUpdating(true);
+    setViewBookingError(null);
+    try {
+      const res = await fetch(`/api/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        if (res.status === 409 && newStatus === "pending") {
+          setRestoreFailedIds((cur) => new Set(cur).add(bookingId));
+          throw new Error("Original slot is no longer available. Use Reschedule instead.");
+        }
+        throw new Error(json.error || "Update failed.");
+      }
+      setRestoreFailedIds((cur) => { const n = new Set(cur); n.delete(bookingId); return n; });
+      setViewBooking(null);
+      if (selectedPatient) openDetail(selectedPatient.id);
+    } catch (err) {
+      setViewBookingError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setViewBookingUpdating(false);
+    }
+  }, [selectedPatient, openDetail]);
+
   // Search handler
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -562,7 +759,39 @@ function AdminPatientsContent() {
               <div className="space-y-6">
                 {/* Profile card */}
                 <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
-                  <h2 className="font-heading text-lg font-bold text-text-primary mb-4">Patient Profile</h2>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-heading text-lg font-bold text-text-primary">Patient Profile</h2>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={openEditProfile}
+                        className="rounded-md border border-border bg-white px-2.5 py-1 font-body text-xs font-semibold text-text-secondary hover:text-primary hover:border-primary/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={findDuplicates}
+                        disabled={loadingDuplicates}
+                        className="rounded-md border border-amber-300 bg-amber-50 px-2.5 py-1 font-body text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                      >
+                        {loadingDuplicates ? "Searching…" : "Find Duplicates"}
+                      </button>
+                    </div>
+                  </div>
+                  {/* Identity status badge */}
+                  {selectedPatient.identity_status && selectedPatient.identity_status !== "normal" && (
+                    <div className="mb-4">
+                      {selectedPatient.identity_status === "shared_contact" && (
+                        <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-3 py-0.5 font-body text-xs font-semibold text-blue-700">Shared Phone</span>
+                      )}
+                      {selectedPatient.identity_status === "possible_duplicate" && (
+                        <span className="inline-block rounded-full border border-amber-200 bg-amber-50 px-3 py-0.5 font-body text-xs font-semibold text-amber-700">Possible Duplicate</span>
+                      )}
+                      {selectedPatient.identity_status === "needs_review" && (
+                        <span className="inline-block rounded-full border border-red-200 bg-red-50 px-3 py-0.5 font-body text-xs font-semibold text-red-700">Needs Review</span>
+                      )}
+                    </div>
+                  )}
+
                   <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 font-body text-sm">
                     <div>
                       <dt className="font-semibold text-text-secondary">Name</dt>
@@ -582,10 +811,18 @@ function AdminPatientsContent() {
                         {selectedPatient.date_of_birth ? formatDate(selectedPatient.date_of_birth) : "—"}
                       </dd>
                     </div>
-                    <div className="sm:col-span-2">
-                      <dt className="font-semibold text-text-secondary">Notes</dt>
-                      <dd className="text-text-primary mt-0.5 whitespace-pre-wrap">{selectedPatient.notes || "—"}</dd>
-                    </div>
+                    {selectedPatient.notes && (
+                      <div className="sm:col-span-2">
+                        <dt className="font-semibold text-text-secondary">General Patient Notes</dt>
+                        <dd className="text-text-primary mt-0.5 whitespace-pre-wrap">{selectedPatient.notes}</dd>
+                      </div>
+                    )}
+                    {selectedPatient.identity_notes && (
+                      <div className="sm:col-span-2">
+                        <dt className="font-semibold text-amber-700">Identity / Contact Notes</dt>
+                        <dd className="text-text-primary mt-0.5 whitespace-pre-wrap">{selectedPatient.identity_notes}</dd>
+                      </div>
+                    )}
                     <div>
                       <dt className="font-semibold text-text-secondary">Registered</dt>
                       <dd className="text-text-primary mt-0.5">{formatDateTime(selectedPatient.created_at)}</dd>
@@ -593,10 +830,61 @@ function AdminPatientsContent() {
                   </dl>
                 </div>
 
+                {/* Duplicates panel */}
+                {showDuplicates && (
+                  <div className="rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="font-heading text-base font-bold text-amber-800">Potential Duplicates</h2>
+                      <button onClick={() => { setShowDuplicates(false); setMergeSuccess(null); }} className="rounded p-1 text-amber-700 hover:bg-amber-100 transition-colors">
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                    {mergeSuccess && (
+                      <div className="mb-3 rounded-lg border border-green-300 bg-green-50 px-4 py-3">
+                        <p className="font-body text-sm text-green-800">{mergeSuccess}</p>
+                      </div>
+                    )}
+                    {mergeError && (
+                      <div className="mb-3 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                        <p className="font-body text-sm text-danger">{mergeError}</p>
+                      </div>
+                    )}
+                    {loadingDuplicates ? (
+                      <p className="font-body text-sm text-amber-700">Searching…</p>
+                    ) : duplicates.length === 0 ? (
+                      <p className="font-body text-sm text-amber-700">No potential duplicates found.</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {duplicates.map((d) => (
+                          <div key={d.id} className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white p-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-body text-sm font-semibold text-text-primary">{d.name}</p>
+                              <p className="font-body text-xs text-text-secondary">{d.phone}{d.email ? ` · ${d.email}` : ""}</p>
+                              {d.identity_notes && <p className="font-body text-xs text-amber-700 mt-0.5">{d.identity_notes}</p>}
+                            </div>
+                            <button
+                              onClick={() => { setMergeTarget(d); setMergeError(null); }}
+                              disabled={mergingPatient}
+                              className="flex-shrink-0 rounded-lg bg-red-50 border border-red-300 px-3 py-1.5 font-body text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                            >
+                              Merge Into This Patient
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Active Bookings */}
                 {activeBookings.length > 0 && (
                   <div className="rounded-2xl border border-primary/30 bg-primary/5 p-6 shadow-sm">
                     <h2 className="font-heading text-lg font-bold text-text-primary mb-4">Active Bookings</h2>
+                    {activeBookings.length > 1 && (
+                      <div className="mb-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2">
+                        <p className="font-body text-xs font-semibold text-amber-700">This patient has {activeBookings.length} active bookings. Review for possible duplicates.</p>
+                      </div>
+                    )}
                     <div className="space-y-3">
                       {activeBookings.map((b) => {
                         const hasLinkedVisit = patientVisits.some((v) => v.booking_id === b.id);
@@ -611,14 +899,22 @@ function AdminPatientsContent() {
                                 {b.status}
                               </span>
                             </div>
-                            {b.status === "confirmed" && (
+                            <div className="flex flex-shrink-0 gap-2">
+                              {b.status === "confirmed" && (
+                                <button
+                                  onClick={() => openCheckupFromBooking(b)}
+                                  className="rounded-lg bg-primary px-3 py-1.5 font-body text-xs font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                >
+                                  {hasLinkedVisit ? "Continue Checkup" : "Start Checkup"}
+                                </button>
+                              )}
                               <button
-                                onClick={() => openCheckupFromBooking(b)}
-                                className="flex-shrink-0 rounded-lg bg-primary px-3 py-1.5 font-body text-xs font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                onClick={() => { setViewBooking(b); setViewBookingError(null); }}
+                                className="rounded-lg border border-border bg-white px-3 py-1.5 font-body text-xs font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                               >
-                                {hasLinkedVisit ? "Continue Checkup" : "Start Checkup"}
+                                View
                               </button>
-                            )}
+                            </div>
                           </div>
                         );
                       })}
@@ -1037,6 +1333,302 @@ function AdminPatientsContent() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ===== Edit Profile Modal ===== */}
+      {showEditProfile && selectedPatient && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !savingProfile && setShowEditProfile(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Edit patient profile"
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">Edit Patient Profile</h2>
+              <button onClick={() => setShowEditProfile(false)} disabled={savingProfile} aria-label="Close" className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors disabled:opacity-50">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="ep-name" className="block font-body text-sm font-semibold text-text-secondary mb-1">Name <span className="text-danger">*</span></label>
+                <input id="ep-name" type="text" value={epName} onChange={(e) => setEpName(e.target.value)} disabled={savingProfile} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ep-phone" className="block font-body text-sm font-semibold text-text-secondary mb-1">Phone <span className="text-danger">*</span></label>
+                <input id="ep-phone" type="text" value={epPhone} onChange={(e) => setEpPhone(e.target.value)} disabled={savingProfile} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ep-email" className="block font-body text-sm font-semibold text-text-secondary mb-1">Email</label>
+                <input id="ep-email" type="email" value={epEmail} onChange={(e) => setEpEmail(e.target.value)} disabled={savingProfile} placeholder="Optional" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ep-dob" className="block font-body text-sm font-semibold text-text-secondary mb-1">Date of Birth</label>
+                <input id="ep-dob" type="date" value={epDob} onChange={(e) => setEpDob(e.target.value)} disabled={savingProfile} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ep-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">General Patient Notes</label>
+                <textarea id="ep-notes" rows={2} value={epNotes} onChange={(e) => setEpNotes(e.target.value)} disabled={savingProfile} placeholder="General medical notes about this patient" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ep-identity-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">Identity / Contact Notes</label>
+                <textarea id="ep-identity-notes" rows={2} value={epIdentityNotes} onChange={(e) => setEpIdentityNotes(e.target.value)} disabled={savingProfile} placeholder="e.g. Uses son's phone number" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+              </div>
+            </div>
+            {profileError && (
+              <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                <p className="font-body text-sm text-danger">{profileError}</p>
+              </div>
+            )}
+            <div className="mt-6 flex gap-2">
+              <button onClick={submitEditProfile} disabled={savingProfile || !epName.trim() || !epPhone.trim()} className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+                {savingProfile ? "Saving…" : "Save Changes"}
+              </button>
+              <button onClick={() => setShowEditProfile(false)} disabled={savingProfile} className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Merge Confirmation Modal ===== */}
+      {mergeTarget && selectedPatient && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !mergingPatient && setMergeTarget(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirm merge"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-red-300 bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 rounded-full bg-red-100 p-2">
+                <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+              </div>
+              <h2 className="font-heading text-lg font-bold text-text-primary">Confirm Patient Merge</h2>
+            </div>
+            <div className="space-y-3 font-body text-sm text-text-primary">
+              <p>This will merge <strong>{mergeTarget.name}</strong> ({mergeTarget.phone}) into <strong>{selectedPatient.name}</strong> ({selectedPatient.phone}).</p>
+              <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+                <p className="font-semibold text-amber-800 mb-1">What will happen:</p>
+                <ul className="list-disc list-inside text-amber-700 space-y-1 text-xs">
+                  <li>All bookings from <strong>{mergeTarget.name}</strong> will be moved to <strong>{selectedPatient.name}</strong></li>
+                  <li>All visit records from <strong>{mergeTarget.name}</strong> will be moved to <strong>{selectedPatient.name}</strong></li>
+                  <li>The duplicate patient record (<strong>{mergeTarget.name}</strong>) will be deleted</li>
+                  <li>No medical history will be lost</li>
+                </ul>
+              </div>
+              <p className="text-red-600 font-semibold">This action cannot be undone.</p>
+            </div>
+            {mergeError && (
+              <div className="mt-3 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                <p className="font-body text-sm text-danger">{mergeError}</p>
+              </div>
+            )}
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={confirmMerge}
+                disabled={mergingPatient}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-body text-sm font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              >
+                {mergingPatient ? "Merging…" : "Yes, Merge Patients"}
+              </button>
+              <button
+                onClick={() => setMergeTarget(null)}
+                disabled={mergingPatient}
+                className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Link Booking Modal ===== */}
+      {linkingBookingId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !linkingInProgress && setLinkingBookingId(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Link booking to patient"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">Link Booking to Patient</h2>
+              <button onClick={() => setLinkingBookingId(null)} disabled={linkingInProgress} aria-label="Close" className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors disabled:opacity-50">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="link-search" className="block font-body text-sm font-semibold text-text-secondary mb-1">Search Patient</label>
+              <input
+                id="link-search"
+                type="text"
+                value={linkPatientSearch}
+                onChange={(e) => { setLinkPatientSearch(e.target.value); searchForLink(e.target.value); }}
+                disabled={linkingInProgress}
+                placeholder="Name, phone, or email…"
+                className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50"
+              />
+            </div>
+            {linkError && (
+              <div className="mb-3 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                <p className="font-body text-sm text-danger">{linkError}</p>
+              </div>
+            )}
+            {linkSearchResults.length > 0 && (
+              <div className="space-y-2 max-h-60 overflow-y-auto">
+                {linkSearchResults.map((p) => (
+                  <div key={p.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-light p-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-body text-sm font-semibold text-text-primary">{p.name}</p>
+                      <p className="font-body text-xs text-text-secondary">{p.phone}{p.email ? ` · ${p.email}` : ""}</p>
+                    </div>
+                    <button
+                      onClick={() => linkBookingToPatient(p.id)}
+                      disabled={linkingInProgress}
+                      className="flex-shrink-0 rounded-lg bg-primary px-3 py-1.5 font-body text-xs font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      {linkingInProgress ? "Linking…" : "Link"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {linkPatientSearch.trim() && linkSearchResults.length === 0 && (
+              <p className="font-body text-sm text-text-secondary">No patients found.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ===== View Booking Modal (inside patient record) ===== */}
+      {viewBooking && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !viewBookingUpdating && setViewBooking(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="View booking"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">Booking Details</h2>
+              <button onClick={() => setViewBooking(null)} disabled={viewBookingUpdating} aria-label="Close" className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors disabled:opacity-50">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            <dl className="space-y-2 font-body text-sm mb-4">
+              <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Patient</dt><dd className="text-text-primary">{viewBooking.patient_name}</dd></div>
+              <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Phone</dt><dd className="text-text-primary">{viewBooking.patient_phone}</dd></div>
+              <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Problem</dt><dd className="text-text-primary">{viewBooking.problem}</dd></div>
+              <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Date</dt><dd className="text-text-primary">{formatDate(viewBooking.appointment_date_ad)}</dd></div>
+              <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Time</dt><dd className="text-text-primary">{formatTime(viewBooking.appointment_time)}</dd></div>
+              <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Status</dt><dd><span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[viewBooking.status] || ""}`}>{viewBooking.status}</span></dd></div>
+            </dl>
+
+            {viewBookingError && (
+              <div className="mb-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                <p className="font-body text-sm text-danger">{viewBookingError}</p>
+              </div>
+            )}
+
+            {/* Status-specific actions — no View Patient Record since we are inside the record */}
+            <div className="border-t border-border pt-4">
+              <p className="font-body text-xs font-semibold uppercase tracking-wider text-text-secondary mb-3">Actions</p>
+              <div className="flex flex-wrap gap-2">
+                {/* Pending: Confirm, Cancel, Reschedule */}
+                {viewBooking.status === "pending" && (
+                  <>
+                    <button
+                      onClick={() => updateBookingStatusFromModal(viewBooking.id, "confirmed")}
+                      disabled={viewBookingUpdating}
+                      className="rounded-lg bg-green-50 border border-green-300 px-4 py-2 font-body text-sm font-semibold text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                    >
+                      Confirm
+                    </button>
+                    <button
+                      onClick={() => updateBookingStatusFromModal(viewBooking.id, "cancelled")}
+                      disabled={viewBookingUpdating}
+                      className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    >
+                      Cancel Booking
+                    </button>
+                  </>
+                )}
+
+                {/* Confirmed: Reschedule, Cancel */}
+                {viewBooking.status === "confirmed" && (
+                  <>
+                    <button
+                      onClick={() => updateBookingStatusFromModal(viewBooking.id, "cancelled")}
+                      disabled={viewBookingUpdating}
+                      className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    >
+                      Cancel Booking
+                    </button>
+                  </>
+                )}
+
+                {/* Completed: View/Edit Visit */}
+                {viewBooking.status === "completed" && patientVisits.some((v) => v.booking_id === viewBooking.id) && (
+                  <button
+                    onClick={() => {
+                      const visit = patientVisits.find((v) => v.booking_id === viewBooking.id);
+                      if (visit) { openEditVisit(visit); setViewBooking(null); }
+                    }}
+                    className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  >
+                    View/Edit Visit
+                  </button>
+                )}
+
+                {/* Cancelled: Restore, and Reschedule only after restore fails */}
+                {viewBooking.status === "cancelled" && (
+                  <>
+                    <button
+                      onClick={() => updateBookingStatusFromModal(viewBooking.id, "pending")}
+                      disabled={viewBookingUpdating}
+                      className="rounded-lg bg-amber-50 border border-amber-300 px-4 py-2 font-body text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                    >
+                      Restore
+                    </button>
+                    {restoreFailedIds.has(viewBooking.id) && (
+                      <p className="font-body text-xs text-text-secondary self-center">Slot unavailable. Use Dashboard to reschedule.</p>
+                    )}
+                  </>
+                )}
+
+                <button
+                  onClick={() => setViewBooking(null)}
+                  className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

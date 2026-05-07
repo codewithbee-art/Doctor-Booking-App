@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { normalizePhone } from "@/lib/normalizePhone";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const PHONE_REGEX = /^[0-9+\-\s]{7,15}$/;
+const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface BookingRequestBody {
@@ -182,56 +183,86 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ---- Match or create patient ----
+    // ---- Match or create patient (safe identity logic) ----
 
     const trimmedPhone = patient_phone!.trim();
+    const normalizedPhone = normalizePhone(trimmedPhone);
     const trimmedEmail = patient_email?.trim() || null;
     const trimmedName = patient_name!.trim();
+    const nameLower = trimmedName.toLowerCase();
+    const nameParts = nameLower.split(/\s+/).filter((p) => p.length >= 2);
 
     let patientId: string | null = null;
 
-    // Try to match by phone first
-    const { data: existingByPhone } = await supabaseAdmin
+    // Helper: check if two names are similar enough for safe linking
+    const namesAreSimilar = (existingName: string): boolean => {
+      const existLower = existingName.toLowerCase();
+      if (existLower === nameLower) return true;
+      const existParts = existLower.split(/\s+/).filter((p) => p.length >= 2);
+      const shared = nameParts.filter((p) => existParts.includes(p));
+      // At least half of name parts overlap
+      return shared.length > 0 && shared.length >= Math.min(nameParts.length, existParts.length) * 0.5;
+    };
+
+    // Find candidates by phone (exact or normalized)
+    const { data: phoneMatches } = await supabaseAdmin
       .from("patients")
-      .select("id")
-      .eq("phone", trimmedPhone)
-      .single();
+      .select("id, name, phone, email")
+      .eq("phone", trimmedPhone);
 
-    if (existingByPhone) {
-      patientId = existingByPhone.id;
-      // Update name/email if changed
-      await supabaseAdmin
-        .from("patients")
-        .update({
-          name: trimmedName,
-          ...(trimmedEmail ? { email: trimmedEmail } : {}),
-        })
-        .eq("id", patientId);
-    } else if (trimmedEmail) {
-      // Try to match by email as secondary
-      const { data: existingByEmail } = await supabaseAdmin
-        .from("patients")
-        .select("id")
-        .eq("email", trimmedEmail)
-        .single();
+    let phoneCandidates = phoneMatches ?? [];
 
-      if (existingByEmail) {
-        patientId = existingByEmail.id;
-        await supabaseAdmin
-          .from("patients")
-          .update({ name: trimmedName, phone: trimmedPhone })
-          .eq("id", patientId);
+    // Also check normalized phone if no exact match
+    if (phoneCandidates.length === 0) {
+      const { data: allPatients } = await supabaseAdmin
+        .from("patients")
+        .select("id, name, phone, email")
+        .limit(500);
+
+      if (allPatients) {
+        phoneCandidates = allPatients.filter(
+          (p) => normalizePhone(p.phone) === normalizedPhone
+        );
       }
     }
 
-    // Create new patient if no match
+    // Among phone candidates, find one with a similar name
+    if (phoneCandidates.length > 0) {
+      const safeMatch = phoneCandidates.find((p) => namesAreSimilar(p.name));
+      if (safeMatch) {
+        patientId = safeMatch.id;
+        // Never overwrite name, phone, email, or notes
+      }
+      // If phone matches but name is clearly different, do NOT link — will create a new record
+    }
+
+    // Try email as secondary match if still no match
+    if (!patientId && trimmedEmail) {
+      const { data: emailMatches } = await supabaseAdmin
+        .from("patients")
+        .select("id, name")
+        .eq("email", trimmedEmail);
+
+      if (emailMatches && emailMatches.length > 0) {
+        const emailSafeMatch = emailMatches.find((p) => namesAreSimilar(p.name));
+        if (emailSafeMatch) {
+          patientId = emailSafeMatch.id;
+        }
+      }
+    }
+
+    // Create new patient if no safe match found
     if (!patientId) {
+      // Determine identity status: if phone exists with different name, mark as shared_contact
+      const identityStatus = phoneCandidates.length > 0 ? "shared_contact" : "normal";
+
       const { data: newPatient } = await supabaseAdmin
         .from("patients")
         .insert({
           phone: trimmedPhone,
           email: trimmedEmail,
           name: trimmedName,
+          identity_status: identityStatus,
         })
         .select("id")
         .single();
