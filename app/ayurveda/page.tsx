@@ -93,15 +93,29 @@ export default function AyurvedaPage() {
   return (
     <main className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-bg-light px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-4xl text-center">
-          <span className="mb-4 inline-block rounded-full bg-secondary/10 px-4 py-1 font-body text-sm font-semibold uppercase tracking-wider text-secondary">
+      <section className="relative px-4 py-20 md:py-28 lg:py-32">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/Images/ayurveda/scienceoflife.png"
+            alt=""
+            fill
+            className="object-cover"
+            priority
+          />
+          {/* Dark blue overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/85 via-primary/75 to-primary/85"></div>
+        </div>
+        
+        {/* Content */}
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <span className="mb-4 inline-block rounded-full bg-white/10 px-4 py-1 font-body text-sm font-semibold uppercase tracking-wider text-white backdrop-blur-sm">
             The Science of Life
           </span>
-          <h1 className="mb-6 text-4xl font-bold md:text-5xl lg:text-6xl">
+          <h1 className="mb-6 text-4xl font-bold text-white md:text-5xl lg:text-6xl">
             The Wisdom of Ayurveda
           </h1>
-          <p className="mx-auto max-w-2xl font-body text-lg text-text-secondary leading-relaxed md:text-xl">
+          <p className="mx-auto max-w-2xl font-body text-lg text-white/90 leading-relaxed md:text-xl">
             Harmony in Mind, Body, and Spirit
           </p>
         </div>

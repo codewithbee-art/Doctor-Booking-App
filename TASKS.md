@@ -315,6 +315,18 @@
 - [x] Run npm run build successfully
 - [x] Commit Phase 6F to Git
 
+### Phase 6G: Legal Pages
+
+- [x] Create /privacy-policy page
+- [x] Create /terms-and-conditions page
+- [x] Add Privacy Policy content from PrivacypolicyandTerms.md
+- [x] Add Terms and Conditions content from PrivacypolicyandTerms.md
+- [x] Add clinic information (Laxmi Narayan Ayurveda Pharma)
+- [x] Link both pages from Footer
+- [x] Add metadata for both pages
+- [x] Run npm run build successfully
+- [ ] Commit Phase 6G to Git
+
 ## Phase 7: Visiting Specialists
 
 - [ ] Create public specialists page
