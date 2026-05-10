@@ -365,27 +365,63 @@
 - [x] Allow editing walk-in visit records
 - [x] Keep patient identity duplicate warnings/manual merge available
 - [x] Run npm run build successfully
-- [ ] Commit Phase 6I to Git
+- [x] Commit Phase 6I to Git
 
-### Phase 6J: Staff Profiles, Doctor Reference, Roles, and Permissions
+## Phase 7: Staff Profiles, Doctor Reference, Roles, and Permissions
 
-- [ ] Plan staff/admin user roles
-- [ ] Create staff_profiles table linked to Supabase Auth users
-- [ ] Add roles such as owner, doctor, receptionist, inventory_manager, content_editor
-- [ ] Add admin user management page
-- [ ] Allow owner/super admin to invite or create staff users
-- [ ] Add role-based access control for admin sections
-- [ ] Add doctor reference to patient visits
-- [ ] Store doctor_id and doctor_name_snapshot on visit records
-- [ ] Show treated-by doctor name in patient visit history
-- [ ] Add profile/settings page for admin users
-- [ ] Add password change or password reset flow
-- [ ] Protect sensitive patient records based on role
+### Phase 7A: Staff Profiles Database
+
+- [x] Create staff_profiles table linked to Supabase Auth users
+- [x] Add role field with owner, doctor, receptionist, inventory_manager, content_editor
+- [x] Add is_active field
+- [x] Add updated_at trigger
+- [x] Add service_role permissions
+- [x] Add doctor_id and doctor_name_snapshot to patient_visits
+- [x] Create safe migration SQL
+- [ ] Backfill current logged-in admin as owner manually or via SQL
+- [x] Update TypeScript database types
+- [x] Run npm run build successfully
+- [ ] Commit Phase 7A to Git
+
+### Phase 7B: Staff Profile Helper and Role Guards
+
+- [ ] Create helper to get current staff profile
+- [ ] Add role guard utility
+- [ ] Redirect inactive staff users away from admin pages
+- [ ] Protect /admin/patients based on role
+- [ ] Protect /admin/availability based on role
+- [ ] Protect staff/settings pages for owner only
+- [ ] Keep current owner login working
+- [ ] Show clear access denied message where needed
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 6J to Git
+- [ ] Commit Phase 7B to Git
+
+### Phase 7C: Admin Staff Management
+
+- [ ] Create /admin/staff or /admin/settings/staff page
+- [ ] Owner can view staff list
+- [ ] Owner can create/invite staff user
+- [ ] Owner can assign role
+- [ ] Owner can activate/deactivate staff
+- [ ] Owner can update staff full name and role
+- [ ] Prevent non-owner users from accessing staff management
+- [ ] Add clear warnings when changing roles
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 7C to Git
+
+### Phase 7D: Doctor Reference in Patient Visits
+
+- [ ] When doctor/admin saves a visit, attach current staff profile as doctor_id where appropriate
+- [ ] Store doctor_name_snapshot on patient_visits
+- [ ] Show “Treated by” doctor name in patient visit history
+- [ ] Show doctor name in booking-linked checkup records
+- [ ] For old visits without doctor reference, show “Not recorded”
+- [ ] Keep walk-in visits and booking-linked visits working
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 7D to Git
 
 
-## Phase 6K: Real BS/AD Calendar Support
+## Phase 8: Real BS/AD Calendar Support
 
 - [ ] Add real Nepali BS date conversion utility
 - [ ] Decide whether to use a package like `nepali-date-converter` or custom converter
@@ -401,9 +437,9 @@
 - [ ] Make patient records and booking history show both BS and AD dates where useful
 - [ ] Test booking, rescheduling, availability blocking, and specialist scheduling with BS/AD dates
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 6K to Git
+- [ ] Commit Phase 8 to Git
 
-## Phase 7: Visiting Specialists
+## Phase 9: Visiting Specialists
 
 - [ ] Create public specialists page
 - [ ] Add homepage specialists preview
@@ -411,9 +447,9 @@
 - [ ] Create admin specialists page
 - [ ] Add specialist CRUD
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 7 to Git
+- [ ] Commit Phase 9 to Git
 
-## Phase 8: Blog
+## Phase 10: Blog
 
 - [ ] Create blog listing page
 - [ ] Create blog detail page
@@ -425,9 +461,9 @@
 - [ ] Add rich text editor
 - [ ] Add SEO metadata
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 8 to Git
+- [ ] Commit Phase 10 to Git
 
-## Phase 9: Medicine Shop
+## Phase 11: Medicine Shop
 
 - [ ] Create shop page
 - [ ] Create product detail page
@@ -439,9 +475,9 @@
 - [ ] Create sales/order history
 - [ ] Add product CRUD
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 9 to Git
+- [ ] Commit Phase 11 to Git
 
-## Phase 10: Checkout, Emails, Deployment
+## Phase 12: Checkout, Emails, Deployment
 
 - [ ] Add payment gateway setup from nepal (esewa, khalti, direct bank card)
 - [ ] Create checkout API

@@ -19,6 +19,21 @@ export interface VisitingSpecialist {
   updated_at: string;
 }
 
+// ----- staff_profiles ---------------------------------------------
+export type StaffRole = "owner" | "doctor" | "receptionist" | "inventory_manager" | "content_editor";
+
+export interface StaffProfile {
+  id: string;
+  auth_user_id: string;
+  full_name: string;
+  email: string;
+  role: StaffRole;
+  phone: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // ----- patients ---------------------------------------------------
 export type PatientIdentityStatus = "normal" | "possible_duplicate" | "shared_contact" | "needs_review";
 
@@ -47,6 +62,8 @@ export interface PatientVisit {
   prescribed_medicines: string | null;
   follow_up_instructions: string | null;
   condition_summary: string | null;
+  doctor_id: string | null;
+  doctor_name_snapshot: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -177,6 +194,15 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Omit<VisitingSpecialist, "id" | "created_at" | "updated_at">>;
+      };
+      staff_profiles: {
+        Row: StaffProfile;
+        Insert: Omit<StaffProfile, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<StaffProfile, "id" | "created_at" | "updated_at">>;
       };
       patients: {
         Row: Patient;

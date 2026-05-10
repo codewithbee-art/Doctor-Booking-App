@@ -110,14 +110,17 @@ Phase 2: Complete (2C — health check route; schema + seed SQL run successfully
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
-Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, 6E-fix patient identity safety, 6F Ayurveda education page, 6G Privacy policy and Terms of Service, Phase 6H Booking and Patient Record Workflow Improvements)
+Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, 6E-fix patient identity safety, 6F Ayurveda education page, 6G Privacy policy and Terms of Service, 6H Booking and Patient Record Workflow Improvements, 6I Walk-in Patient Registration and Visit Records)
 
 Current:
-Phase 6I: Walk-in Patient Registration and Visit Records
-Phase 7: Not started
-Phase 8: Not started  
-Phase 9: Not started  
-Phase 10: Not started  
+- Phase 7: Staff Profiles, Doctor Reference, Roles, and Permissions
+
+- Phase 8: Not started
+- Phase 9: Not started  
+- Phase 10: Not started
+- Phase 11: Not started  
+- Phase 12: Not started    
+
 
 ## Phase Plan
 
@@ -386,7 +389,6 @@ Phase 10: Not started
 - Add password change or password reset flow
 - Protect sensitive patient records based on role
 
-
 #### Phase 6K: Real BS/AD Calendar Support
 
 - Implement real Nepali BS/AD calendar support for the booking system
@@ -396,7 +398,44 @@ Phase 10: Not started
 - BS date should be shown clearly for Nepali users and stored where useful for display/reference
 - Booking, admin dashboard, patient records, availability management, and rescheduling should continue working with AD internally while showing BS/AD dates clearly to users
 
-### Phase 7: Visiting Specialists
+#### Phase 7: Staff Profiles, Doctor Reference, Roles, and Permissions
+
+- Add staff profiles linked to Supabase Auth users
+- Support roles: owner, doctor, receptionist, inventory_manager, and content_editor
+- Keep the first/current admin as owner/super admin
+- Add role-based access control for existing admin sections
+- Owner can manage staff users and roles
+- Inactive staff should not be able to use admin tools
+- Add doctor reference to patient visit records
+- Store both doctor_id and doctor_name_snapshot for patient visit history
+- Show treated-by doctor name in patient history
+- Add a staff profile/settings area
+- Keep the current admin login flow working
+- Keep patient records protected and visible only to allowed roles
+- Implement this phase in smaller sub-phases:
+  - 7A: Staff profiles database
+  - 7B: Staff profile helper and role guards
+  - 7C: Staff management UI
+  - 7D: Doctor reference in patient visits
+
+#### Phase 8: Real BS/AD Calendar Support
+
+- Add real Nepali Bikram Sambat (BS) and Gregorian AD calendar support across the booking system
+- Decide whether to use a reliable package such as `nepali-date-converter` or a custom BS/AD conversion utility
+- Make BS the default calendar mode on the public booking page
+- Keep AD calendar mode available through a clear BS/AD switch
+- Show selected appointment dates in both BS and AD so Nepali patients and clinic staff can understand the date clearly
+- Keep `appointment_date_ad` as the source of truth in Supabase for querying, slot matching, and date logic
+- Store `appointment_date_bs` as a display/reference value in bookings
+- Update available slot display so patients can choose appointment dates easily in BS while the system still uses AD internally
+- Populate or calculate `slot_date_bs` for available slots where useful
+- Ensure `/api/slots?date=YYYY-MM-DD` continues to use AD internally for reliability
+- Update admin dashboard, patient records, booking history, rescheduling, and availability management to show BS and AD dates where helpful
+- Keep all existing booking, rescheduling, availability blocking, patient records, and admin workflows working after BS/AD support is added
+- Test booking, rescheduling, availability blocking, patient records, booking history, and specialist scheduling with BS/AD dates
+- Keep the UI simple, readable, and accessible for patients of all age groups
+
+### Phase 9: Visiting Specialists
 
 - Public specialists page
 - Specialist cards
@@ -405,7 +444,7 @@ Phase 10: Not started
 - Admin specialists management
 - Specialist CRUD
 
-### Phase 8: Blog
+### Phase 10: Blog
 
 - Blog listing page
 - Blog detail page
@@ -416,7 +455,7 @@ Phase 10: Not started
 - Rich text editor
 - SEO metadata
 
-### Phase 9: Medicine Shop
+### Phase 11: Medicine Shop
 
 - Shop page
 - Product detail page
@@ -427,7 +466,7 @@ Phase 10: Not started
 - Sales/order history
 - Product CRUD
 
-### Phase 10: Checkout, Emails, SEO, Deployment
+### Phase 12: Checkout, Emails, SEO, Deployment
 
 - Nepal payment gateway setup: eSewa, Khalti, or direct bank card
 - Checkout API
