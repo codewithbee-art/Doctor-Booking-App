@@ -119,9 +119,40 @@ export async function GET(request: NextRequest) {
       .limit(200);
 
     if (search) {
-      query = query.or(
-        `name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`
-      );
+      // Check if search looks like a phone number (contains digits)
+      const isPhoneSearch = /\d/.test(search);
+      if (isPhoneSearch) {
+        // For phone searches, normalize both the search term and stored numbers
+        const normalizedSearch = normalizePhone(search);
+        // Fetch all patients and filter client-side for phone normalization
+        const { data: allPatients, error } = await supabaseAdmin
+          .from("patients")
+          .select("id, phone, email, name, created_at, updated_at")
+          .order("created_at", { ascending: false })
+          .limit(200);
+        
+        if (error) {
+          return NextResponse.json(
+            { success: false, error: "Failed to fetch patients." },
+            { status: 500 }
+          );
+        }
+        
+        // Filter patients: name/email partial match OR normalized phone match
+        const filtered = (allPatients ?? []).filter((p) => {
+          const nameMatch = p.name.toLowerCase().includes(search.toLowerCase());
+          const emailMatch = p.email && p.email.toLowerCase().includes(search.toLowerCase());
+          const phoneMatch = normalizePhone(p.phone).includes(normalizedSearch);
+          return nameMatch || emailMatch || phoneMatch;
+        });
+        
+        return NextResponse.json({ success: true, patients: filtered });
+      } else {
+        // For non-phone searches, use database query for name/email
+        query = query.or(
+          `name.ilike.%${search}%,email.ilike.%${search}%`
+        );
+      }
     }
 
     const { data, error } = await query;

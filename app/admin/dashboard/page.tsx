@@ -16,7 +16,7 @@ interface Booking {
   patient_name: string;
   patient_phone: string;
   patient_email: string | null;
-  problem: string;
+  problem: string | null;
   appointment_date_bs: string;
   appointment_date_ad: string;
   appointment_time: string;
@@ -973,12 +973,22 @@ export default function AdminDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="mt-3 font-body text-base font-semibold text-text-primary">{checkupSuccess}</p>
-                <button
-                  onClick={() => setCheckupBooking(null)}
-                  className="mt-5 rounded-lg border border-border bg-white px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  Close
-                </button>
+                <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
+                  {checkupBooking.patient_id && (
+                    <a
+                      href={`/admin/patients?id=${checkupBooking.patient_id}`}
+                      className="rounded-lg bg-primary px-5 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
+                      View Patient Record
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setCheckupBooking(null)}
+                    className="rounded-lg border border-border bg-white px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             ) : (
               <>
