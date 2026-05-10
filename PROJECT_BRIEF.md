@@ -110,7 +110,10 @@ Phase 2: Complete (2C — health check route; schema + seed SQL run successfully
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
-Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, 6E-fix patient identity safety, 6F Ayurveda education page, 6G Privacy policy and Terms of Service, Current: Phase 6H Booking and Patient Record Workflow Improvements)
+Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, 6E-fix patient identity safety, 6F Ayurveda education page, 6G Privacy policy and Terms of Service, Phase 6H Booking and Patient Record Workflow Improvements)
+
+Current:
+Phase 6I: Walk-in Patient Registration and Visit Records
 Phase 7: Not started
 Phase 8: Not started  
 Phase 9: Not started  
@@ -351,7 +354,24 @@ Phase 10: Not started
 - Allow doctor/admin to keep records separate if they are not the same person
 - Improve duplicate review wording so it is clear these are suggestions only
 
-#### Phase 6I: Staff Profiles, Doctor Reference, Roles, and Permissions
+#### Phase 6I: Walk-in Patient Registration and Visit Records
+
+- Add walk-in patient support for patients who visit the clinic without booking an appointment online
+- Add an “Add Patient” button inside `/admin/patients`
+- Allow admin/doctor to manually create a patient profile
+- Patient profile fields should include name, phone, optional email, optional date of birth, General Patient Notes, Identity / Contact Notes, and identity status where useful
+- Add an “Add Walk-in Visit” flow for patients seen without a scheduled booking
+- Allow admin/doctor to search for an existing patient before creating a new patient
+- Allow admin/doctor to create a new patient and add a visit record in one flow
+- Walk-in visits should be saved in `patient_visits`
+- Walk-in visits should use `booking_id = null`
+- Walk-in visits should not require appointment booking or available slot selection
+- Walk-in visits should appear clearly in Visit History
+- Walk-in visit records should remain editable
+- Patient identity duplicate warnings and manual merge tools should remain available
+- Keep all walk-in patient and visit features admin-only
+
+#### Phase 6J: Staff Profiles, Doctor Reference, Roles, and Permissions
 
 - Plan staff and admin user roles
 - Create staff profiles linked to Supabase Auth users
@@ -367,7 +387,7 @@ Phase 10: Not started
 - Protect sensitive patient records based on role
 
 
-#### Phase 6J: Real BS/AD Calendar Support
+#### Phase 6K: Real BS/AD Calendar Support
 
 - Implement real Nepali BS/AD calendar support for the booking system
 - BS should be the default patient-facing calendar mode

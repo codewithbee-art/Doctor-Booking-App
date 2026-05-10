@@ -329,21 +329,45 @@
 
 ### Phase 6H: Booking and Patient Record Workflow Improvements
 
-- [ ] Add cancellation reason support when cancelling a booking
-- [ ] Add cancellation reason presets and optional custom reason
-- [ ] Store cancellation reason on the booking record
-- [ ] Store cancelled_at timestamp where useful
-- [ ] Show cancellation reason in Cancelled tab and booking details
-- [ ] Show cancellation reason inside patient booking history
-- [ ] Add manual patient search inside duplicate review area
-- [ ] Allow doctor/admin to search by name, phone, email, or date of birth
-- [ ] Allow doctor/admin to manually compare patient records before merging
-- [ ] Allow doctor/admin to keep records separate if they are not the same person
-- [ ] Improve duplicate review wording so it is clear these are suggestions only
-- [ ] Run npm run build successfully
+- [x] Add cancellation reason support when cancelling a booking
+- [x] Add cancellation reason presets and optional custom reason
+- [x] Store cancellation reason on the booking record
+- [x] Store cancelled_at timestamp where useful
+- [x] Show cancellation reason in Cancelled tab and booking details
+- [x] Show cancellation reason inside patient booking history
+- [x] Add manual patient search inside duplicate review area
+- [x] Allow doctor/admin to search by name, phone, email, or date of birth
+- [x] Allow doctor/admin to manually compare patient records before merging
+- [x] Allow doctor/admin to keep records separate if they are not the same person
+- [x] Improve duplicate review wording so it is clear these are suggestions only
+- [x] Run npm run build successfully
 - [ ] Commit Phase 6H to Git
 
-### Phase 6I: Staff Profiles, Doctor Reference, Roles, and Permissions
+### Phase 6I: Walk-in Patient Registration and Visit Records
+
+- [ ] Add "Add Patient" button inside `/admin/patients`
+- [ ] Allow admin/doctor to create a patient manually
+- [ ] Include patient profile fields:
+  - name
+  - phone
+  - email optional
+  - date of birth optional
+  - General Patient Notes
+  - Identity / Contact Notes
+  - identity_status if needed
+- [ ] Add "Add Walk-in Visit" option
+- [ ] Allow doctor/admin to search existing patient before creating a new one
+- [ ] Allow doctor/admin to create a new patient and add visit record in one flow
+- [ ] Walk-in visits should save into `patient_visits`
+- [ ] Walk-in visits should have `booking_id = null`
+- [ ] Do not require appointment booking for walk-in visits
+- [ ] Show walk-in visits clearly in Visit History
+- [ ] Allow editing walk-in visit records
+- [ ] Keep patient identity duplicate warnings/manual merge available
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 6I to Git
+
+### Phase 6J: Staff Profiles, Doctor Reference, Roles, and Permissions
 
 - [ ] Plan staff/admin user roles
 - [ ] Create staff_profiles table linked to Supabase Auth users
@@ -358,10 +382,10 @@
 - [ ] Add password change or password reset flow
 - [ ] Protect sensitive patient records based on role
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 6I to Git
+- [ ] Commit Phase 6J to Git
 
 
-## Phase 6J: Real BS/AD Calendar Support
+## Phase 6K: Real BS/AD Calendar Support
 
 - [ ] Add real Nepali BS date conversion utility
 - [ ] Decide whether to use a package like `nepali-date-converter` or custom converter
@@ -377,7 +401,7 @@
 - [ ] Make patient records and booking history show both BS and AD dates where useful
 - [ ] Test booking, rescheduling, availability blocking, and specialist scheduling with BS/AD dates
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 6J to Git
+- [ ] Commit Phase 6K to Git
 
 ## Phase 7: Visiting Specialists
 

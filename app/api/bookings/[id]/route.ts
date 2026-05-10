@@ -17,7 +17,7 @@ export async function PATCH(
     );
   }
 
-  let body: { status?: string };
+  let body: { status?: string; cancellation_reason?: string };
 
   try {
     body = await request.json();
@@ -28,7 +28,7 @@ export async function PATCH(
     );
   }
 
-  const { status } = body;
+  const { status, cancellation_reason } = body;
 
   if (!status || !ALLOWED_STATUSES.includes(status)) {
     return NextResponse.json(
@@ -101,12 +101,23 @@ export async function PATCH(
     }
 
     // ---- Update booking status ----
+    const updatePayload: Record<string, string | null> = { status };
+    if (status === "cancelled") {
+      updatePayload.cancellation_reason = cancellation_reason?.trim() || null;
+      updatePayload.cancelled_at = new Date().toISOString();
+    }
+    // Clear cancellation fields when restoring from cancelled
+    if (prevStatus === "cancelled" && status !== "cancelled") {
+      updatePayload.cancellation_reason = null;
+      updatePayload.cancelled_at = null;
+    }
+
     const { data: updated, error: updateError } = await supabaseAdmin
       .from("bookings")
-      .update({ status })
+      .update(updatePayload)
       .eq("id", id)
       .select(
-        "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, created_at"
+        "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, cancellation_reason, cancelled_at, created_at"
       )
       .single();
 

@@ -68,6 +68,8 @@ export interface Booking {
   booking_type: BookingType;
   specialist_id: string | null;
   status: BookingStatus;
+  cancellation_reason: string | null;
+  cancelled_at: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -21,7 +21,7 @@ export async function GET() {
     const { data: bookings, error: fetchError } = await supabaseAdmin
       .from("bookings")
       .select(
-        "id, patient_id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, created_at"
+        "id, patient_id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, cancellation_reason, cancelled_at, created_at"
       )
       .order("appointment_date_ad", { ascending: true })
       .order("appointment_time", { ascending: true });

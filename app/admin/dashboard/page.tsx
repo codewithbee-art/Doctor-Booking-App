@@ -22,11 +22,22 @@ interface Booking {
   booking_type: string;
   specialist_id: string | null;
   status: string;
+  cancellation_reason: string | null;
+  cancelled_at: string | null;
   created_at: string;
   visit_count: number;
   is_new_patient: boolean;
   has_visit: boolean;
 }
+
+const CANCEL_REASON_PRESETS = [
+  "Patient requested cancellation",
+  "Patient did not show up",
+  "Doctor unavailable",
+  "Duplicate booking",
+  "Rescheduled to different date",
+  "Clinic closed / holiday",
+];
 
 type FilterTab = "all" | "today" | "pending" | "confirmed" | "cancelled" | "completed";
 
@@ -97,6 +108,13 @@ export default function AdminDashboardPage() {
   const [rescheduling, setRescheduling] = useState(false);
   const [rescheduleError, setRescheduleError] = useState<string | null>(null);
   const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
+
+  // Cancel reason state
+  const [cancelBooking, setCancelBooking] = useState<Booking | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelCustomReason, setCancelCustomReason] = useState("");
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   // Checkup state
   const [checkupBooking, setCheckupBooking] = useState<Booking | null>(null);
@@ -266,6 +284,38 @@ export default function AdminDashboardPage() {
       if (res.ok) setBookings(json.bookings ?? []);
     } catch { /* ignore */ }
   }, []);
+
+  /* ---- Cancel with reason: open ---- */
+  const openCancel = useCallback((b: Booking) => {
+    setCancelBooking(b);
+    setCancelReason("");
+    setCancelCustomReason("");
+    setCancelError(null);
+    setSelectedBooking(null);
+  }, []);
+
+  /* ---- Cancel with reason: submit ---- */
+  const submitCancel = useCallback(async () => {
+    if (!cancelBooking) return;
+    setCancelling(true);
+    setCancelError(null);
+    const reason = cancelReason === "__custom__" ? cancelCustomReason.trim() : cancelReason;
+    try {
+      const res = await fetch(`/api/bookings/${cancelBooking.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "cancelled", cancellation_reason: reason || null }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Cancel failed");
+      setBookings((cur) => cur.map((b) => (b.id === cancelBooking.id ? { ...b, status: "cancelled", cancellation_reason: reason || null, cancelled_at: new Date().toISOString() } : b)));
+      setCancelBooking(null);
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : "Failed to cancel booking");
+    } finally {
+      setCancelling(false);
+    }
+  }, [cancelBooking, cancelReason, cancelCustomReason]);
 
   /* ---- Checkup: open ---- */
   const openCheckup = useCallback(async (b: Booking) => {
@@ -744,6 +794,12 @@ export default function AdminDashboardPage() {
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Date</dt><dd className="text-text-primary">{formatDate(selectedBooking.appointment_date_ad)}</dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Time</dt><dd className="text-text-primary">{formatTime(selectedBooking.appointment_time)}</dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Status</dt><dd><span className={`inline-block rounded-full border px-3 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[selectedBooking.status] ?? "border-border bg-bg-light text-text-secondary"}`}>{selectedBooking.status}</span></dd></div>
+              {selectedBooking.status === "cancelled" && selectedBooking.cancellation_reason && (
+                <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Reason</dt><dd className="text-red-700">{selectedBooking.cancellation_reason}</dd></div>
+              )}
+              {selectedBooking.status === "cancelled" && selectedBooking.cancelled_at && (
+                <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Cancelled</dt><dd className="text-text-primary">{new Date(selectedBooking.cancelled_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</dd></div>
+              )}
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Created</dt><dd className="text-text-primary">{new Date(selectedBooking.created_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</dd></div>
             </dl>
 
@@ -762,7 +818,7 @@ export default function AdminDashboardPage() {
                       Confirm
                     </button>
                     <button
-                      onClick={() => { updateStatus(selectedBooking.id, "cancelled"); setSelectedBooking(null); }}
+                      onClick={() => openCancel(selectedBooking)}
                       disabled={updatingId !== null}
                       className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     >
@@ -795,7 +851,7 @@ export default function AdminDashboardPage() {
                       Reschedule
                     </button>
                     <button
-                      onClick={() => { updateStatus(selectedBooking.id, "cancelled"); setSelectedBooking(null); }}
+                      onClick={() => openCancel(selectedBooking)}
                       disabled={updatingId !== null}
                       className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     >
@@ -1036,6 +1092,115 @@ export default function AdminDashboardPage() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ===== Cancel Reason Modal ===== */}
+      {cancelBooking && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !cancelling && setCancelBooking(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Cancel booking"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-red-300 bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 rounded-full bg-red-100 p-2">
+                <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h2 className="font-heading text-lg font-bold text-text-primary">Cancel Booking</h2>
+            </div>
+
+            <div className="font-body text-sm space-y-1 mb-5">
+              <p><span className="font-semibold text-text-secondary">Patient:</span> <span className="text-text-primary">{cancelBooking.patient_name}</span></p>
+              <p><span className="font-semibold text-text-secondary">Date:</span> <span className="text-text-primary">{formatDate(cancelBooking.appointment_date_ad)} at {formatTime(cancelBooking.appointment_time)}</span></p>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block font-body text-sm font-semibold text-text-secondary">Reason for cancellation</label>
+              <div className="flex flex-wrap gap-2">
+                {CANCEL_REASON_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    onClick={() => { setCancelReason(preset); setCancelCustomReason(""); }}
+                    disabled={cancelling}
+                    className={[
+                      "rounded-lg border px-3 py-1.5 font-body text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50",
+                      cancelReason === preset
+                        ? "border-red-400 bg-red-50 text-red-700"
+                        : "border-border bg-white text-text-secondary hover:bg-bg-light",
+                    ].join(" ")}
+                  >
+                    {preset}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCancelReason("__custom__")}
+                  disabled={cancelling}
+                  className={[
+                    "rounded-lg border px-3 py-1.5 font-body text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50",
+                    cancelReason === "__custom__"
+                      ? "border-red-400 bg-red-50 text-red-700"
+                      : "border-border bg-white text-text-secondary hover:bg-bg-light",
+                  ].join(" ")}
+                >
+                  Other reason…
+                </button>
+              </div>
+
+              {cancelReason === "__custom__" && (
+                <div>
+                  <label htmlFor="cancel-custom" className="sr-only">Custom cancellation reason</label>
+                  <textarea
+                    id="cancel-custom"
+                    rows={2}
+                    value={cancelCustomReason}
+                    onChange={(e) => setCancelCustomReason(e.target.value)}
+                    disabled={cancelling}
+                    placeholder="Enter reason…"
+                    className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50"
+                  />
+                </div>
+              )}
+            </div>
+
+            {cancelError && (
+              <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                <p className="font-body text-sm text-danger">{cancelError}</p>
+              </div>
+            )}
+
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={submitCancel}
+                disabled={cancelling}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-body text-sm font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              >
+                {cancelling ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Cancelling…
+                  </>
+                ) : "Confirm Cancellation"}
+              </button>
+              <button
+                onClick={() => setCancelBooking(null)}
+                disabled={cancelling}
+                className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Go Back
+              </button>
+            </div>
           </div>
         </div>
       )}

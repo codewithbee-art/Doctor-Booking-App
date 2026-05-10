@@ -52,8 +52,19 @@ interface PatientBooking {
   appointment_time: string;
   booking_type: string;
   status: string;
+  cancellation_reason: string | null;
+  cancelled_at: string | null;
   created_at: string;
 }
+
+const CANCEL_REASON_PRESETS = [
+  "Patient requested cancellation",
+  "Patient did not show up",
+  "Doctor unavailable",
+  "Duplicate booking",
+  "Rescheduled to different date",
+  "Clinic closed / holiday",
+];
 
 interface PatientVisit {
   id: string;
@@ -202,10 +213,22 @@ function AdminPatientsContent() {
   const [viewBookingError, setViewBookingError] = useState<string | null>(null);
   const [restoreFailedIds, setRestoreFailedIds] = useState<Set<string>>(new Set());
 
+  // Cancel reason state (from View Booking modal)
+  const [cancelBooking, setCancelBooking] = useState<PatientBooking | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [cancelCustomReason, setCancelCustomReason] = useState("");
+  const [cancellingBooking, setCancellingBooking] = useState(false);
+  const [cancelBookingError, setCancelBookingError] = useState<string | null>(null);
+
   // Duplicate detection state
   const [duplicates, setDuplicates] = useState<DuplicatePatient[]>([]);
   const [loadingDuplicates, setLoadingDuplicates] = useState(false);
   const [showDuplicates, setShowDuplicates] = useState(false);
+
+  // Duplicate manual search state
+  const [dupSearchInput, setDupSearchInput] = useState("");
+  const [dupSearchResults, setDupSearchResults] = useState<DuplicatePatient[]>([]);
+  const [dupSearching, setDupSearching] = useState(false);
 
   // Merge state
   const [mergeTarget, setMergeTarget] = useState<DuplicatePatient | null>(null);
@@ -591,6 +614,68 @@ function AdminPatientsContent() {
     }
   }, [selectedPatient, openDetail]);
 
+  // Open cancel booking with reason
+  const openCancelBooking = useCallback((b: PatientBooking) => {
+    setCancelBooking(b);
+    setCancelReason("");
+    setCancelCustomReason("");
+    setCancelBookingError(null);
+    setViewBooking(null);
+  }, []);
+
+  // Submit cancel booking with reason
+  const submitCancelBooking = useCallback(async () => {
+    if (!cancelBooking) return;
+    setCancellingBooking(true);
+    setCancelBookingError(null);
+    const reason = cancelReason === "__custom__" ? cancelCustomReason.trim() : cancelReason;
+    try {
+      const res = await fetch(`/api/bookings/${cancelBooking.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "cancelled", cancellation_reason: reason || null }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Cancel failed.");
+      setCancelBooking(null);
+      if (selectedPatient) openDetail(selectedPatient.id);
+    } catch (err) {
+      setCancelBookingError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setCancellingBooking(false);
+    }
+  }, [cancelBooking, cancelReason, cancelCustomReason, selectedPatient, openDetail]);
+
+  // Manual patient search inside duplicate review
+  const searchDuplicatesManually = useCallback(async (term: string) => {
+    if (!term.trim() || !selectedPatient) {
+      setDupSearchResults([]);
+      return;
+    }
+    setDupSearching(true);
+    try {
+      const res = await fetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
+      const json = await res.json();
+      if (res.ok) {
+        // Filter out the current patient from results
+        const results = (json.patients ?? [])
+          .filter((p: PatientListItem) => p.id !== selectedPatient.id)
+          .map((p: PatientListItem) => ({
+            id: p.id,
+            phone: p.phone,
+            email: p.email,
+            name: p.name,
+            date_of_birth: null,
+            identity_notes: null,
+            created_at: p.created_at,
+          }));
+        setDupSearchResults(results);
+      }
+    } catch { /* ignore */ } finally {
+      setDupSearching(false);
+    }
+  }, [selectedPatient]);
+
   // Search handler
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -833,12 +918,15 @@ function AdminPatientsContent() {
                 {/* Duplicates panel */}
                 {showDuplicates && (
                   <div className="rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="font-heading text-base font-bold text-amber-800">Potential Duplicates</h2>
-                      <button onClick={() => { setShowDuplicates(false); setMergeSuccess(null); }} className="rounded p-1 text-amber-700 hover:bg-amber-100 transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <h2 className="font-heading text-base font-bold text-amber-800">Duplicate Review</h2>
+                      <button onClick={() => { setShowDuplicates(false); setMergeSuccess(null); setDupSearchInput(""); setDupSearchResults([]); }} className="rounded p-1 text-amber-700 hover:bg-amber-100 transition-colors">
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
                     </div>
+                    <p className="font-body text-xs text-amber-700 mb-4">
+                      These are <strong>suggestions only</strong>. The system does not automatically merge records. Review each match carefully and decide whether to merge or keep separate.
+                    </p>
                     {mergeSuccess && (
                       <div className="mb-3 rounded-lg border border-green-300 bg-green-50 px-4 py-3">
                         <p className="font-body text-sm text-green-800">{mergeSuccess}</p>
@@ -849,30 +937,118 @@ function AdminPatientsContent() {
                         <p className="font-body text-sm text-danger">{mergeError}</p>
                       </div>
                     )}
+
+                    {/* Auto-detected duplicates */}
+                    <p className="font-body text-xs font-semibold uppercase tracking-wider text-amber-800 mb-2">Auto-detected matches</p>
                     {loadingDuplicates ? (
-                      <p className="font-body text-sm text-amber-700">Searching…</p>
+                      <p className="font-body text-sm text-amber-700 mb-4">Searching…</p>
                     ) : duplicates.length === 0 ? (
-                      <p className="font-body text-sm text-amber-700">No potential duplicates found.</p>
+                      <p className="font-body text-sm text-amber-700 mb-4">No potential duplicates found automatically.</p>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-3 mb-4">
                         {duplicates.map((d) => (
-                          <div key={d.id} className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-white p-3">
-                            <div className="min-w-0 flex-1">
-                              <p className="font-body text-sm font-semibold text-text-primary">{d.name}</p>
-                              <p className="font-body text-xs text-text-secondary">{d.phone}{d.email ? ` · ${d.email}` : ""}</p>
-                              {d.identity_notes && <p className="font-body text-xs text-amber-700 mt-0.5">{d.identity_notes}</p>}
+                          <div key={d.id} className="rounded-xl border border-amber-200 bg-white p-3">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                <p className="font-body text-sm font-semibold text-text-primary">{d.name}</p>
+                                <p className="font-body text-xs text-text-secondary">{d.phone}{d.email ? ` · ${d.email}` : ""}</p>
+                                {d.date_of_birth && <p className="font-body text-xs text-text-secondary">DOB: {formatDate(d.date_of_birth)}</p>}
+                                {d.identity_notes && <p className="font-body text-xs text-amber-700 mt-0.5">{d.identity_notes}</p>}
+                              </div>
+                              <div className="flex flex-shrink-0 gap-2">
+                                <a
+                                  href={`/admin/patients?id=${d.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="rounded-lg bg-primary/10 border border-primary/30 px-2.5 py-1.5 font-body text-xs font-semibold text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                >
+                                  Compare
+                                </a>
+                                <button
+                                  onClick={() => { setMergeTarget(d); setMergeError(null); }}
+                                  disabled={mergingPatient}
+                                  className="rounded-lg bg-red-50 border border-red-300 px-2.5 py-1.5 font-body text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                                >
+                                  Merge
+                                </button>
+                              </div>
                             </div>
-                            <button
-                              onClick={() => { setMergeTarget(d); setMergeError(null); }}
-                              disabled={mergingPatient}
-                              className="flex-shrink-0 rounded-lg bg-red-50 border border-red-300 px-3 py-1.5 font-body text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                            >
-                              Merge Into This Patient
-                            </button>
+                            {/* Comparison summary */}
+                            {selectedPatient && (
+                              <div className="mt-2 pt-2 border-t border-amber-100 grid grid-cols-2 gap-x-4 gap-y-1 font-body text-xs">
+                                <div><span className="font-semibold text-text-secondary">This patient:</span></div>
+                                <div><span className="font-semibold text-text-secondary">Match:</span></div>
+                                <div className="text-text-primary">{selectedPatient.name}</div>
+                                <div className="text-text-primary">{d.name}</div>
+                                <div className="text-text-primary">{selectedPatient.phone}</div>
+                                <div className="text-text-primary">{d.phone}</div>
+                                <div className="text-text-primary">{selectedPatient.email || "—"}</div>
+                                <div className="text-text-primary">{d.email || "—"}</div>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
                     )}
+
+                    {/* Manual patient search */}
+                    <div className="border-t border-amber-200 pt-4">
+                      <p className="font-body text-xs font-semibold uppercase tracking-wider text-amber-800 mb-2">Manual search</p>
+                      <p className="font-body text-xs text-amber-700 mb-2">Search by name, phone, email, or date of birth to find a specific patient to compare or merge.</p>
+                      <div className="flex gap-2 mb-3">
+                        <label htmlFor="dup-search" className="sr-only">Search patients</label>
+                        <input
+                          id="dup-search"
+                          type="text"
+                          value={dupSearchInput}
+                          onChange={(e) => setDupSearchInput(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter") searchDuplicatesManually(dupSearchInput); }}
+                          placeholder="Name, phone, email, DOB…"
+                          className="flex-1 rounded-lg border border-amber-300 bg-white px-3 py-1.5 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <button
+                          onClick={() => searchDuplicatesManually(dupSearchInput)}
+                          disabled={dupSearching || !dupSearchInput.trim()}
+                          className="rounded-lg bg-amber-600 px-3 py-1.5 font-body text-xs font-semibold text-white hover:bg-amber-700 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+                        >
+                          {dupSearching ? "Searching…" : "Search"}
+                        </button>
+                      </div>
+                      {dupSearchResults.length > 0 && (
+                        <div className="space-y-2">
+                          {dupSearchResults.map((d) => (
+                            <div key={d.id} className="rounded-xl border border-amber-200 bg-white p-3">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-body text-sm font-semibold text-text-primary">{d.name}</p>
+                                  <p className="font-body text-xs text-text-secondary">{d.phone}{d.email ? ` · ${d.email}` : ""}</p>
+                                </div>
+                                <div className="flex flex-shrink-0 gap-2">
+                                  <a
+                                    href={`/admin/patients?id=${d.id}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="rounded-lg bg-primary/10 border border-primary/30 px-2.5 py-1.5 font-body text-xs font-semibold text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                  >
+                                    Compare
+                                  </a>
+                                  <button
+                                    onClick={() => { setMergeTarget(d); setMergeError(null); }}
+                                    disabled={mergingPatient}
+                                    className="rounded-lg bg-red-50 border border-red-300 px-2.5 py-1.5 font-body text-xs font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                                  >
+                                    Merge
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {dupSearchInput.trim() && !dupSearching && dupSearchResults.length === 0 && (
+                        <p className="font-body text-sm text-amber-700">No patients found for this search.</p>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -948,6 +1124,9 @@ function AdminPatientsContent() {
                                 <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[b.status] || ""}`}>
                                   {b.status}
                                 </span>
+                                {b.status === "cancelled" && b.cancellation_reason && (
+                                  <p className="mt-0.5 text-xs text-red-600 max-w-[180px] truncate" title={b.cancellation_reason}>{b.cancellation_reason}</p>
+                                )}
                               </td>
                             </tr>
                           ))}
@@ -1547,6 +1726,12 @@ function AdminPatientsContent() {
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Date</dt><dd className="text-text-primary">{formatDate(viewBooking.appointment_date_ad)}</dd></div>
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Time</dt><dd className="text-text-primary">{formatTime(viewBooking.appointment_time)}</dd></div>
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Status</dt><dd><span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[viewBooking.status] || ""}`}>{viewBooking.status}</span></dd></div>
+              {viewBooking.status === "cancelled" && viewBooking.cancellation_reason && (
+                <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Reason</dt><dd className="text-red-700">{viewBooking.cancellation_reason}</dd></div>
+              )}
+              {viewBooking.status === "cancelled" && viewBooking.cancelled_at && (
+                <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Cancelled</dt><dd className="text-text-primary">{new Date(viewBooking.cancelled_at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</dd></div>
+              )}
             </dl>
 
             {viewBookingError && (
@@ -1570,7 +1755,7 @@ function AdminPatientsContent() {
                       Confirm
                     </button>
                     <button
-                      onClick={() => updateBookingStatusFromModal(viewBooking.id, "cancelled")}
+                      onClick={() => openCancelBooking(viewBooking)}
                       disabled={viewBookingUpdating}
                       className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     >
@@ -1583,7 +1768,7 @@ function AdminPatientsContent() {
                 {viewBooking.status === "confirmed" && (
                   <>
                     <button
-                      onClick={() => updateBookingStatusFromModal(viewBooking.id, "cancelled")}
+                      onClick={() => openCancelBooking(viewBooking)}
                       disabled={viewBookingUpdating}
                       className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
                     >
@@ -1628,6 +1813,115 @@ function AdminPatientsContent() {
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Cancel Booking with Reason Modal ===== */}
+      {cancelBooking && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !cancellingBooking && setCancelBooking(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Cancel booking"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-red-300 bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 rounded-full bg-red-100 p-2">
+                <svg className="h-5 w-5 text-red-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h2 className="font-heading text-lg font-bold text-text-primary">Cancel Booking</h2>
+            </div>
+
+            <div className="font-body text-sm space-y-1 mb-5">
+              <p><span className="font-semibold text-text-secondary">Patient:</span> <span className="text-text-primary">{cancelBooking.patient_name}</span></p>
+              <p><span className="font-semibold text-text-secondary">Date:</span> <span className="text-text-primary">{formatDate(cancelBooking.appointment_date_ad)} at {formatTime(cancelBooking.appointment_time)}</span></p>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block font-body text-sm font-semibold text-text-secondary">Reason for cancellation</label>
+              <div className="flex flex-wrap gap-2">
+                {CANCEL_REASON_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    onClick={() => { setCancelReason(preset); setCancelCustomReason(""); }}
+                    disabled={cancellingBooking}
+                    className={[
+                      "rounded-lg border px-3 py-1.5 font-body text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50",
+                      cancelReason === preset
+                        ? "border-red-400 bg-red-50 text-red-700"
+                        : "border-border bg-white text-text-secondary hover:bg-bg-light",
+                    ].join(" ")}
+                  >
+                    {preset}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCancelReason("__custom__")}
+                  disabled={cancellingBooking}
+                  className={[
+                    "rounded-lg border px-3 py-1.5 font-body text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50",
+                    cancelReason === "__custom__"
+                      ? "border-red-400 bg-red-50 text-red-700"
+                      : "border-border bg-white text-text-secondary hover:bg-bg-light",
+                  ].join(" ")}
+                >
+                  Other reason…
+                </button>
+              </div>
+
+              {cancelReason === "__custom__" && (
+                <div>
+                  <label htmlFor="cancel-custom-patient" className="sr-only">Custom cancellation reason</label>
+                  <textarea
+                    id="cancel-custom-patient"
+                    rows={2}
+                    value={cancelCustomReason}
+                    onChange={(e) => setCancelCustomReason(e.target.value)}
+                    disabled={cancellingBooking}
+                    placeholder="Enter reason…"
+                    className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50"
+                  />
+                </div>
+              )}
+            </div>
+
+            {cancelBookingError && (
+              <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                <p className="font-body text-sm text-danger">{cancelBookingError}</p>
+              </div>
+            )}
+
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={submitCancelBooking}
+                disabled={cancellingBooking}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 font-body text-sm font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+              >
+                {cancellingBooking ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Cancelling…
+                  </>
+                ) : "Confirm Cancellation"}
+              </button>
+              <button
+                onClick={() => setCancelBooking(null)}
+                disabled={cancellingBooking}
+                className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Go Back
+              </button>
             </div>
           </div>
         </div>
