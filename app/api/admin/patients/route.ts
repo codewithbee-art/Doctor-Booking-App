@@ -143,6 +143,72 @@ export async function GET(request: NextRequest) {
 }
 
 /**
+ * POST /api/admin/patients
+ *
+ * Create a new patient manually (walk-in / admin registration).
+ *
+ * Body:
+ *   name              (required)
+ *   phone             (required)
+ *   email             (optional)
+ *   date_of_birth     (optional, YYYY-MM-DD)
+ *   notes             (optional)
+ *   identity_notes    (optional)
+ *   identity_status   (optional, default "normal")
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { name, phone, email, date_of_birth, notes, identity_notes, identity_status } = body;
+
+    if (!name || typeof name !== "string" || name.trim().length < 2) {
+      return NextResponse.json(
+        { success: false, error: "Patient name is required (at least 2 characters)." },
+        { status: 400 }
+      );
+    }
+
+    if (!phone || typeof phone !== "string" || phone.trim().length < 5) {
+      return NextResponse.json(
+        { success: false, error: "Phone number is required (at least 5 characters)." },
+        { status: 400 }
+      );
+    }
+
+    const validStatuses = ["normal", "possible_duplicate", "shared_contact", "needs_review"];
+    const insertPayload: Record<string, unknown> = {
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email && typeof email === "string" ? email.trim() || null : null,
+      date_of_birth: date_of_birth || null,
+      notes: notes && typeof notes === "string" ? notes.trim() || null : null,
+      identity_notes: identity_notes && typeof identity_notes === "string" ? identity_notes.trim() || null : null,
+      identity_status: identity_status && validStatuses.includes(identity_status) ? identity_status : "normal",
+    };
+
+    const { data: patient, error: insertErr } = await supabaseAdmin
+      .from("patients")
+      .insert(insertPayload)
+      .select("*")
+      .single();
+
+    if (insertErr) {
+      return NextResponse.json(
+        { success: false, error: "Failed to create patient." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, patient }, { status: 201 });
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "An unexpected error occurred." },
+      { status: 500 }
+    );
+  }
+}
+
+/**
  * PATCH /api/admin/patients
  *
  * Update patient info. Body:

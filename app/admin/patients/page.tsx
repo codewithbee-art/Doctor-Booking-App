@@ -207,6 +207,30 @@ function AdminPatientsContent() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState<string | null>(null);
 
+  // Add Patient modal state
+  const [showAddPatient, setShowAddPatient] = useState(false);
+  const [apName, setApName] = useState("");
+  const [apPhone, setApPhone] = useState("");
+  const [apEmail, setApEmail] = useState("");
+  const [apDob, setApDob] = useState("");
+  const [apNotes, setApNotes] = useState("");
+  const [apIdentityNotes, setApIdentityNotes] = useState("");
+  const [savingNewPatient, setSavingNewPatient] = useState(false);
+  const [addPatientError, setAddPatientError] = useState<string | null>(null);
+  // Walk-in visit fields (shown after patient creation or in walk-in flow)
+  const [apAddVisit, setApAddVisit] = useState(false);
+  const [apVisitDate, setApVisitDate] = useState("");
+  const [apVisitComplaint, setApVisitComplaint] = useState("");
+  const [apVisitNotes, setApVisitNotes] = useState("");
+  const [apVisitMedicines, setApVisitMedicines] = useState("");
+  const [apVisitFollowUp, setApVisitFollowUp] = useState("");
+  const [apVisitCondition, setApVisitCondition] = useState("");
+  // Walk-in Visit for existing patient
+  const [showWalkinSearch, setShowWalkinSearch] = useState(false);
+  const [walkinSearchInput, setWalkinSearchInput] = useState("");
+  const [walkinSearchResults, setWalkinSearchResults] = useState<PatientListItem[]>([]);
+  const [walkinSearching, setWalkinSearching] = useState(false);
+
   // View Booking modal state (inside patient record)
   const [viewBooking, setViewBooking] = useState<PatientBooking | null>(null);
   const [viewBookingUpdating, setViewBookingUpdating] = useState(false);
@@ -676,6 +700,95 @@ function AdminPatientsContent() {
     }
   }, [selectedPatient]);
 
+  // Open Add Patient modal
+  const openAddPatient = useCallback((withVisit: boolean) => {
+    setShowAddPatient(true);
+    setApName(""); setApPhone(""); setApEmail(""); setApDob("");
+    setApNotes(""); setApIdentityNotes("");
+    setAddPatientError(null);
+    setSavingNewPatient(false);
+    setApAddVisit(withVisit);
+    setApVisitDate(withVisit ? todayAD() : "");
+    setApVisitComplaint(""); setApVisitNotes(""); setApVisitMedicines("");
+    setApVisitFollowUp(""); setApVisitCondition("");
+    setShowWalkinSearch(false);
+  }, []);
+
+  // Submit new patient (+ optional walk-in visit)
+  const submitAddPatient = useCallback(async () => {
+    setSavingNewPatient(true);
+    setAddPatientError(null);
+    try {
+      const res = await fetch("/api/admin/patients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: apName.trim(),
+          phone: apPhone.trim(),
+          email: apEmail.trim() || null,
+          date_of_birth: apDob || null,
+          notes: apNotes.trim() || null,
+          identity_notes: apIdentityNotes.trim() || null,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to create patient.");
+      const newPatientId = json.patient.id;
+
+      // If walk-in visit is included, create it
+      if (apAddVisit && apVisitDate) {
+        const vRes = await fetch("/api/admin/patients/visits", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            patient_id: newPatientId,
+            visit_date_ad: apVisitDate,
+            chief_complaint: apVisitComplaint.trim() || null,
+            visit_notes: apVisitNotes.trim() || null,
+            prescribed_medicines: apVisitMedicines.trim() || null,
+            follow_up_instructions: apVisitFollowUp.trim() || null,
+            condition_summary: apVisitCondition.trim() || null,
+          }),
+        });
+        const vJson = await vRes.json();
+        if (!vRes.ok) throw new Error(vJson.error || "Patient created but failed to save visit.");
+      }
+
+      setShowAddPatient(false);
+      fetchPatients(search);
+      openDetail(newPatientId);
+    } catch (err) {
+      setAddPatientError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setSavingNewPatient(false);
+    }
+  }, [apName, apPhone, apEmail, apDob, apNotes, apIdentityNotes, apAddVisit, apVisitDate, apVisitComplaint, apVisitNotes, apVisitMedicines, apVisitFollowUp, apVisitCondition, fetchPatients, search, openDetail]);
+
+  // Search for existing patient in walk-in flow
+  const searchWalkinPatient = useCallback(async (term: string) => {
+    if (!term.trim()) { setWalkinSearchResults([]); return; }
+    setWalkinSearching(true);
+    try {
+      const res = await fetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
+      const json = await res.json();
+      if (res.ok) setWalkinSearchResults(json.patients ?? []);
+    } catch { /* ignore */ } finally {
+      setWalkinSearching(false);
+    }
+  }, []);
+
+  // Select existing patient for walk-in visit → open their record and show visit form
+  const openWalkinVisitForPatient = useCallback(async (patientId: string) => {
+    setShowWalkinSearch(false);
+    setWalkinSearchInput("");
+    setWalkinSearchResults([]);
+    await openDetail(patientId);
+    // After opening detail, show the visit form
+    resetVisitForm();
+    setVisitDate(todayAD());
+    setShowVisitForm(true);
+  }, [openDetail, resetVisitForm]);
+
   // Search handler
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -748,6 +861,28 @@ function AdminPatientsContent() {
                 </svg>
               </div>
             </form>
+
+            {/* Action buttons */}
+            <div className="flex gap-2 mb-4">
+              <button
+                onClick={() => openAddPatient(false)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                </svg>
+                Add Patient
+              </button>
+              <button
+                onClick={() => setShowWalkinSearch(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Walk-in Visit
+              </button>
+            </div>
 
             {/* Error */}
             {fetchError && (
@@ -1278,8 +1413,10 @@ function AdminPatientsContent() {
                               <span className="font-body text-sm font-semibold text-text-primary">
                                 {formatDate(v.visit_date_ad)}
                               </span>
-                              {v.booking_id && (
+                              {v.booking_id ? (
                                 <span className="ml-2 inline-block rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 font-body text-xs text-primary">Linked to booking</span>
+                              ) : (
+                                <span className="ml-2 inline-block rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 font-body text-xs text-amber-700">Walk-in</span>
                               )}
                             </div>
                             <button
@@ -1921,6 +2058,239 @@ function AdminPatientsContent() {
                 className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 Go Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Add Patient Modal ===== */}
+      {showAddPatient && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => !savingNewPatient && setShowAddPatient(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Add patient"
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">
+                {apAddVisit ? "New Walk-in Patient + Visit" : "Add Patient"}
+              </h2>
+              <button
+                onClick={() => setShowAddPatient(false)}
+                disabled={savingNewPatient}
+                aria-label="Close"
+                className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Patient Profile Fields */}
+            <div className="space-y-4">
+              <p className="font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Patient Information</p>
+              <div>
+                <label htmlFor="ap-name" className="block font-body text-sm font-semibold text-text-secondary mb-1">Full Name <span className="text-danger">*</span></label>
+                <input id="ap-name" type="text" value={apName} onChange={(e) => setApName(e.target.value)} disabled={savingNewPatient} placeholder="Patient full name" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ap-phone" className="block font-body text-sm font-semibold text-text-secondary mb-1">Phone <span className="text-danger">*</span></label>
+                <input id="ap-phone" type="tel" value={apPhone} onChange={(e) => setApPhone(e.target.value)} disabled={savingNewPatient} placeholder="+977-98XXXXXXXX" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ap-email" className="block font-body text-sm font-semibold text-text-secondary mb-1">Email <span className="font-normal text-text-secondary/60">(optional)</span></label>
+                <input id="ap-email" type="email" value={apEmail} onChange={(e) => setApEmail(e.target.value)} disabled={savingNewPatient} placeholder="patient@example.com" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ap-dob" className="block font-body text-sm font-semibold text-text-secondary mb-1">Date of Birth <span className="font-normal text-text-secondary/60">(optional)</span></label>
+                <input id="ap-dob" type="date" value={apDob} onChange={(e) => setApDob(e.target.value)} disabled={savingNewPatient} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ap-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">General Patient Notes <span className="font-normal text-text-secondary/60">(optional)</span></label>
+                <textarea id="ap-notes" rows={2} value={apNotes} onChange={(e) => setApNotes(e.target.value)} disabled={savingNewPatient} placeholder="Allergies, chronic conditions, etc." className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+              </div>
+              <div>
+                <label htmlFor="ap-id-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">Identity / Contact Notes <span className="font-normal text-text-secondary/60">(optional)</span></label>
+                <textarea id="ap-id-notes" rows={2} value={apIdentityNotes} onChange={(e) => setApIdentityNotes(e.target.value)} disabled={savingNewPatient} placeholder="Alternate contacts, family member details…" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+              </div>
+            </div>
+
+            {/* Toggle walk-in visit */}
+            {!apAddVisit && (
+              <button
+                onClick={() => { setApAddVisit(true); setApVisitDate(todayAD()); }}
+                disabled={savingNewPatient}
+                className="mt-4 inline-flex items-center gap-1.5 font-body text-sm font-semibold text-accent hover:text-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded disabled:opacity-50"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Also add a walk-in visit record
+              </button>
+            )}
+
+            {/* Walk-in Visit Fields */}
+            {apAddVisit && (
+              <div className="mt-5 pt-5 border-t border-border space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-body text-xs font-semibold uppercase tracking-wider text-text-secondary">Walk-in Visit Record</p>
+                  <button
+                    onClick={() => setApAddVisit(false)}
+                    disabled={savingNewPatient}
+                    className="font-body text-xs text-text-secondary hover:text-danger transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div>
+                  <label htmlFor="ap-v-date" className="block font-body text-sm font-semibold text-text-secondary mb-1">Visit Date <span className="text-danger">*</span></label>
+                  <input id="ap-v-date" type="date" value={apVisitDate} onChange={(e) => setApVisitDate(e.target.value)} disabled={savingNewPatient} className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+                </div>
+                <div>
+                  <label htmlFor="ap-v-complaint" className="block font-body text-sm font-semibold text-text-secondary mb-1">Problem / Reason for Visit</label>
+                  <input id="ap-v-complaint" type="text" value={apVisitComplaint} onChange={(e) => setApVisitComplaint(e.target.value)} disabled={savingNewPatient} placeholder="e.g. Headache, follow-up" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+                </div>
+                <div>
+                  <label htmlFor="ap-v-notes" className="block font-body text-sm font-semibold text-text-secondary mb-1">Doctor Notes</label>
+                  <textarea id="ap-v-notes" rows={2} value={apVisitNotes} onChange={(e) => setApVisitNotes(e.target.value)} disabled={savingNewPatient} placeholder="Examination findings, diagnosis…" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+                </div>
+                <div>
+                  <label htmlFor="ap-v-medicines" className="block font-body text-sm font-semibold text-text-secondary mb-1">Prescribed Medicines</label>
+                  <textarea id="ap-v-medicines" rows={2} value={apVisitMedicines} onChange={(e) => setApVisitMedicines(e.target.value)} disabled={savingNewPatient} placeholder="Medicine name, dosage, duration…" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+                </div>
+                <div>
+                  <label htmlFor="ap-v-followup" className="block font-body text-sm font-semibold text-text-secondary mb-1">Follow-up Instructions</label>
+                  <textarea id="ap-v-followup" rows={2} value={apVisitFollowUp} onChange={(e) => setApVisitFollowUp(e.target.value)} disabled={savingNewPatient} placeholder="Return in 2 weeks…" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary resize-y disabled:opacity-50" />
+                </div>
+                <div>
+                  <label htmlFor="ap-v-condition" className="block font-body text-sm font-semibold text-text-secondary mb-1">Condition / Status</label>
+                  <input id="ap-v-condition" type="text" value={apVisitCondition} onChange={(e) => setApVisitCondition(e.target.value)} disabled={savingNewPatient} placeholder="e.g. Improving, Stable" className="w-full rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50" />
+                </div>
+              </div>
+            )}
+
+            {addPatientError && (
+              <div className="mt-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
+                <p className="font-body text-sm text-danger">{addPatientError}</p>
+              </div>
+            )}
+
+            <div className="mt-6 flex gap-2">
+              <button
+                onClick={submitAddPatient}
+                disabled={savingNewPatient || !apName.trim() || !apPhone.trim() || (apAddVisit && !apVisitDate)}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                {savingNewPatient ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    Saving…
+                  </>
+                ) : apAddVisit ? "Create Patient & Save Visit" : "Create Patient"}
+              </button>
+              <button
+                onClick={() => setShowAddPatient(false)}
+                disabled={savingNewPatient}
+                className="rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== Walk-in Visit Search Modal ===== */}
+      {showWalkinSearch && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setShowWalkinSearch(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Walk-in visit"
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-border bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-heading text-lg font-bold text-text-primary">Walk-in Visit</h2>
+              <button
+                onClick={() => setShowWalkinSearch(false)}
+                aria-label="Close"
+                className="rounded-lg p-1 text-text-secondary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <p className="font-body text-sm text-text-secondary mb-4">Search for an existing patient, or create a new patient record with a walk-in visit.</p>
+
+            {/* Search existing */}
+            <div className="mb-4">
+              <label htmlFor="walkin-search" className="block font-body text-sm font-semibold text-text-secondary mb-1">Search Existing Patient</label>
+              <div className="flex gap-2">
+                <input
+                  id="walkin-search"
+                  type="text"
+                  value={walkinSearchInput}
+                  onChange={(e) => setWalkinSearchInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") searchWalkinPatient(walkinSearchInput); }}
+                  placeholder="Name, phone, email, DOB…"
+                  className="flex-1 rounded-lg border border-border bg-white px-3 py-2 font-body text-sm text-text-primary placeholder:text-text-secondary/60 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <button
+                  onClick={() => searchWalkinPatient(walkinSearchInput)}
+                  disabled={walkinSearching || !walkinSearchInput.trim()}
+                  className="rounded-lg bg-primary px-3 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  {walkinSearching ? "…" : "Search"}
+                </button>
+              </div>
+            </div>
+
+            {/* Search results */}
+            {walkinSearchResults.length > 0 && (
+              <div className="mb-4 space-y-2 max-h-48 overflow-y-auto">
+                {walkinSearchResults.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => openWalkinVisitForPatient(p.id)}
+                    className="w-full text-left rounded-xl border border-border bg-white p-3 hover:border-primary/40 hover:bg-primary/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  >
+                    <p className="font-body text-sm font-semibold text-text-primary">{p.name}</p>
+                    <p className="font-body text-xs text-text-secondary">{p.phone}{p.email ? ` · ${p.email}` : ""}</p>
+                  </button>
+                ))}
+              </div>
+            )}
+            {walkinSearchInput.trim() && !walkinSearching && walkinSearchResults.length === 0 && (
+              <p className="mb-4 font-body text-sm text-text-secondary">No existing patients found.</p>
+            )}
+
+            {/* Create new patient option */}
+            <div className="border-t border-border pt-4">
+              <p className="font-body text-xs text-text-secondary mb-3">Patient not found? Create a new record with a walk-in visit.</p>
+              <button
+                onClick={() => { setShowWalkinSearch(false); openAddPatient(true); }}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                </svg>
+                New Patient + Walk-in Visit
               </button>
             </div>
           </div>

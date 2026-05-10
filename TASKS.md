@@ -345,9 +345,9 @@
 
 ### Phase 6I: Walk-in Patient Registration and Visit Records
 
-- [ ] Add "Add Patient" button inside `/admin/patients`
-- [ ] Allow admin/doctor to create a patient manually
-- [ ] Include patient profile fields:
+- [x] Add "Add Patient" button inside `/admin/patients`
+- [x] Allow admin/doctor to create a patient manually
+- [x] Include patient profile fields:
   - name
   - phone
   - email optional
@@ -355,16 +355,16 @@
   - General Patient Notes
   - Identity / Contact Notes
   - identity_status if needed
-- [ ] Add "Add Walk-in Visit" option
-- [ ] Allow doctor/admin to search existing patient before creating a new one
-- [ ] Allow doctor/admin to create a new patient and add visit record in one flow
-- [ ] Walk-in visits should save into `patient_visits`
-- [ ] Walk-in visits should have `booking_id = null`
-- [ ] Do not require appointment booking for walk-in visits
-- [ ] Show walk-in visits clearly in Visit History
-- [ ] Allow editing walk-in visit records
-- [ ] Keep patient identity duplicate warnings/manual merge available
-- [ ] Run npm run build successfully
+- [x] Add "Add Walk-in Visit" option
+- [x] Allow doctor/admin to search existing patient before creating a new one
+- [x] Allow doctor/admin to create a new patient and add visit record in one flow
+- [x] Walk-in visits should save into `patient_visits`
+- [x] Walk-in visits should have `booking_id = null`
+- [x] Do not require appointment booking for walk-in visits
+- [x] Show walk-in visits clearly in Visit History
+- [x] Allow editing walk-in visit records
+- [x] Keep patient identity duplicate warnings/manual merge available
+- [x] Run npm run build successfully
 - [ ] Commit Phase 6I to Git
 
 ### Phase 6J: Staff Profiles, Doctor Reference, Roles, and Permissions
