@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
+import AdminInactive from "@/components/AdminInactive";
 import LogoutButton from "../dashboard/LogoutButton";
 
 /* ------------------------------------------------------------------ */
@@ -76,7 +78,7 @@ function formatTime(timeStr: string) {
 
 export default function AdminAvailabilityPage() {
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { loading: staffLoading, userEmail, profile: staffProfile, noSession, inactive, hasRole } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [selectedDate, setSelectedDate] = useState(todayAD());
@@ -104,16 +106,12 @@ export default function AdminAvailabilityPage() {
   const [reschedError, setReschedError] = useState<string | null>(null);
   const [reschedSuccess, setReschedSuccess] = useState(false);
 
-  /* ---- Auth ---- */
+  /* ---- Auth + Role ---- */
   useEffect(() => {
-    async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.replace("/admin/login"); return; }
-      setUserEmail(session.user.email ?? null);
-      setChecking(false);
-    }
-    checkSession();
-  }, [router]);
+    if (staffLoading) return;
+    if (noSession) { router.replace("/admin/login"); return; }
+    setChecking(false);
+  }, [staffLoading, noSession, router]);
 
   /* ---- Fetch slots for selected date ---- */
   const fetchSlots = useCallback(async (date: string) => {
@@ -284,6 +282,14 @@ export default function AdminAvailabilityPage() {
         </div>
       </main>
     );
+  }
+
+  /* ---- Inactive staff gate ---- */
+  if (inactive) return <AdminInactive />;
+
+  /* ---- Role guard: owner, doctor, receptionist can access availability ---- */
+  if (staffProfile && !hasRole("owner", "doctor", "receptionist")) {
+    return <AdminAccessDenied message="Your role does not have access to availability management." />;
   }
 
   const blockedCount = slots.filter((s) => s.is_blocked).length;

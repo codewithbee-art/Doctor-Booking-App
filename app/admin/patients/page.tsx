@@ -2,7 +2,9 @@
 
 import { Suspense, useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
+import AdminInactive from "@/components/AdminInactive";
 import LogoutButton from "../dashboard/LogoutButton";
 
 /* ------------------------------------------------------------------ */
@@ -143,7 +145,7 @@ export default function AdminPatientsPage() {
 function AdminPatientsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { loading: staffLoading, userEmail, profile: staffProfile, noSession, inactive, hasRole } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   // List state
@@ -267,16 +269,12 @@ function AdminPatientsContent() {
   const [linkingInProgress, setLinkingInProgress] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
 
-  // Auth check
+  // Auth + Role check
   useEffect(() => {
-    async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.replace("/admin/login"); return; }
-      setUserEmail(session.user.email ?? null);
-      setChecking(false);
-    }
-    checkSession();
-  }, [router]);
+    if (staffLoading) return;
+    if (noSession) { router.replace("/admin/login"); return; }
+    setChecking(false);
+  }, [staffLoading, noSession, router]);
 
   // Fetch patients
   const fetchPatients = useCallback(async (term: string) => {
@@ -807,6 +805,14 @@ function AdminPatientsContent() {
         </div>
       </main>
     );
+  }
+
+  /* ---- Inactive staff gate ---- */
+  if (inactive) return <AdminInactive />;
+
+  /* ---- Role guard: owner, doctor, receptionist can access patients ---- */
+  if (staffProfile && !hasRole("owner", "doctor", "receptionist")) {
+    return <AdminAccessDenied message="Your role does not have access to patient records." />;
   }
 
   return (

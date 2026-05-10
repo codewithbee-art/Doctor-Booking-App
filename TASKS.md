@@ -378,22 +378,22 @@
 - [x] Add service_role permissions
 - [x] Add doctor_id and doctor_name_snapshot to patient_visits
 - [x] Create safe migration SQL
-- [ ] Backfill current logged-in admin as owner manually or via SQL
+- [x] Backfill current logged-in admin as owner manually or via SQL
 - [x] Update TypeScript database types
 - [x] Run npm run build successfully
-- [ ] Commit Phase 7A to Git
+- [x] Commit Phase 7A to Git
 
 ### Phase 7B: Staff Profile Helper and Role Guards
 
-- [ ] Create helper to get current staff profile
-- [ ] Add role guard utility
-- [ ] Redirect inactive staff users away from admin pages
-- [ ] Protect /admin/patients based on role
-- [ ] Protect /admin/availability based on role
-- [ ] Protect staff/settings pages for owner only
-- [ ] Keep current owner login working
-- [ ] Show clear access denied message where needed
-- [ ] Run npm run build successfully
+- [x] Create helper to get current staff profile
+- [x] Add role guard utility
+- [x] Redirect inactive staff users away from admin pages
+- [x] Protect /admin/patients based on role
+- [x] Protect /admin/availability based on role
+- [x] Protect staff/settings pages for owner only
+- [x] Keep current owner login working
+- [x] Show clear access denied message where needed
+- [x] Run npm run build successfully
 - [ ] Commit Phase 7B to Git
 
 ### Phase 7C: Admin Staff Management

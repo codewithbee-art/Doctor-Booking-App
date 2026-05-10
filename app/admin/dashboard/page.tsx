@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminInactive from "@/components/AdminInactive";
 import LogoutButton from "./LogoutButton";
 
 /* ------------------------------------------------------------------ */
@@ -87,7 +88,7 @@ function todayAD() {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { loading: staffLoading, userEmail, profile: staffProfile, noSession, inactive } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -128,16 +129,12 @@ export default function AdminDashboardPage() {
   const [checkupError, setCheckupError] = useState<string | null>(null);
   const [checkupSuccess, setCheckupSuccess] = useState<string | null>(null);
 
-  /* ---- Auth ---- */
+  /* ---- Auth + Role ---- */
   useEffect(() => {
-    async function checkSession() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.replace("/admin/login"); return; }
-      setUserEmail(session.user.email ?? null);
-      setChecking(false);
-    }
-    checkSession();
-  }, [router]);
+    if (staffLoading) return;
+    if (noSession) { router.replace("/admin/login"); return; }
+    setChecking(false);
+  }, [staffLoading, noSession, router]);
 
   /* ---- Fetch bookings ---- */
   useEffect(() => {
@@ -393,6 +390,9 @@ export default function AdminDashboardPage() {
       </main>
     );
   }
+
+  /* ---- Inactive staff gate ---- */
+  if (inactive) return <AdminInactive />;
 
   /* ---- Filter tab config ---- */
   const TABS: { key: FilterTab; label: string }[] = [
