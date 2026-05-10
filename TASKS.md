@@ -394,19 +394,19 @@
 - [x] Keep current owner login working
 - [x] Show clear access denied message where needed
 - [x] Run npm run build successfully
-- [ ] Commit Phase 7B to Git
+- [x] Commit Phase 7B to Git
 
 ### Phase 7C: Admin Staff Management
 
-- [ ] Create /admin/staff or /admin/settings/staff page
-- [ ] Owner can view staff list
-- [ ] Owner can create/invite staff user
-- [ ] Owner can assign role
-- [ ] Owner can activate/deactivate staff
-- [ ] Owner can update staff full name and role
-- [ ] Prevent non-owner users from accessing staff management
-- [ ] Add clear warnings when changing roles
-- [ ] Run npm run build successfully
+- [x] Create /admin/staff or /admin/settings/staff page
+- [x] Owner can view staff list
+- [x] Owner can create/invite staff user
+- [x] Owner can assign role
+- [x] Owner can activate/deactivate staff
+- [x] Owner can update staff full name and role
+- [x] Prevent non-owner users from accessing staff management
+- [x] Add clear warnings when changing roles
+- [x] Run npm run build successfully
 - [ ] Commit Phase 7C to Git
 
 ### Phase 7D: Doctor Reference in Patient Visits
