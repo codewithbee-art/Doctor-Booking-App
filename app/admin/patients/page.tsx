@@ -78,6 +78,8 @@ interface PatientVisit {
   prescribed_medicines: string | null;
   follow_up_instructions: string | null;
   condition_summary: string | null;
+  doctor_id: string | null;
+  doctor_name_snapshot: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -352,6 +354,8 @@ function AdminPatientsContent() {
           prescribed_medicines: visitMedicines.trim() || null,
           follow_up_instructions: visitFollowUp.trim() || null,
           condition_summary: visitCondition.trim() || null,
+          doctor_id: staffProfile?.id || null,
+          doctor_name_snapshot: staffProfile?.full_name || null,
         }),
       });
       const json = await res.json();
@@ -366,7 +370,7 @@ function AdminPatientsContent() {
     } finally {
       setSavingVisit(false);
     }
-  }, [selectedPatient, visitDate, visitComplaint, visitNotes, visitMedicines, visitFollowUp, visitCondition, resetVisitForm, openDetail]);
+  }, [selectedPatient, visitDate, visitComplaint, visitNotes, visitMedicines, visitFollowUp, visitCondition, staffProfile, resetVisitForm, openDetail]);
 
   // Auto-open patient from URL ?id= param
   useEffect(() => {
@@ -412,6 +416,8 @@ function AdminPatientsContent() {
           prescribed_medicines: editMedicines.trim() || null,
           follow_up_instructions: editFollowUp.trim() || null,
           condition_summary: editCondition.trim() || null,
+          doctor_id: staffProfile?.id || null,
+          doctor_name_snapshot: staffProfile?.full_name || null,
         }),
       });
       const json = await res.json();
@@ -423,7 +429,7 @@ function AdminPatientsContent() {
     } finally {
       setSavingEdit(false);
     }
-  }, [editingVisit, editDate, editComplaint, editNotes, editMedicines, editFollowUp, editCondition, selectedPatient, openDetail]);
+  }, [editingVisit, editDate, editComplaint, editNotes, editMedicines, editFollowUp, editCondition, staffProfile, selectedPatient, openDetail]);
 
   // Open checkup from active booking
   const openCheckupFromBooking = useCallback(async (booking: PatientBooking) => {
@@ -471,6 +477,8 @@ function AdminPatientsContent() {
           prescribed_medicines: checkupMedicines.trim() || null,
           follow_up_instructions: checkupFollowUp.trim() || null,
           condition_summary: checkupCondition.trim() || null,
+          doctor_id: staffProfile?.id || null,
+          doctor_name_snapshot: staffProfile?.full_name || null,
           complete_booking: completeBooking,
         }),
       });
@@ -484,7 +492,7 @@ function AdminPatientsContent() {
     } finally {
       setSavingCheckup(false);
     }
-  }, [checkupBookingId, checkupDate, checkupComplaint, checkupNotes, checkupMedicines, checkupFollowUp, checkupCondition, selectedPatient, openDetail]);
+  }, [checkupBookingId, checkupDate, checkupComplaint, checkupNotes, checkupMedicines, checkupFollowUp, checkupCondition, staffProfile, selectedPatient, openDetail]);
 
   // Open edit profile
   const openEditProfile = useCallback(() => {
@@ -746,6 +754,8 @@ function AdminPatientsContent() {
             prescribed_medicines: apVisitMedicines.trim() || null,
             follow_up_instructions: apVisitFollowUp.trim() || null,
             condition_summary: apVisitCondition.trim() || null,
+            doctor_id: staffProfile?.id || null,
+            doctor_name_snapshot: staffProfile?.full_name || null,
           }),
         });
         const vJson = await vRes.json();
@@ -760,7 +770,7 @@ function AdminPatientsContent() {
     } finally {
       setSavingNewPatient(false);
     }
-  }, [apName, apPhone, apEmail, apDob, apNotes, apIdentityNotes, apAddVisit, apVisitDate, apVisitComplaint, apVisitNotes, apVisitMedicines, apVisitFollowUp, apVisitCondition, fetchPatients, search, openDetail]);
+  }, [apName, apPhone, apEmail, apDob, apNotes, apIdentityNotes, apAddVisit, apVisitDate, apVisitComplaint, apVisitNotes, apVisitMedicines, apVisitFollowUp, apVisitCondition, staffProfile, fetchPatients, search, openDetail]);
 
   // Search for existing patient in walk-in flow
   const searchWalkinPatient = useCallback(async (term: string) => {
@@ -1424,6 +1434,9 @@ function AdminPatientsContent() {
                               ) : (
                                 <span className="ml-2 inline-block rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 font-body text-xs text-amber-700">Walk-in</span>
                               )}
+                              <span className="ml-2 font-body text-xs text-text-secondary">
+                                Treated by: {v.doctor_name_snapshot || <span className="italic">Not recorded</span>}
+                              </span>
                             </div>
                             <button
                               onClick={() => openEditVisit(v)}

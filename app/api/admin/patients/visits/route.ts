@@ -16,6 +16,8 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
  *   prescribed_medicines   (optional, text)
  *   follow_up_instructions (optional, text)
  *   condition_summary      (optional, text)
+ *   doctor_id              (optional, uuid — staff_profiles.id)
+ *   doctor_name_snapshot   (optional, text — doctor name at time of visit)
  */
 export async function POST(request: NextRequest) {
   try {
@@ -31,6 +33,8 @@ export async function POST(request: NextRequest) {
       prescribed_medicines = null,
       follow_up_instructions = null,
       condition_summary = null,
+      doctor_id = null,
+      doctor_name_snapshot = null,
     } = body;
 
     // Validate required fields
@@ -90,8 +94,10 @@ export async function POST(request: NextRequest) {
         prescribed_medicines: prescribed_medicines || null,
         follow_up_instructions: follow_up_instructions || null,
         condition_summary: condition_summary || null,
+        doctor_id: doctor_id || null,
+        doctor_name_snapshot: doctor_name_snapshot || null,
       })
-      .select("id, visit_date_ad, visit_date_bs, chief_complaint, visit_notes, prescribed_medicines, follow_up_instructions, condition_summary, created_at")
+      .select("id, visit_date_ad, visit_date_bs, chief_complaint, visit_notes, prescribed_medicines, follow_up_instructions, condition_summary, doctor_id, doctor_name_snapshot, created_at")
       .single();
 
     if (insertErr) {
@@ -123,6 +129,8 @@ export async function POST(request: NextRequest) {
  *   prescribed_medicines   (optional)
  *   follow_up_instructions (optional)
  *   condition_summary      (optional)
+ *   doctor_id              (optional, uuid)
+ *   doctor_name_snapshot   (optional, text)
  */
 export async function PATCH(request: NextRequest) {
   try {
@@ -158,6 +166,8 @@ export async function PATCH(request: NextRequest) {
     if ("prescribed_medicines" in body) updates.prescribed_medicines = body.prescribed_medicines || null;
     if ("follow_up_instructions" in body) updates.follow_up_instructions = body.follow_up_instructions || null;
     if ("condition_summary" in body) updates.condition_summary = body.condition_summary || null;
+    if ("doctor_id" in body) updates.doctor_id = body.doctor_id || null;
+    if ("doctor_name_snapshot" in body) updates.doctor_name_snapshot = body.doctor_name_snapshot || null;
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json(
@@ -170,7 +180,7 @@ export async function PATCH(request: NextRequest) {
       .from("patient_visits")
       .update(updates)
       .eq("id", visit_id)
-      .select("id, visit_date_ad, visit_date_bs, booking_id, chief_complaint, visit_notes, prescribed_medicines, follow_up_instructions, condition_summary, created_at, updated_at")
+      .select("id, visit_date_ad, visit_date_bs, booking_id, chief_complaint, visit_notes, prescribed_medicines, follow_up_instructions, condition_summary, doctor_id, doctor_name_snapshot, created_at, updated_at")
       .single();
 
     if (updateErr) {

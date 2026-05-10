@@ -15,7 +15,7 @@ export async function GET(
   try {
     const { data: visit } = await supabaseAdmin
       .from("patient_visits")
-      .select("id, visit_date_ad, visit_date_bs, chief_complaint, visit_notes, prescribed_medicines, follow_up_instructions, condition_summary, created_at, updated_at")
+      .select("id, visit_date_ad, visit_date_bs, chief_complaint, visit_notes, prescribed_medicines, follow_up_instructions, condition_summary, doctor_id, doctor_name_snapshot, created_at, updated_at")
       .eq("booking_id", bookingId)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -41,6 +41,8 @@ export async function GET(
  *   prescribed_medicines   (optional)
  *   follow_up_instructions (optional)
  *   condition_summary      (optional)
+ *   doctor_id              (optional, uuid — staff_profiles.id)
+ *   doctor_name_snapshot   (optional, text — doctor name at time of visit)
  *   complete_booking       (optional, boolean — if true, marks booking as completed)
  */
 export async function POST(
@@ -58,6 +60,8 @@ export async function POST(
       prescribed_medicines = null,
       follow_up_instructions = null,
       condition_summary = null,
+      doctor_id = null,
+      doctor_name_snapshot = null,
       complete_booking = false,
     } = body;
 
@@ -110,6 +114,8 @@ export async function POST(
           prescribed_medicines: prescribed_medicines || null,
           follow_up_instructions: follow_up_instructions || null,
           condition_summary: condition_summary || null,
+          doctor_id: doctor_id || null,
+          doctor_name_snapshot: doctor_name_snapshot || null,
         })
         .eq("id", existingVisit.id);
 
@@ -134,6 +140,8 @@ export async function POST(
           prescribed_medicines: prescribed_medicines || null,
           follow_up_instructions: follow_up_instructions || null,
           condition_summary: condition_summary || null,
+          doctor_id: doctor_id || null,
+          doctor_name_snapshot: doctor_name_snapshot || null,
         })
         .select("id")
         .single();

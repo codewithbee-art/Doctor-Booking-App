@@ -361,6 +361,8 @@ export default function AdminDashboardPage() {
           prescribed_medicines: checkupMedicines.trim() || null,
           follow_up_instructions: checkupFollowUp.trim() || null,
           condition_summary: checkupCondition.trim() || null,
+          doctor_id: staffProfile?.id || null,
+          doctor_name_snapshot: staffProfile?.full_name || null,
           complete_booking: completeBooking,
         }),
       });
@@ -374,7 +376,7 @@ export default function AdminDashboardPage() {
     } finally {
       setSavingCheckup(false);
     }
-  }, [checkupBooking, checkupDate, checkupComplaint, checkupNotes, checkupMedicines, checkupFollowUp, checkupCondition, refreshBookings]);
+  }, [checkupBooking, checkupDate, checkupComplaint, checkupNotes, checkupMedicines, checkupFollowUp, checkupCondition, staffProfile, refreshBookings]);
 
   /* ---- Loading gate ---- */
   if (checking) {

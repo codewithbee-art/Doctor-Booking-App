@@ -407,17 +407,17 @@
 - [x] Prevent non-owner users from accessing staff management
 - [x] Add clear warnings when changing roles
 - [x] Run npm run build successfully
-- [ ] Commit Phase 7C to Git
+- [x] Commit Phase 7C to Git
 
 ### Phase 7D: Doctor Reference in Patient Visits
 
-- [ ] When doctor/admin saves a visit, attach current staff profile as doctor_id where appropriate
-- [ ] Store doctor_name_snapshot on patient_visits
-- [ ] Show “Treated by” doctor name in patient visit history
-- [ ] Show doctor name in booking-linked checkup records
-- [ ] For old visits without doctor reference, show “Not recorded”
-- [ ] Keep walk-in visits and booking-linked visits working
-- [ ] Run npm run build successfully
+- [x] When doctor/admin saves a visit, attach current staff profile as doctor_id where appropriate
+- [x] Store doctor_name_snapshot on patient_visits
+- [x] Show “Treated by” doctor name in patient visit history
+- [x] Show doctor name in booking-linked checkup records
+- [x] For old visits without doctor reference, show “Not recorded”
+- [x] Keep walk-in visits and booking-linked visits working
+- [x] Run npm run build successfully
 - [ ] Commit Phase 7D to Git
 
 
