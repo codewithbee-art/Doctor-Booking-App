@@ -325,7 +325,59 @@
 - [x] Link both pages from Footer
 - [x] Add metadata for both pages
 - [x] Run npm run build successfully
-- [ ] Commit Phase 6G to Git
+- [x] Commit Phase 6G to Git
+
+### Phase 6H: Booking and Patient Record Workflow Improvements
+
+- [ ] Add cancellation reason support when cancelling a booking
+- [ ] Add cancellation reason presets and optional custom reason
+- [ ] Store cancellation reason on the booking record
+- [ ] Store cancelled_at timestamp where useful
+- [ ] Show cancellation reason in Cancelled tab and booking details
+- [ ] Show cancellation reason inside patient booking history
+- [ ] Add manual patient search inside duplicate review area
+- [ ] Allow doctor/admin to search by name, phone, email, or date of birth
+- [ ] Allow doctor/admin to manually compare patient records before merging
+- [ ] Allow doctor/admin to keep records separate if they are not the same person
+- [ ] Improve duplicate review wording so it is clear these are suggestions only
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 6H to Git
+
+### Phase 6I: Staff Profiles, Doctor Reference, Roles, and Permissions
+
+- [ ] Plan staff/admin user roles
+- [ ] Create staff_profiles table linked to Supabase Auth users
+- [ ] Add roles such as owner, doctor, receptionist, inventory_manager, content_editor
+- [ ] Add admin user management page
+- [ ] Allow owner/super admin to invite or create staff users
+- [ ] Add role-based access control for admin sections
+- [ ] Add doctor reference to patient visits
+- [ ] Store doctor_id and doctor_name_snapshot on visit records
+- [ ] Show treated-by doctor name in patient visit history
+- [ ] Add profile/settings page for admin users
+- [ ] Add password change or password reset flow
+- [ ] Protect sensitive patient records based on role
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 6I to Git
+
+
+## Phase 6J: Real BS/AD Calendar Support
+
+- [ ] Add real Nepali BS date conversion utility
+- [ ] Decide whether to use a package like `nepali-date-converter` or custom converter
+- [ ] Make BS the default calendar mode on the booking page
+- [ ] Keep AD calendar switch available
+- [ ] Show selected appointment date in both BS and AD
+- [ ] Store appointment_date_ad as the source of truth in Supabase
+- [ ] Store appointment_date_bs as display/reference value in bookings
+- [ ] Update available slot display so patients can choose dates easily in BS
+- [ ] Populate or calculate slot_date_bs for available slots where needed
+- [ ] Make sure `/api/slots?date=YYYY-MM-DD` still uses AD internally
+- [ ] Make admin dashboard show both BS and AD dates where useful
+- [ ] Make patient records and booking history show both BS and AD dates where useful
+- [ ] Test booking, rescheduling, availability blocking, and specialist scheduling with BS/AD dates
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 6J to Git
 
 ## Phase 7: Visiting Specialists
 

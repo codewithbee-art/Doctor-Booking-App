@@ -110,8 +110,8 @@ Phase 2: Complete (2C — health check route; schema + seed SQL run successfully
 Phase 3: Complete (3E — booking form connected to real API; end-to-end booking flow working; BS/AD toggle maintained)  
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
-Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, 6E-fix patient identity safety, 6F Ayurveda education page)
-Phase 7: Current (Visiting Specialists)  
+Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, 6E-fix patient identity safety, 6F Ayurveda education page, 6G Privacy policy and Terms of Service, Current: Phase 6H Booking and Patient Record Workflow Improvements)
+Phase 7: Not started
 Phase 8: Not started  
 Phase 9: Not started  
 Phase 10: Not started  
@@ -330,6 +330,51 @@ Phase 10: Not started
 - Present long content in readable sections, cards, and accordions
 - Keep the design calm, professional, accessible, and easy for all age groups
 - Add a consultation CTA at the bottom
+
+### Phase 6G: Privacy policy and Terms of Service
+
+- Add a privacy policy page
+- Add a terms of service page
+- Add links to these pages in the footer
+
+#### Phase 6H: Booking and Patient Record Workflow Improvements
+
+- Add cancellation reason support when cancelling a booking
+- Add cancellation reason presets and optional custom reason
+- Store cancellation reason on the booking record
+- Store cancelled_at timestamp where useful
+- Show cancellation reason in the Cancelled tab and booking details
+- Show cancellation reason inside patient booking history
+- Add manual patient search inside duplicate review area
+- Allow doctor/admin to search by name, phone, email, or date of birth
+- Allow doctor/admin to manually compare patient records before merging
+- Allow doctor/admin to keep records separate if they are not the same person
+- Improve duplicate review wording so it is clear these are suggestions only
+
+#### Phase 6I: Staff Profiles, Doctor Reference, Roles, and Permissions
+
+- Plan staff and admin user roles
+- Create staff profiles linked to Supabase Auth users
+- Add roles such as owner, doctor, receptionist, inventory manager, and content editor
+- Add admin user management page
+- Allow owner/super admin to invite or create staff users
+- Add role-based access control for admin sections
+- Add doctor reference to patient visits
+- Store doctor_id and doctor_name_snapshot on visit records
+- Show treated-by doctor name in patient visit history
+- Add profile/settings page for admin users
+- Add password change or password reset flow
+- Protect sensitive patient records based on role
+
+
+#### Phase 6J: Real BS/AD Calendar Support
+
+- Implement real Nepali BS/AD calendar support for the booking system
+- BS should be the default patient-facing calendar mode
+- AD should remain available through a toggle
+- AD date should remain the database source of truth for querying and slot logic
+- BS date should be shown clearly for Nepali users and stored where useful for display/reference
+- Booking, admin dashboard, patient records, availability management, and rescheduling should continue working with AD internally while showing BS/AD dates clearly to users
 
 ### Phase 7: Visiting Specialists
 
