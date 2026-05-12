@@ -437,16 +437,19 @@
 - [x] Make patient records and booking history show both BS and AD dates where useful
 - [x] Test booking, rescheduling, availability blocking, and specialist scheduling with BS/AD dates
 - [x] Run npm run build successfully
-- [ ] Commit Phase 8 to Git
+- [x] Commit Phase 8 to Git
 
 ## Phase 9: Visiting Specialists
 
-- [ ] Create public specialists page
-- [ ] Add homepage specialists preview
-- [ ] Create specialists API
-- [ ] Create admin specialists page
-- [ ] Add specialist CRUD
-- [ ] Run npm run build successfully
+- [x] Create public specialists page
+- [x] Create specialist cards
+- [x] Add homepage specialists preview
+- [x] Create specialists API
+- [x] Create admin specialists page
+- [x] Add specialist CRUD
+- [x] Show specialist visit dates in BS and AD
+- [x] Allow admin to activate/deactivate specialist visits
+- [x] Run npm run build successfully
 - [ ] Commit Phase 9 to Git
 
 ## Phase 10: Blog
