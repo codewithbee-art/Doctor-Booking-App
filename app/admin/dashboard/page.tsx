@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
 import LogoutButton from "./LogoutButton";
+import { formatBS } from "@/lib/dateConvert";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -571,7 +572,7 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="px-4 py-3 font-body text-sm text-text-primary whitespace-nowrap">
                           {formatDate(b.appointment_date_ad)}<br />
-                          <span className="text-text-secondary text-xs">{formatTime(b.appointment_time)}</span>
+                          <span className="text-text-secondary text-xs">{formatBS(b.appointment_date_ad)} &middot; {formatTime(b.appointment_time)}</span>
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-block rounded-full border px-3 py-0.5 font-body text-xs font-semibold capitalize ${STATUS_STYLES[b.status] ?? "border-border bg-bg-light text-text-secondary"}`}>
@@ -804,7 +805,7 @@ export default function AdminDashboardPage() {
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Phone</dt><dd className="text-text-primary">{selectedBooking.patient_phone}</dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Email</dt><dd className="text-text-primary">{selectedBooking.patient_email || "—"}</dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Problem</dt><dd className="text-text-primary whitespace-pre-wrap">{selectedBooking.problem}</dd></div>
-              <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Date</dt><dd className="text-text-primary">{formatDate(selectedBooking.appointment_date_ad)}</dd></div>
+              <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Date</dt><dd className="text-text-primary">{formatBS(selectedBooking.appointment_date_ad)} <span className="text-text-secondary text-xs">({formatDate(selectedBooking.appointment_date_ad)})</span></dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Time</dt><dd className="text-text-primary">{formatTime(selectedBooking.appointment_time)}</dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Status</dt><dd><span className={`inline-block rounded-full border px-3 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[selectedBooking.status] ?? "border-border bg-bg-light text-text-secondary"}`}>{selectedBooking.status}</span></dd></div>
               {selectedBooking.status === "cancelled" && selectedBooking.cancellation_reason && (

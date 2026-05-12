@@ -6,6 +6,7 @@ import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import LogoutButton from "../dashboard/LogoutButton";
+import { formatBS } from "@/lib/dateConvert";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -841,12 +842,12 @@ function AdminPatientsContent() {
           <div className="flex items-center gap-3">
             <a
               href="/admin/dashboard"
-              className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+              className="inline-flex items-center gap-1 sm:gap-2 rounded-lg border border-border bg-white px-2.5 sm:px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
               </svg>
-              Dashboard
+              <span className="hidden sm:inline">Dashboard</span>
             </a>
             {userEmail && (
               <span className="font-body text-sm text-text-secondary hidden md:inline">{userEmail}</span>
@@ -1219,7 +1220,7 @@ function AdminPatientsContent() {
                           <div key={b.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-white p-4">
                             <div className="min-w-0 flex-1">
                               <p className="font-body text-sm font-semibold text-text-primary">
-                                {formatDate(b.appointment_date_ad)} at {formatTime(b.appointment_time)}
+                                {formatBS(b.appointment_date_ad)} <span className="font-normal text-xs text-text-secondary">({formatDate(b.appointment_date_ad)})</span> at {formatTime(b.appointment_time)}
                               </p>
                               <p className="font-body text-xs text-text-secondary truncate">{b.problem}</p>
                               <span className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[b.status] || ""}`}>
@@ -1268,7 +1269,7 @@ function AdminPatientsContent() {
                         <tbody>
                           {patientBookings.map((b) => (
                             <tr key={b.id} className="border-b border-border/50 last:border-0">
-                              <td className="py-2 pr-4 text-text-primary whitespace-nowrap">{formatDate(b.appointment_date_ad)}</td>
+                              <td className="py-2 pr-4 text-text-primary whitespace-nowrap">{formatBS(b.appointment_date_ad)} <span className="text-text-secondary text-xs">({formatDate(b.appointment_date_ad)})</span></td>
                               <td className="py-2 pr-4 text-text-primary whitespace-nowrap">{formatTime(b.appointment_time)}</td>
                               <td className="py-2 pr-4 text-text-primary max-w-[200px] truncate">{b.problem}</td>
                               <td className="py-2">
@@ -1427,7 +1428,10 @@ function AdminPatientsContent() {
                           <div className="flex items-center justify-between mb-2">
                             <div>
                               <span className="font-body text-sm font-semibold text-text-primary">
-                                {formatDate(v.visit_date_ad)}
+                                {formatBS(v.visit_date_ad)}
+                              </span>
+                              <span className="ml-1 font-body text-xs text-text-secondary">
+                                ({formatDate(v.visit_date_ad)})
                               </span>
                               {v.booking_id ? (
                                 <span className="ml-2 inline-block rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 font-body text-xs text-primary">Linked to booking</span>
@@ -1879,7 +1883,7 @@ function AdminPatientsContent() {
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Patient</dt><dd className="text-text-primary">{viewBooking.patient_name}</dd></div>
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Phone</dt><dd className="text-text-primary">{viewBooking.patient_phone}</dd></div>
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Problem</dt><dd className="text-text-primary">{viewBooking.problem}</dd></div>
-              <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Date</dt><dd className="text-text-primary">{formatDate(viewBooking.appointment_date_ad)}</dd></div>
+              <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Date</dt><dd className="text-text-primary">{formatBS(viewBooking.appointment_date_ad)} <span className="text-text-secondary text-xs">({formatDate(viewBooking.appointment_date_ad)})</span></dd></div>
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Time</dt><dd className="text-text-primary">{formatTime(viewBooking.appointment_time)}</dd></div>
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Status</dt><dd><span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[viewBooking.status] || ""}`}>{viewBooking.status}</span></dd></div>
               {viewBooking.status === "cancelled" && viewBooking.cancellation_reason && (

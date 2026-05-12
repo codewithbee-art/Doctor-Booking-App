@@ -315,12 +315,12 @@ export default function AdminAvailabilityPage() {
           <div className="flex items-center gap-4">
             <a
               href="/admin/dashboard"
-              className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors"
+              className="inline-flex items-center gap-1 sm:gap-2 rounded-lg border border-border bg-white px-2.5 sm:px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
               </svg>
-              Dashboard
+              <span className="hidden sm:inline">Dashboard</span>
             </a>
             {userEmail && (
               <span className="font-body text-sm text-text-secondary hidden md:inline">{userEmail}</span>

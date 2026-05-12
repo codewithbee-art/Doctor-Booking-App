@@ -418,25 +418,25 @@
 - [x] For old visits without doctor reference, show “Not recorded”
 - [x] Keep walk-in visits and booking-linked visits working
 - [x] Run npm run build successfully
-- [ ] Commit Phase 7D to Git
+- [x] Commit Phase 7D to Git
 
 
 ## Phase 8: Real BS/AD Calendar Support
 
-- [ ] Add real Nepali BS date conversion utility
-- [ ] Decide whether to use a package like `nepali-date-converter` or custom converter
-- [ ] Make BS the default calendar mode on the booking page
-- [ ] Keep AD calendar switch available
-- [ ] Show selected appointment date in both BS and AD
-- [ ] Store appointment_date_ad as the source of truth in Supabase
-- [ ] Store appointment_date_bs as display/reference value in bookings
-- [ ] Update available slot display so patients can choose dates easily in BS
-- [ ] Populate or calculate slot_date_bs for available slots where needed
-- [ ] Make sure `/api/slots?date=YYYY-MM-DD` still uses AD internally
-- [ ] Make admin dashboard show both BS and AD dates where useful
-- [ ] Make patient records and booking history show both BS and AD dates where useful
-- [ ] Test booking, rescheduling, availability blocking, and specialist scheduling with BS/AD dates
-- [ ] Run npm run build successfully
+- [x] Add real Nepali BS date conversion utility
+- [x] Decide whether to use a package like `nepali-date-converter` or custom converter
+- [x] Make BS the default calendar mode on the booking page
+- [x] Keep AD calendar switch available
+- [x] Show selected appointment date in both BS and AD
+- [x] Store appointment_date_ad as the source of truth in Supabase
+- [x] Store appointment_date_bs as display/reference value in bookings
+- [x] Update available slot display so patients can choose dates easily in BS
+- [x] Populate or calculate slot_date_bs for available slots where needed
+- [x] Make sure `/api/slots?date=YYYY-MM-DD` still uses AD internally
+- [x] Make admin dashboard show both BS and AD dates where useful
+- [x] Make patient records and booking history show both BS and AD dates where useful
+- [x] Test booking, rescheduling, availability blocking, and specialist scheduling with BS/AD dates
+- [x] Run npm run build successfully
 - [ ] Commit Phase 8 to Git
 
 ## Phase 9: Visiting Specialists
@@ -491,5 +491,12 @@
 - [ ] Add Vercel deployment instructions
 - [ ] Deploy to Vercel
 
-### UI/UX polish
-- [ ] Improve admin patient search so formatted phone numbers like +977-98-1234-5678 match normalized stored numbers
+
+### Admin Mobile Navigation Polish
+
+- [ ] Add mobile-friendly admin navigation menu
+- [ ] Show quick links to Dashboard, Patients, Availability, Staff, and future admin sections
+- [ ] Keep Logout visible but separate from navigation
+- [ ] Ensure admin navigation works well on small screens
+- [ ] Run npm run build successfully
+- [ ] Commit admin mobile navigation polish to Git

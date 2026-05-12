@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import BSADCalendar, { CalendarMode } from "@/components/BSADCalendar";
 import TimeSlotPicker, { TimeSlot } from "@/components/TimeSlotPicker";
 import BookingForm, { BookingFormData } from "@/components/BookingForm";
+import { formatBS } from "@/lib/dateConvert";
 
 type Step = "pick" | "details" | "success";
 
@@ -119,7 +120,7 @@ export default function BookingPage() {
           patient_email: data.email || undefined,
           problem: data.problem,
           appointment_date_ad: selectedDate,
-          appointment_date_bs: "", // BS conversion not implemented yet
+          appointment_date_bs: formatBS(selectedDate),
           appointment_time: selectedTime,
         }),
       });
@@ -219,7 +220,10 @@ export default function BookingPage() {
               <div className="mt-5 inline-block rounded-xl border border-light-blue bg-light-blue/30 px-6 py-4 text-left">
                 <p className="font-body text-sm font-semibold text-primary mb-2">Appointment Details</p>
                 <p className="font-body text-base text-text-primary">
-                  <span className="font-semibold">Date:</span> {formatDisplayDate(selectedDate)}
+                  <span className="font-semibold">Date (BS):</span> {formatBS(selectedDate)}
+                </p>
+                <p className="font-body text-sm text-text-secondary mt-0.5">
+                  <span className="font-semibold">Date (AD):</span> {formatDisplayDate(selectedDate)}
                 </p>
                 <p className="font-body text-base text-text-primary mt-1">
                   <span className="font-semibold">Time:</span> {formatDisplayTime(selectedTime)}
@@ -328,13 +332,7 @@ export default function BookingPage() {
                             <button
                               key={mode}
                               type="button"
-                              onClick={() => {
-                                setCalendarMode(mode);
-                                setSelectedDate(null);
-                                setSelectedTime(null);
-                                setSlots([]);
-                                setSlotsError(null);
-                              }}
+                              onClick={() => setCalendarMode(mode)}
                               aria-pressed={calendarMode === mode}
                               className={[
                                 "px-4 py-1.5 font-body text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary",
