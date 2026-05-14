@@ -450,7 +450,83 @@
 - [x] Show specialist visit dates in BS and AD
 - [x] Allow admin to activate/deactivate specialist visits
 - [x] Run npm run build successfully
-- [ ] Commit Phase 9 to Git
+- [x] Commit Phase 9 to Git
+
+### Phase 9A: Specialist Detail Page
+
+- [ ] Add optional profile/detail fields to `visiting_specialists`:
+  - bio
+  - qualifications
+  - experience
+  - work_history
+  - treatment_areas
+  - profile_image_url
+  - visit_location
+  - public_note
+  - preparation_note
+  - languages
+  - gender
+  - license_number
+  - consultation_mode
+  - display_order
+- [ ] Create safe Supabase migration for the new specialist fields
+- [ ] Update TypeScript database types
+- [ ] Update admin specialist form to edit optional profile/detail fields
+- [ ] Add visit location field to admin specialist form
+- [ ] Add public note and preparation note fields to admin specialist form
+- [ ] Add languages spoken field to admin specialist form
+- [ ] Add optional gender field to admin specialist form
+- [ ] Add optional license/registration number field to admin specialist form
+- [ ] Add consultation mode field: In-person, Online, or Both
+- [ ] Add display order field for manual ordering
+- [ ] Allow admin to paste specialist photo URL
+- [ ] Add Supabase Storage support for specialist image uploads if practical
+- [ ] Create or document Supabase Storage bucket for specialist images
+- [ ] Allow admin to upload specialist photo from computer if storage is ready
+- [ ] Store final image URL in `profile_image_url`
+- [ ] Show initials/avatar placeholder when no image is provided
+- [ ] Create public `/specialists/[id]` detail page
+- [ ] Add View Profile button on specialist cards
+- [ ] Show visit location on public specialist cards
+- [ ] Show consultation mode on public specialist cards
+- [ ] Show consultation fee or Free Consultation clearly
+- [ ] Show specialist visit date in BS and AD
+- [ ] Detail page should show doctor photo/avatar, profile details, visit location, fee/free, BS/AD date, time, treatment areas, public note, and preparation note
+- [ ] Keep inactive specialists hidden publicly
+- [ ] Add placeholder CTA: Specialist booking coming soon
+- [ ] Keep specialist booking for Phase 9B
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 9A to Git
+
+### Phase 9A-fix: Specialist Image Upload
+
+- [ ] Create Supabase Storage bucket for specialist images
+- [ ] Add image upload button to admin specialist form
+- [ ] Allow admin to upload doctor photo from computer
+- [ ] Upload image to Supabase Storage using safe server-side/API logic
+- [ ] Save public image URL into `profile_image_url`
+- [ ] Keep manual image URL input as fallback
+- [ ] Show upload preview in admin form
+- [ ] Validate image file type and size
+- [ ] Show initials/avatar placeholder when no image is available
+- [ ] Ensure uploaded image appears on `/specialists` cards
+- [ ] Ensure uploaded image appears on `/specialists/[id]` detail page
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 9A-fix to Git
+
+### Phase 9B: Specialist Booking Flow
+
+- [ ] Add Book Specialist button on active specialist cards/detail page
+- [ ] Allow patient to book a selected specialist
+- [ ] Link specialist booking to `specialist_id` in bookings
+- [ ] Save `booking_type` as specialist
+- [ ] Show specialist name/type in booking form
+- [ ] Show specialist bookings clearly in admin dashboard
+- [ ] Show specialist booking details in patient records
+- [ ] Prevent booking inactive specialists
+- [ ] Keep regular booking flow working
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 9B to Git
 
 ## Phase 10: Blog
 

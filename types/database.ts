@@ -4,6 +4,9 @@
 // =============================================================
 
 // ----- visiting_specialists ----------------------------------------
+export type ConsultationMode = "in_person" | "online" | "both";
+export type SpecialistGender = "male" | "female" | "other";
+
 export interface VisitingSpecialist {
   id: string;
   specialist_name: string;
@@ -15,6 +18,20 @@ export interface VisitingSpecialist {
   available_to: string; // HH:MM:SS
   consultation_fee: number | null;
   is_active: boolean;
+  bio: string | null;
+  qualifications: string | null;
+  experience: string | null;
+  work_history: string | null;
+  treatment_areas: string | null;
+  profile_image_url: string | null;
+  visit_location: string | null;
+  public_note: string | null;
+  preparation_note: string | null;
+  languages: string | null;
+  gender: SpecialistGender | null;
+  license_number: string | null;
+  consultation_mode: ConsultationMode | null;
+  display_order: number;
   created_at: string;
   updated_at: string;
 }

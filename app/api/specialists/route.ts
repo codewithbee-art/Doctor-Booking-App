@@ -14,9 +14,10 @@ export async function GET() {
     const { data, error } = await supabaseAdmin
       .from("visiting_specialists")
       .select(
-        "id, specialist_name, specialization, treatment_type, visit_date_bs, visit_date_ad, available_from, available_to, consultation_fee"
+        "id, specialist_name, specialization, treatment_type, visit_date_bs, visit_date_ad, available_from, available_to, consultation_fee, visit_location, consultation_mode, profile_image_url, display_order"
       )
       .eq("is_active", true)
+      .order("display_order", { ascending: true })
       .order("visit_date_ad", { ascending: true });
 
     if (error) {

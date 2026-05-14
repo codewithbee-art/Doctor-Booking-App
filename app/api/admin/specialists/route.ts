@@ -82,19 +82,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const optionalText = (key: string) => key in body ? (body[key] ? String(body[key]).trim() : null) : undefined;
+
+    const insertData: Record<string, unknown> = {
+      specialist_name: specialist_name.trim(),
+      specialization: specialization.trim(),
+      treatment_type: treatment_type.trim(),
+      visit_date_bs: visit_date_bs || "",
+      visit_date_ad,
+      available_from,
+      available_to,
+      consultation_fee: consultation_fee != null ? Number(consultation_fee) : null,
+      is_active: true,
+    };
+
+    const textFields = ["bio", "qualifications", "experience", "work_history", "treatment_areas", "profile_image_url", "visit_location", "public_note", "preparation_note", "languages", "license_number"];
+    for (const f of textFields) {
+      const v = optionalText(f);
+      if (v !== undefined) insertData[f] = v;
+    }
+    if ("gender" in body) {
+      const g = body.gender;
+      insertData.gender = g && ["male", "female", "other"].includes(g) ? g : null;
+    }
+    if ("consultation_mode" in body) {
+      const cm = body.consultation_mode;
+      insertData.consultation_mode = cm && ["in_person", "online", "both"].includes(cm) ? cm : null;
+    }
+    if ("display_order" in body) {
+      insertData.display_order = Number(body.display_order) || 0;
+    }
+
     const { data, error } = await supabaseAdmin
       .from("visiting_specialists")
-      .insert({
-        specialist_name: specialist_name.trim(),
-        specialization: specialization.trim(),
-        treatment_type: treatment_type.trim(),
-        visit_date_bs: visit_date_bs || "",
-        visit_date_ad,
-        available_from,
-        available_to,
-        consultation_fee: consultation_fee != null ? Number(consultation_fee) : null,
-        is_active: true,
-      })
+      .insert(insertData)
       .select("*")
       .single();
 
@@ -161,6 +182,24 @@ export async function PATCH(request: NextRequest) {
     }
     if ("is_active" in body && typeof body.is_active === "boolean") {
       updates.is_active = body.is_active;
+    }
+
+    const textFields = ["bio", "qualifications", "experience", "work_history", "treatment_areas", "profile_image_url", "visit_location", "public_note", "preparation_note", "languages", "license_number"];
+    for (const f of textFields) {
+      if (f in body) {
+        updates[f] = body[f] ? String(body[f]).trim() : null;
+      }
+    }
+    if ("gender" in body) {
+      const g = body.gender;
+      updates.gender = g && ["male", "female", "other"].includes(g) ? g : null;
+    }
+    if ("consultation_mode" in body) {
+      const cm = body.consultation_mode;
+      updates.consultation_mode = cm && ["in_person", "online", "both"].includes(cm) ? cm : null;
+    }
+    if ("display_order" in body) {
+      updates.display_order = Number(body.display_order) || 0;
     }
 
     if (Object.keys(updates).length === 0) {

@@ -22,9 +22,27 @@ interface Specialist {
   available_to: string;
   consultation_fee: number | null;
   is_active: boolean;
+  bio: string | null;
+  qualifications: string | null;
+  experience: string | null;
+  work_history: string | null;
+  treatment_areas: string | null;
+  profile_image_url: string | null;
+  visit_location: string | null;
+  public_note: string | null;
+  preparation_note: string | null;
+  languages: string | null;
+  gender: string | null;
+  license_number: string | null;
+  consultation_mode: string | null;
+  display_order: number;
   created_at: string;
   updated_at: string;
 }
+
+const INPUT_CLS = "w-full rounded-lg border border-border px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary";
+const TEXTAREA_CLS = `${INPUT_CLS} min-h-[80px]`;
+const LABEL_CLS = "block font-body text-sm font-semibold text-text-secondary mb-1";
 
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
@@ -45,6 +63,13 @@ function formatDate(dateStr: string) {
   });
 }
 
+function modeLabel(m: string | null) {
+  if (m === "in_person") return "In-person";
+  if (m === "online") return "Online";
+  if (m === "both") return "In-person & Online";
+  return "";
+}
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
@@ -58,7 +83,7 @@ export default function AdminSpecialistsPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  // Form state
+  // Core form state
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formName, setFormName] = useState("");
@@ -69,10 +94,28 @@ export default function AdminSpecialistsPage() {
   const [formTo, setFormTo] = useState("17:00");
   const [formFee, setFormFee] = useState("");
   const [formFree, setFormFree] = useState(false);
+  const [formLocation, setFormLocation] = useState("");
+  const [formConsultMode, setFormConsultMode] = useState("");
+  const [formDisplayOrder, setFormDisplayOrder] = useState("0");
+
+  // Profile form state
+  const [showProfile, setShowProfile] = useState(false);
+  const [formImageUrl, setFormImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadMsg, setUploadMsg] = useState<string | null>(null);
+  const [formBio, setFormBio] = useState("");
+  const [formQualifications, setFormQualifications] = useState("");
+  const [formExperience, setFormExperience] = useState("");
+  const [formWorkHistory, setFormWorkHistory] = useState("");
+  const [formTreatmentAreas, setFormTreatmentAreas] = useState("");
+  const [formLanguages, setFormLanguages] = useState("");
+  const [formGender, setFormGender] = useState("");
+  const [formLicenseNumber, setFormLicenseNumber] = useState("");
+  const [formPublicNote, setFormPublicNote] = useState("");
+  const [formPrepNote, setFormPrepNote] = useState("");
+
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-
-  // Delete / toggle state
   const [actionError, setActionError] = useState<string | null>(null);
 
   /* ---- Auth ---- */
@@ -122,14 +165,16 @@ export default function AdminSpecialistsPage() {
   function resetForm() {
     setShowForm(false);
     setEditingId(null);
-    setFormName("");
-    setFormSpecialization("");
-    setFormTreatment("");
-    setFormDateAD("");
-    setFormFrom("09:00");
-    setFormTo("17:00");
-    setFormFee("");
-    setFormFree(false);
+    setFormName(""); setFormSpecialization(""); setFormTreatment("");
+    setFormDateAD(""); setFormFrom("09:00"); setFormTo("17:00");
+    setFormFee(""); setFormFree(false);
+    setFormLocation(""); setFormConsultMode(""); setFormDisplayOrder("0");
+    setShowProfile(false);
+    setUploadMsg(null);
+    setFormImageUrl(""); setFormBio(""); setFormQualifications("");
+    setFormExperience(""); setFormWorkHistory(""); setFormTreatmentAreas("");
+    setFormLanguages(""); setFormGender(""); setFormLicenseNumber("");
+    setFormPublicNote(""); setFormPrepNote("");
     setFormError(null);
   }
 
@@ -148,6 +193,22 @@ export default function AdminSpecialistsPage() {
     setFormTo(s.available_to.slice(0, 5));
     setFormFee(s.consultation_fee != null ? String(s.consultation_fee) : "");
     setFormFree(s.consultation_fee == null);
+    setFormLocation(s.visit_location || "");
+    setFormConsultMode(s.consultation_mode || "");
+    setFormDisplayOrder(String(s.display_order ?? 0));
+    setFormImageUrl(s.profile_image_url || "");
+    setFormBio(s.bio || "");
+    setFormQualifications(s.qualifications || "");
+    setFormExperience(s.experience || "");
+    setFormWorkHistory(s.work_history || "");
+    setFormTreatmentAreas(s.treatment_areas || "");
+    setFormLanguages(s.languages || "");
+    setFormGender(s.gender || "");
+    setFormLicenseNumber(s.license_number || "");
+    setFormPublicNote(s.public_note || "");
+    setFormPrepNote(s.preparation_note || "");
+    const hasProfile = !!(s.bio || s.qualifications || s.experience || s.work_history || s.treatment_areas || s.profile_image_url || s.languages || s.gender || s.license_number || s.public_note || s.preparation_note);
+    setShowProfile(hasProfile);
     setFormError(null);
     setShowForm(true);
   }
@@ -164,7 +225,7 @@ export default function AdminSpecialistsPage() {
 
     setSaving(true);
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       id: editingId || undefined,
       specialist_name: formName.trim(),
       specialization: formSpecialization.trim(),
@@ -174,6 +235,20 @@ export default function AdminSpecialistsPage() {
       available_from: formFrom,
       available_to: formTo,
       consultation_fee: formFree ? null : (formFee ? Number(formFee) : null),
+      visit_location: formLocation.trim() || null,
+      consultation_mode: formConsultMode || null,
+      display_order: Number(formDisplayOrder) || 0,
+      profile_image_url: formImageUrl.trim() || null,
+      bio: formBio.trim() || null,
+      qualifications: formQualifications.trim() || null,
+      experience: formExperience.trim() || null,
+      work_history: formWorkHistory.trim() || null,
+      treatment_areas: formTreatmentAreas.trim() || null,
+      languages: formLanguages.trim() || null,
+      gender: formGender || null,
+      license_number: formLicenseNumber.trim() || null,
+      public_note: formPublicNote.trim() || null,
+      preparation_note: formPrepNote.trim() || null,
     };
 
     try {
@@ -240,13 +315,8 @@ export default function AdminSpecialistsPage() {
             <h1 className="font-heading text-xl font-bold text-text-primary">Visiting Specialists</h1>
           </div>
           <div className="flex items-center gap-3">
-            <a
-              href="/admin/dashboard"
-              className="inline-flex items-center gap-1 sm:gap-2 rounded-lg border border-border bg-white px-2.5 sm:px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-              </svg>
+            <a href="/admin/dashboard" className="inline-flex items-center gap-1 sm:gap-2 rounded-lg border border-border bg-white px-2.5 sm:px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg>
               <span className="hidden sm:inline">Dashboard</span>
             </a>
             <LogoutButton />
@@ -255,177 +325,237 @@ export default function AdminSpecialistsPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-6">
-        {/* Action bar */}
         {canManage && (
           <div className="mb-6 flex items-center justify-between">
             <p className="font-body text-sm text-text-secondary">{specialists.length} specialist visit{specialists.length !== 1 ? "s" : ""}</p>
-            <button
-              onClick={openAdd}
-              className="rounded-lg bg-primary px-4 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              + Add Specialist Visit
-            </button>
+            <button onClick={openAdd} className="rounded-lg bg-primary px-4 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">+ Add Specialist Visit</button>
           </div>
         )}
 
-        {/* Errors */}
-        {fetchError && (
-          <div className="mb-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
-            <p className="font-body text-sm text-danger">{fetchError}</p>
-          </div>
-        )}
-        {actionError && (
-          <div className="mb-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3">
-            <p className="font-body text-sm text-danger">{actionError}</p>
-          </div>
-        )}
+        {fetchError && <div className="mb-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3"><p className="font-body text-sm text-danger">{fetchError}</p></div>}
+        {actionError && <div className="mb-4 rounded-lg border border-danger/40 bg-danger/10 px-4 py-3"><p className="font-body text-sm text-danger">{actionError}</p></div>}
 
-        {/* Form */}
+        {/* ---- Form ---- */}
         {showForm && (
           <div className="mb-6 rounded-xl border border-border bg-white p-5 shadow-sm">
-            <h2 className="font-heading text-lg font-bold text-text-primary mb-4">
-              {editingId ? "Edit Specialist Visit" : "Add Specialist Visit"}
-            </h2>
+            <h2 className="font-heading text-lg font-bold text-text-primary mb-4">{editingId ? "Edit Specialist Visit" : "Add Specialist Visit"}</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Core fields */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="sp-name" className="block font-body text-sm font-semibold text-text-secondary mb-1">
-                    Specialist Name <span className="text-danger">*</span>
-                  </label>
-                  <input id="sp-name" type="text" value={formName} onChange={(e) => setFormName(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Dr. Name" />
+                  <label htmlFor="sp-name" className={LABEL_CLS}>Specialist Name <span className="text-danger">*</span></label>
+                  <input id="sp-name" type="text" value={formName} onChange={(e) => setFormName(e.target.value)} className={INPUT_CLS} placeholder="Dr. Name" />
                 </div>
                 <div>
-                  <label htmlFor="sp-spec" className="block font-body text-sm font-semibold text-text-secondary mb-1">
-                    Specialization <span className="text-danger">*</span>
-                  </label>
-                  <input id="sp-spec" type="text" value={formSpecialization} onChange={(e) => setFormSpecialization(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Orthopedics" />
+                  <label htmlFor="sp-spec" className={LABEL_CLS}>Specialization <span className="text-danger">*</span></label>
+                  <input id="sp-spec" type="text" value={formSpecialization} onChange={(e) => setFormSpecialization(e.target.value)} className={INPUT_CLS} placeholder="Orthopedics" />
                 </div>
                 <div>
-                  <label htmlFor="sp-treat" className="block font-body text-sm font-semibold text-text-secondary mb-1">
-                    Treatment Type <span className="text-danger">*</span>
-                  </label>
-                  <input id="sp-treat" type="text" value={formTreatment} onChange={(e) => setFormTreatment(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Joint Pain, Fractures" />
+                  <label htmlFor="sp-treat" className={LABEL_CLS}>Treatment Type <span className="text-danger">*</span></label>
+                  <input id="sp-treat" type="text" value={formTreatment} onChange={(e) => setFormTreatment(e.target.value)} className={INPUT_CLS} placeholder="Joint Pain, Fractures" />
                 </div>
                 <div>
-                  <label htmlFor="sp-date" className="block font-body text-sm font-semibold text-text-secondary mb-1">
-                    Visit Date (AD) <span className="text-danger">*</span>
-                  </label>
-                  <input id="sp-date" type="date" value={formDateAD} onChange={(e) => setFormDateAD(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
-                  {formDateAD && (
-                    <p className="mt-1 font-body text-xs text-primary font-semibold">{formatBS(formDateAD)} (BS)</p>
-                  )}
+                  <label htmlFor="sp-date" className={LABEL_CLS}>Visit Date (AD) <span className="text-danger">*</span></label>
+                  <input id="sp-date" type="date" value={formDateAD} onChange={(e) => setFormDateAD(e.target.value)} className={INPUT_CLS} />
+                  {formDateAD && <p className="mt-1 font-body text-xs text-primary font-semibold">{formatBS(formDateAD)} (BS)</p>}
                 </div>
                 <div>
-                  <label htmlFor="sp-from" className="block font-body text-sm font-semibold text-text-secondary mb-1">
-                    Available From <span className="text-danger">*</span>
-                  </label>
-                  <input id="sp-from" type="time" value={formFrom} onChange={(e) => setFormFrom(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                  <label htmlFor="sp-from" className={LABEL_CLS}>Available From <span className="text-danger">*</span></label>
+                  <input id="sp-from" type="time" value={formFrom} onChange={(e) => setFormFrom(e.target.value)} className={INPUT_CLS} />
                 </div>
                 <div>
-                  <label htmlFor="sp-to" className="block font-body text-sm font-semibold text-text-secondary mb-1">
-                    Available To <span className="text-danger">*</span>
-                  </label>
-                  <input id="sp-to" type="time" value={formTo} onChange={(e) => setFormTo(e.target.value)} className="w-full rounded-lg border border-border px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                  <label htmlFor="sp-to" className={LABEL_CLS}>Available To <span className="text-danger">*</span></label>
+                  <input id="sp-to" type="time" value={formTo} onChange={(e) => setFormTo(e.target.value)} className={INPUT_CLS} />
                 </div>
                 <div>
-                  <label htmlFor="sp-fee" className="block font-body text-sm font-semibold text-text-secondary mb-1">
-                    Consultation Fee (NPR)
-                  </label>
+                  <label htmlFor="sp-fee" className={LABEL_CLS}>Consultation Fee (NPR)</label>
                   <div className="flex items-center gap-3 mb-1.5">
                     <label htmlFor="sp-free" className="inline-flex items-center gap-2 cursor-pointer">
                       <input id="sp-free" type="checkbox" checked={formFree} onChange={(e) => { setFormFree(e.target.checked); if (e.target.checked) setFormFee(""); }} className="h-4 w-4 rounded border-border text-primary focus:ring-primary" />
                       <span className="font-body text-sm text-text-primary">Free Consultation</span>
                     </label>
                   </div>
-                  <input id="sp-fee" type="number" min="0" step="0.01" value={formFee} onChange={(e) => setFormFee(e.target.value)} disabled={formFree} className="w-full rounded-lg border border-border px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 disabled:bg-bg-light" placeholder={formFree ? "Free" : "Optional"} />
+                  <input id="sp-fee" type="number" min="0" step="0.01" value={formFee} onChange={(e) => setFormFee(e.target.value)} disabled={formFree} className={`${INPUT_CLS} disabled:opacity-50 disabled:bg-bg-light`} placeholder={formFree ? "Free" : "Optional"} />
+                </div>
+                <div>
+                  <label htmlFor="sp-location" className={LABEL_CLS}>Visit Location</label>
+                  <input id="sp-location" type="text" value={formLocation} onChange={(e) => setFormLocation(e.target.value)} className={INPUT_CLS} placeholder="e.g. Room 3, Main Building" />
+                </div>
+                <div>
+                  <label htmlFor="sp-mode" className={LABEL_CLS}>Consultation Mode</label>
+                  <select id="sp-mode" value={formConsultMode} onChange={(e) => setFormConsultMode(e.target.value)} className={INPUT_CLS}>
+                    <option value="">— Not set —</option>
+                    <option value="in_person">In-person</option>
+                    <option value="online">Online</option>
+                    <option value="both">Both (In-person & Online)</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="sp-order" className={LABEL_CLS}>Display Order</label>
+                  <input id="sp-order" type="number" min="0" value={formDisplayOrder} onChange={(e) => setFormDisplayOrder(e.target.value)} className={INPUT_CLS} placeholder="0 = default" />
+                  <p className="mt-0.5 font-body text-xs text-text-secondary">Lower numbers appear first on public pages</p>
                 </div>
               </div>
 
-              {formError && (
-                <p className="font-body text-sm text-danger">{formError}</p>
+              {/* Profile details toggle */}
+              <button type="button" onClick={() => setShowProfile(!showProfile)} className="inline-flex items-center gap-2 font-body text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+                <svg className={`h-4 w-4 transition-transform ${showProfile ? "rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                {showProfile ? "Hide Profile Details" : "Show Profile Details (bio, qualifications, image, etc.)"}
+              </button>
+
+              {/* Profile fields */}
+              {showProfile && (
+                <div className="rounded-lg border border-border/60 bg-bg-light/50 p-4 space-y-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="sm:col-span-2">
+                      <label className={LABEL_CLS}>Profile Photo</label>
+                      {/* Upload */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
+                        <label className="inline-flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/5 px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-primary/10 transition-colors cursor-pointer">
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+                          {uploading ? "Uploading..." : "Upload Photo"}
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            className="sr-only"
+                            disabled={uploading}
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              setUploadMsg(null);
+                              if (file.size > 2 * 1024 * 1024) {
+                                setUploadMsg("File too large. Maximum 2 MB.");
+                                return;
+                              }
+                              setUploading(true);
+                              try {
+                                const fd = new FormData();
+                                fd.append("file", file);
+                                const res = await fetch("/api/admin/specialists/upload-image", { method: "POST", body: fd });
+                                const json = await res.json();
+                                if (!res.ok) throw new Error(json.error || "Upload failed");
+                                setFormImageUrl(json.url);
+                                setUploadMsg("Photo uploaded successfully.");
+                              } catch (err) {
+                                setUploadMsg(err instanceof Error ? err.message : "Upload failed");
+                              } finally {
+                                setUploading(false);
+                                e.target.value = "";
+                              }
+                            }}
+                          />
+                        </label>
+                        <span className="font-body text-xs text-text-secondary">JPEG, PNG, WebP, or GIF &middot; Max 2 MB</span>
+                      </div>
+                      {uploadMsg && (
+                        <p className={`font-body text-xs mb-2 ${uploadMsg.includes("success") ? "text-green-700" : "text-danger"}`}>{uploadMsg}</p>
+                      )}
+                      {/* URL fallback */}
+                      <input id="sp-img" type="url" value={formImageUrl} onChange={(e) => { setFormImageUrl(e.target.value); setUploadMsg(null); }} className={INPUT_CLS} placeholder="Or paste image URL manually" />
+                      {formImageUrl && (
+                        <div className="mt-2 flex items-center gap-3">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={formImageUrl} alt="Preview" className="h-16 w-16 rounded-full object-cover border border-border" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          <span className="font-body text-xs text-text-secondary">Image preview</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label htmlFor="sp-bio" className={LABEL_CLS}>Bio</label>
+                      <textarea id="sp-bio" value={formBio} onChange={(e) => setFormBio(e.target.value)} className={TEXTAREA_CLS} rows={3} placeholder="Brief biography (supports Markdown)" />
+                    </div>
+                    <div>
+                      <label htmlFor="sp-qual" className={LABEL_CLS}>Qualifications</label>
+                      <textarea id="sp-qual" value={formQualifications} onChange={(e) => setFormQualifications(e.target.value)} className={TEXTAREA_CLS} rows={3} placeholder="e.g. MBBS, MD (supports Markdown)" />
+                    </div>
+                    <div>
+                      <label htmlFor="sp-exp" className={LABEL_CLS}>Experience</label>
+                      <textarea id="sp-exp" value={formExperience} onChange={(e) => setFormExperience(e.target.value)} className={TEXTAREA_CLS} rows={3} placeholder="e.g. 15 years in orthopedics (supports Markdown)" />
+                    </div>
+                    <div>
+                      <label htmlFor="sp-work" className={LABEL_CLS}>Work History</label>
+                      <textarea id="sp-work" value={formWorkHistory} onChange={(e) => setFormWorkHistory(e.target.value)} className={TEXTAREA_CLS} rows={3} placeholder="Previous hospitals, clinics (supports Markdown)" />
+                    </div>
+                    <div>
+                      <label htmlFor="sp-areas" className={LABEL_CLS}>Treatment Areas</label>
+                      <textarea id="sp-areas" value={formTreatmentAreas} onChange={(e) => setFormTreatmentAreas(e.target.value)} className={TEXTAREA_CLS} rows={3} placeholder="Specific treatments offered (supports Markdown)" />
+                    </div>
+                    <div>
+                      <label htmlFor="sp-lang" className={LABEL_CLS}>Languages Spoken</label>
+                      <input id="sp-lang" type="text" value={formLanguages} onChange={(e) => setFormLanguages(e.target.value)} className={INPUT_CLS} placeholder="e.g. Nepali, English, Hindi" />
+                    </div>
+                    <div>
+                      <label htmlFor="sp-gender" className={LABEL_CLS}>Gender</label>
+                      <select id="sp-gender" value={formGender} onChange={(e) => setFormGender(e.target.value)} className={INPUT_CLS}>
+                        <option value="">— Not specified —</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label htmlFor="sp-license" className={LABEL_CLS}>License / Registration No.</label>
+                      <input id="sp-license" type="text" value={formLicenseNumber} onChange={(e) => setFormLicenseNumber(e.target.value)} className={INPUT_CLS} placeholder="NMC-12345" />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="sp-pub-note" className={LABEL_CLS}>Public Note</label>
+                    <textarea id="sp-pub-note" value={formPublicNote} onChange={(e) => setFormPublicNote(e.target.value)} className={TEXTAREA_CLS} rows={2} placeholder="Shown on public detail page (supports Markdown)" />
+                  </div>
+                  <div>
+                    <label htmlFor="sp-prep" className={LABEL_CLS}>Preparation Note</label>
+                    <textarea id="sp-prep" value={formPrepNote} onChange={(e) => setFormPrepNote(e.target.value)} className={TEXTAREA_CLS} rows={2} placeholder="What patients should bring or prepare (supports Markdown)" />
+                  </div>
+                </div>
               )}
 
+              {formError && <p className="font-body text-sm text-danger">{formError}</p>}
+
               <div className="flex gap-3">
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="rounded-lg bg-primary px-5 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  {saving ? "Saving..." : editingId ? "Update" : "Create"}
-                </button>
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="rounded-lg border border-border px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                >
-                  Cancel
-                </button>
+                <button type="submit" disabled={saving} className="rounded-lg bg-primary px-5 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{saving ? "Saving..." : editingId ? "Update" : "Create"}</button>
+                <button type="button" onClick={resetForm} className="rounded-lg border border-border px-5 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Cancel</button>
               </div>
             </form>
           </div>
         )}
 
         {/* Loading */}
-        {loading && (
-          <div className="text-center py-16">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          </div>
+        {loading && <div className="text-center py-16"><div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" /></div>}
+
+        {/* Empty */}
+        {!loading && specialists.length === 0 && (
+          <div className="rounded-xl border border-border bg-white px-6 py-12 text-center"><p className="font-body text-base text-text-secondary">No specialist visits yet.</p></div>
         )}
 
         {/* List */}
-        {!loading && specialists.length === 0 && (
-          <div className="rounded-xl border border-border bg-white px-6 py-12 text-center">
-            <p className="font-body text-base text-text-secondary">No specialist visits yet.</p>
-          </div>
-        )}
-
         {!loading && specialists.length > 0 && (
           <div className="space-y-3">
             {specialists.map((s) => {
               const bsDisplay = s.visit_date_bs || formatBS(s.visit_date_ad);
               const isPast = s.visit_date_ad < new Date().toISOString().slice(0, 10);
               return (
-                <div
-                  key={s.id}
-                  className={`rounded-xl border bg-white p-4 shadow-sm ${s.is_active ? "border-border" : "border-border/50 opacity-60"}`}
-                >
+                <div key={s.id} className={`rounded-xl border bg-white p-4 shadow-sm ${s.is_active ? "border-border" : "border-border/50 opacity-60"}`}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-body text-sm font-bold text-text-primary">{s.specialist_name}</h3>
                         <span className="rounded-full bg-primary/10 px-2 py-0.5 font-body text-xs font-semibold text-primary">{s.specialization}</span>
-                        {!s.is_active && (
-                          <span className="rounded-full bg-red-100 px-2 py-0.5 font-body text-xs font-semibold text-red-700">Inactive</span>
-                        )}
-                        {isPast && s.is_active && (
-                          <span className="rounded-full bg-amber-100 px-2 py-0.5 font-body text-xs font-semibold text-amber-700">Past</span>
-                        )}
+                        {!s.is_active && <span className="rounded-full bg-red-100 px-2 py-0.5 font-body text-xs font-semibold text-red-700">Inactive</span>}
+                        {isPast && s.is_active && <span className="rounded-full bg-amber-100 px-2 py-0.5 font-body text-xs font-semibold text-amber-700">Past</span>}
                       </div>
                       <p className="font-body text-xs text-text-secondary mt-1">
                         {s.treatment_type} &middot; {bsDisplay} ({formatDate(s.visit_date_ad)}) &middot; {formatTime(s.available_from)}–{formatTime(s.available_to)}
-                        {s.consultation_fee != null ? ` · NPR ${s.consultation_fee}` : " · Free Consultation"}
+                        {s.consultation_fee != null ? ` · NPR ${s.consultation_fee}` : " · Free"}
+                        {s.visit_location ? ` · ${s.visit_location}` : ""}
+                        {s.consultation_mode ? ` · ${modeLabel(s.consultation_mode)}` : ""}
+                        {s.display_order ? ` · Order: ${s.display_order}` : ""}
                       </p>
                     </div>
                     {canManage && (
                       <div className="flex flex-shrink-0 gap-2">
-                        <button
-                          onClick={() => openEdit(s)}
-                          className="rounded-lg border border-border px-3 py-1.5 font-body text-xs font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => toggleActive(s)}
-                          className={`rounded-lg px-3 py-1.5 font-body text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${s.is_active ? "border border-amber-300 text-amber-700 hover:bg-amber-50" : "border border-green-300 text-green-700 hover:bg-green-50"}`}
-                        >
-                          {s.is_active ? "Deactivate" : "Activate"}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(s)}
-                          className="rounded-lg border border-danger/40 px-3 py-1.5 font-body text-xs font-semibold text-danger hover:bg-danger/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
-                        >
-                          Delete
-                        </button>
+                        <button onClick={() => openEdit(s)} className="rounded-lg border border-border px-3 py-1.5 font-body text-xs font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Edit</button>
+                        <button onClick={() => toggleActive(s)} className={`rounded-lg px-3 py-1.5 font-body text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${s.is_active ? "border border-amber-300 text-amber-700 hover:bg-amber-50" : "border border-green-300 text-green-700 hover:bg-green-50"}`}>{s.is_active ? "Deactivate" : "Activate"}</button>
+                        <button onClick={() => handleDelete(s)} className="rounded-lg border border-danger/40 px-3 py-1.5 font-body text-xs font-semibold text-danger hover:bg-danger/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger">Delete</button>
                       </div>
                     )}
                   </div>

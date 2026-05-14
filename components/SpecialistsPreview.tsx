@@ -12,6 +12,13 @@ interface Specialist {
   available_from: string;
   available_to: string;
   consultation_fee: number | null;
+  visit_location: string | null;
+  consultation_mode: string | null;
+  profile_image_url: string | null;
+}
+
+function getInitials(name: string) {
+  return name.split(/\s+/).map(w => w[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 }
 
 function formatTime(timeStr: string) {
@@ -35,10 +42,11 @@ export default async function SpecialistsPreview() {
   const { data } = await supabaseAdmin
     .from("visiting_specialists")
     .select(
-      "id, specialist_name, specialization, treatment_type, visit_date_bs, visit_date_ad, available_from, available_to, consultation_fee"
+      "id, specialist_name, specialization, treatment_type, visit_date_bs, visit_date_ad, available_from, available_to, consultation_fee, visit_location, consultation_mode, profile_image_url, display_order"
     )
     .eq("is_active", true)
     .gte("visit_date_ad", today)
+    .order("display_order", { ascending: true })
     .order("visit_date_ad", { ascending: true })
     .limit(4);
 
@@ -69,19 +77,32 @@ export default async function SpecialistsPreview() {
       {specialists.map((s) => {
         const bsDisplay = s.visit_date_bs || formatBS(s.visit_date_ad);
         return (
-          <div
+          <Link
             key={s.id}
-            className="rounded-xl border border-primary/20 bg-white p-5 shadow-sm hover:border-primary/40 transition-colors"
+            href={`/specialists/${s.id}`}
+            className="block rounded-xl border border-primary/20 bg-white p-5 shadow-sm hover:border-primary/40 transition-colors group"
           >
-            <h3 className="font-heading text-base font-bold text-text-primary truncate">{s.specialist_name}</h3>
-            <p className="font-body text-sm text-primary font-semibold">{s.specialization}</p>
-            <div className="mt-3 space-y-1 font-body text-sm">
+            <div className="flex items-center gap-3 mb-3">
+              {s.profile_image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={s.profile_image_url} alt={s.specialist_name} className="h-10 w-10 rounded-full object-cover border border-border flex-shrink-0" />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-heading text-xs font-bold flex-shrink-0" aria-hidden="true">{getInitials(s.specialist_name)}</div>
+              )}
+              <div className="min-w-0">
+                <h3 className="font-heading text-base font-bold text-text-primary truncate">{s.specialist_name}</h3>
+                <p className="font-body text-sm text-primary font-semibold">{s.specialization}</p>
+              </div>
+            </div>
+            <div className="space-y-1 font-body text-sm">
               <p className="text-text-primary font-medium">{bsDisplay}</p>
               <p className="text-text-secondary text-xs">{formatDate(s.visit_date_ad)}</p>
               <p className="text-text-secondary">{formatTime(s.available_from)} – {formatTime(s.available_to)}</p>
               <p className="text-text-primary font-semibold">{s.consultation_fee != null ? `NPR ${s.consultation_fee}` : "Free Consultation"}</p>
+              {s.visit_location && <p className="text-text-secondary text-xs">{s.visit_location}</p>}
             </div>
-          </div>
+            <p className="mt-3 font-body text-xs font-semibold text-primary group-hover:text-primary/80 transition-colors">View Profile &rarr;</p>
+          </Link>
         );
       })}
     </div>

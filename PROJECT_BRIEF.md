@@ -111,12 +111,11 @@ Phase 3: Complete (3E — booking form connected to real API; end-to-end booking
 Phase 4: Complete (admin login/logout; protected dashboard; Supabase Auth)  
 Phase 5: Complete (5A API, 5B dashboard UI, 5C status updates, 5D availability, 5E rescheduling, 5F booking conflict handling)  
 Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking-patient linking + checkup flow, 6D-fix booking-linked checkup workflow, 6E patient identity + record merge, 6E-fix patient identity safety, 6F Ayurveda education page, 6G Privacy policy and Terms of Service, 6H Booking and Patient Record Workflow Improvements, 6I Walk-in Patient Registration and Visit Records)
-
-Current:
-- Phase 7: Staff Profiles, Doctor Reference, Roles, and Permissions
-
-- Phase 8: Not started
-- Phase 9: Not started  
+Phase 7: Complete (7A Staff Profiles, 7B Doctor Reference, 7C Roles, and Permissions)
+Phase 8: Complete (8 Real BS/AD Calendar Support)
+Phase 9: Complete (Visiting Specialists)
+Current: Phase 9A: Specialist Detail Page 
+- Phase 9B: Not started
 - Phase 10: Not started
 - Phase 11: Not started  
 - Phase 12: Not started    
@@ -443,6 +442,37 @@ Current:
 - Specialists API
 - Admin specialists management
 - Specialist CRUD
+
+#### Phase 9A: Specialist Detail Page
+
+- Add a public specialist detail page at `/specialists/[id]`
+- Allow patients to read more about a visiting specialist before booking
+- Add specialist profile details such as bio, qualifications, experience, work history, treatment areas, languages spoken, gender, license/registration number, consultation mode, visit location, public note, preparation note, and optional profile image
+- Add `display_order` so specialists can be manually ordered in public listings
+- Use simple numeric display order first; drag-and-drop ordering can be added later as a polish improvement
+- Allow admin to paste a specialist photo URL and optionally upload a specialist photo from the computer if Supabase Storage is configured
+- Store the final image URL in `profile_image_url`
+- Show a professional initials/avatar placeholder when no doctor image is available
+- Add visit location so patients know where the specialist will be available
+- Show preparation notes so patients know what to bring or how to prepare
+- Show languages spoken so patients can choose a comfortable doctor
+- Add View Profile button on specialist cards
+- Show specialist visit date clearly in BS and AD
+- Show consultation fee or Free Consultation clearly
+- Keep inactive specialists hidden from public pages
+- Add a “Specialist booking coming soon” CTA until Phase 9B is built
+- Keep booking specialist appointments for Phase 9B
+
+#### Phase 9B: Specialist Booking Flow
+
+- Add booking flow for active visiting specialists
+- Add Book Specialist button on specialist cards and detail page
+- Link specialist bookings to `specialist_id` in the bookings table
+- Save `booking_type` as specialist
+- Show selected specialist details inside the booking form
+- Show specialist bookings clearly in admin dashboard and patient records
+- Prevent booking inactive specialists
+- Keep regular appointment booking working separately
 
 ### Phase 10: Blog
 
