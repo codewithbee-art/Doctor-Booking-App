@@ -115,12 +115,13 @@ Phase 7: Complete (7A Staff Profiles, 7B Doctor Reference, 7C Roles, and Permiss
 Phase 8: Complete (8 Real BS/AD Calendar Support)
 Phase 9: Complete (Visiting Specialists)
 Phase 9A: Complete Specialist Detail Page 
+Phase 9B: Complete (Specialist Public Booking Flow)
 
 Current:
-- Phase 9B: Specialist Public Booking Flow
+- Phase 9C: Specialist Booking Admin Management
 
 Upcoming:
-- Phase 9C: Specialist Booking Admin Management
+- Phase 9D: Specialist Walk-in Patients
 - Phase 10: Blog
 - Phase 11: Medicine Shop
 - Phase 12: Checkout, Emails, SEO, Deployment 
@@ -492,20 +493,36 @@ Upcoming:
 
 #### Phase 9C: Specialist Booking Admin Management
 
-- Add clear admin management for specialist bookings
-- Show specialist bookings separately from regular bookings where useful, either through dashboard filters/sections or a dedicated `/admin/specialist-bookings` page
-- Show specialist badge/label, specialist name, specialization, treatment type, visit location, consultation fee/free status, appointment date, time, and booking status in admin views
+- Add a dedicated admin specialist bookings page, such as `/admin/specialist-bookings`
+- Main admin dashboard should continue showing specialist bookings with clear Specialist badges and specialist names
+- Specialist bookings should be grouped automatically by specialist doctor
+- Each specialist group should show doctor details, visit date in BS and AD, location, available time window, consultation fee/free status, and booking counts by status
+- Admin should be able to filter specialist bookings by specialist doctor, date, status, and patient name/phone
 - Specialist bookings should support the normal appointment workflow: pending, confirmed, cancelled, and completed
 - Specialist bookings should support cancellation reasons
-- Admin should be able to confirm, cancel, complete, and view specialist bookings
+- Admin should be able to confirm, cancel, complete, restore, and reschedule specialist bookings where appropriate
+- Specialist rescheduling should use available times from the same specialist visit/session and must prevent double booking
 - Admin should be able to open the linked patient record from a specialist booking
-- Doctor/admin should be able to start or continue checkup from a specialist booking where appropriate
+- Doctor/admin should be able to start or continue checkup from a specialist booking
 - Specialist visit/checkup notes should be saved into patient history
-- Patient records should show specialist appointment details clearly in booking history
+- Patient records should clearly show specialist appointment details in booking history
 - Visit History should clearly identify specialist-linked visit records
 - Doctor reference should continue working for specialist visit records
 - Regular booking dashboard workflow, walk-in workflow, patient records, and standard status actions must continue working
 - Old specialist bookings should remain readable even if the specialist is later deactivated or removed
+- Specialist walk-in patients and specialist-only staff access should be handled in a later phase
+
+#### Phase 9D: Specialist Walk-in Patients
+
+- Allow admin to add walk-in patients under a specific specialist visit
+- Allow admin to search existing patients before creating a new specialist walk-in record
+- Allow admin to create a new patient for a specialist walk-in when no existing patient is found
+- Specialist walk-ins should create a specialist booking or specialist-linked visit depending on the workflow
+- Specialist walk-in details should be saved into the same patient history system
+- Visit History should clearly label specialist walk-ins
+- The Specialist Bookings admin page should clearly show specialist walk-in patients
+- Owner/admin should retain full access to all specialist bookings
+- Specialist-specific restricted login and access control should be handled later in an advanced permissions phase
 
 ### Phase 10: Blog
 

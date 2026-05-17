@@ -41,7 +41,7 @@ export async function PATCH(
     // Fetch full booking to get date/time for slot management
     const { data: existing, error: findError } = await supabaseAdmin
       .from("bookings")
-      .select("id, status, appointment_date_ad, appointment_time")
+      .select("id, status, appointment_date_ad, appointment_time, booking_type, specialist_id")
       .eq("id", id)
       .single();
 
@@ -53,9 +53,10 @@ export async function PATCH(
     }
 
     const prevStatus = existing.status;
+    const isSpecialist = existing.booking_type === "specialist" && existing.specialist_id;
 
-    // ---- Slot management: cancelling releases the slot ----
-    if (status === "cancelled" && prevStatus !== "cancelled") {
+    // ---- Slot management: cancelling releases the slot (regular bookings only) ----
+    if (status === "cancelled" && prevStatus !== "cancelled" && !isSpecialist) {
       await supabaseAdmin
         .from("available_slots")
         .update({ is_booked: false })
@@ -63,40 +64,64 @@ export async function PATCH(
         .eq("slot_time", existing.appointment_time);
     }
 
-    // ---- Slot management: restoring from cancelled re-books the slot ----
+    // ---- Slot management: restoring from cancelled ----
     if (prevStatus === "cancelled" && status === "pending") {
-      const { data: slot } = await supabaseAdmin
-        .from("available_slots")
-        .select("id, is_booked")
-        .eq("slot_date_ad", existing.appointment_date_ad)
-        .eq("slot_time", existing.appointment_time)
-        .single();
+      if (isSpecialist) {
+        // For specialist bookings: check if another booking occupies that slot
+        const normalizedTime = existing.appointment_time.slice(0, 5);
+        const { data: conflictingBookings } = await supabaseAdmin
+          .from("bookings")
+          .select("id, appointment_time")
+          .eq("specialist_id", existing.specialist_id)
+          .eq("appointment_date_ad", existing.appointment_date_ad)
+          .neq("status", "cancelled")
+          .neq("id", id);
 
-      if (!slot) {
-        return NextResponse.json(
-          { success: false, error: "The original time slot no longer exists." },
-          { status: 409 }
+        const conflictFound = (conflictingBookings ?? []).some(
+          (b2) => b2.appointment_time.slice(0, 5) === normalizedTime
         );
-      }
 
-      if (slot.is_booked) {
-        return NextResponse.json(
-          { success: false, error: "The original time slot has already been booked by another patient." },
-          { status: 409 }
-        );
-      }
+        if (conflictFound) {
+          return NextResponse.json(
+            { success: false, error: "This specialist time slot has already been booked by another patient. Please reschedule instead." },
+            { status: 409 }
+          );
+        }
+      } else {
+        // Regular bookings: check available_slots
+        const { data: slot } = await supabaseAdmin
+          .from("available_slots")
+          .select("id, is_booked")
+          .eq("slot_date_ad", existing.appointment_date_ad)
+          .eq("slot_time", existing.appointment_time)
+          .single();
 
-      const { error: rebookError } = await supabaseAdmin
-        .from("available_slots")
-        .update({ is_booked: true })
-        .eq("id", slot.id)
-        .eq("is_booked", false);
+        if (!slot) {
+          return NextResponse.json(
+            { success: false, error: "The original time slot no longer exists." },
+            { status: 409 }
+          );
+        }
 
-      if (rebookError) {
-        return NextResponse.json(
-          { success: false, error: "Failed to re-reserve the time slot." },
-          { status: 500 }
-        );
+        if (slot.is_booked) {
+          return NextResponse.json(
+            { success: false, error: "The original time slot has already been booked by another patient." },
+            { status: 409 }
+          );
+        }
+
+        const { error: rebookError } = await supabaseAdmin
+          .from("available_slots")
+          .update({ is_booked: true })
+          .eq("id", slot.id)
+          .eq("is_booked", false);
+
+        if (rebookError) {
+          return NextResponse.json(
+            { success: false, error: "Failed to re-reserve the time slot." },
+            { status: 500 }
+          );
+        }
       }
     }
 
@@ -122,8 +147,8 @@ export async function PATCH(
       .single();
 
     if (updateError || !updated) {
-      // Rollback slot if we just re-booked it
-      if (prevStatus === "cancelled" && status === "pending") {
+      // Rollback slot if we just re-booked it (regular bookings only)
+      if (prevStatus === "cancelled" && status === "pending" && !isSpecialist) {
         await supabaseAdmin
           .from("available_slots")
           .update({ is_booked: false })
@@ -197,7 +222,7 @@ export async function PUT(
     // Fetch existing booking
     const { data: existing, error: findError } = await supabaseAdmin
       .from("bookings")
-      .select("id, status, appointment_date_ad, appointment_time")
+      .select("id, status, appointment_date_ad, appointment_time, booking_type, specialist_id")
       .eq("id", id)
       .single();
 
@@ -216,7 +241,72 @@ export async function PUT(
     }
 
     const isCancelled = existing.status === "cancelled";
+    const isSpecialist = existing.booking_type === "specialist" && existing.specialist_id;
 
+    if (isSpecialist) {
+      // ---- Specialist booking reschedule ----
+      // Normalize time to HH:mm:ss for DB storage
+      const normalizedNewTime = appointment_time.length === 5 ? `${appointment_time}:00` : appointment_time;
+      const normalizedNewTimeShort = appointment_time.slice(0, 5);
+
+      // Check that the new time doesn't conflict with another specialist booking
+      const sameSlot =
+        existing.appointment_date_ad === appointment_date_ad &&
+        existing.appointment_time.slice(0, 5) === normalizedNewTimeShort;
+
+      if (!sameSlot) {
+        const { data: conflicting } = await supabaseAdmin
+          .from("bookings")
+          .select("id, appointment_time")
+          .eq("specialist_id", existing.specialist_id)
+          .eq("appointment_date_ad", appointment_date_ad)
+          .neq("status", "cancelled")
+          .neq("id", id);
+
+        const hasConflict = (conflicting ?? []).some(
+          (b) => b.appointment_time.slice(0, 5) === normalizedNewTimeShort
+        );
+
+        if (hasConflict) {
+          return NextResponse.json(
+            { success: false, error: "This specialist time slot is already booked." },
+            { status: 409 }
+          );
+        }
+      }
+
+      // Update booking
+      const bookingUpdate: Record<string, string | null> = {
+        appointment_date_ad,
+        appointment_date_bs: appointment_date_bs?.trim() || "",
+        appointment_time: normalizedNewTime,
+      };
+      if (isCancelled) {
+        bookingUpdate.status = "pending";
+        bookingUpdate.cancellation_reason = null;
+        bookingUpdate.cancelled_at = null;
+      }
+
+      const { data: updated, error: updateError } = await supabaseAdmin
+        .from("bookings")
+        .update(bookingUpdate)
+        .eq("id", id)
+        .select(
+          "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, created_at"
+        )
+        .single();
+
+      if (updateError || !updated) {
+        return NextResponse.json(
+          { success: false, error: "Failed to update booking." },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({ success: true, booking: updated });
+    }
+
+    // ---- Regular booking reschedule ----
     // Check new slot exists, is not booked, and is not blocked
     const { data: newSlot, error: slotError } = await supabaseAdmin
       .from("available_slots")
@@ -284,12 +374,16 @@ export async function PUT(
 
     // Update booking (cancelled → pending + new date/time)
     const dateBs = appointment_date_bs?.trim() || newSlot.slot_date_bs || "";
-    const bookingUpdate: Record<string, string> = {
+    const bookingUpdate: Record<string, string | null> = {
       appointment_date_ad,
       appointment_date_bs: dateBs,
       appointment_time,
     };
-    if (isCancelled) bookingUpdate.status = "pending";
+    if (isCancelled) {
+      bookingUpdate.status = "pending";
+      bookingUpdate.cancellation_reason = null;
+      bookingUpdate.cancelled_at = null;
+    }
 
     const { data: updated, error: updateError } = await supabaseAdmin
       .from("bookings")

@@ -514,12 +514,12 @@
 - [x] Run npm run build successfully
 - [x] Commit Phase 9A-fix to Git
 
-### Phase 9B: Specialist Public Booking Flow
+### Phase 9B: Specialist Public Booking Flow ✅
 
-- [ ] Add specialist-specific booking route, for example `/specialists/[id]/book`
-- [ ] Add Book Specialist button on active specialist cards
-- [ ] Add Book Specialist button on specialist detail page
-- [ ] Specialist booking form should show selected specialist details:
+- [x] Add specialist-specific booking route, for example `/specialists/[id]/book`
+- [x] Add Book Specialist button on active specialist cards
+- [x] Add Book Specialist button on specialist detail page
+- [x] Specialist booking form should show selected specialist details:
   - specialist name
   - specialization
   - treatment type
@@ -529,40 +529,66 @@
   - consultation fee or Free Consultation
   - consultation mode
   - preparation note where useful
-- [ ] Specialist booking should use the specialist visit date automatically
-- [ ] Prevent patient from selecting a different date for that specialist visit
-- [ ] Add specialist slot generation from `available_from`, `available_to`, and slot duration
-- [ ] Add `slot_duration_minutes` to `visiting_specialists`, default 30 minutes
-- [ ] Add optional `max_patients` to `visiting_specialists`
-- [ ] Update admin specialist form to set slot duration
-- [ ] Update admin specialist form to set optional max patients
-- [ ] Allow patient to choose an available specialist time slot
-- [ ] Prevent double booking of the same specialist, date, and time
-- [ ] Allow different specialists to be booked at the same time
-- [ ] Allow regular doctor and specialist bookings at the same time
-- [ ] Prevent booking inactive specialists
-- [ ] Prevent booking past specialist visit dates
-- [ ] Prevent booking when specialist max patients limit is reached
-- [ ] Link specialist booking to `specialist_id` in `bookings`
-- [ ] Save `booking_type` as `specialist`
-- [ ] Save specialist appointment date/time into `bookings`
-- [ ] Save `appointment_date_bs` and `appointment_date_ad` correctly
-- [ ] Create specialist booking API or extend booking API safely
-- [ ] Create specialist slots API if needed
-- [ ] Keep patient creation/linking logic working for specialist bookings
-- [ ] Keep patient identity safety rules working for specialist bookings
-- [ ] Show clear success and error messages
-- [ ] Keep regular booking flow working separately
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 9B to Git
+- [x] Specialist booking should use the specialist visit date automatically
+- [x] Prevent patient from selecting a different date for that specialist visit
+- [x] Add specialist slot generation from `available_from`, `available_to`, and slot duration
+- [x] Add `slot_duration_minutes` to `visiting_specialists`, default 30 minutes
+- [x] Add optional `max_patients` to `visiting_specialists`
+- [x] Update admin specialist form to set slot duration
+- [x] Update admin specialist form to set optional max patients
+- [x] Allow patient to choose an available specialist time slot
+- [x] Prevent double booking of the same specialist, date, and time (normalized HH:mm ↔ HH:mm:ss)
+- [x] Allow different specialists to be booked at the same time
+- [x] Allow regular doctor and specialist bookings at the same time
+- [x] Prevent booking inactive specialists
+- [x] Prevent booking past specialist visit dates
+- [x] Prevent booking when specialist max patients limit is reached
+- [x] Link specialist booking to `specialist_id` in `bookings`
+- [x] Save `booking_type` as `specialist`
+- [x] Save specialist appointment date/time into `bookings`
+- [x] Save `appointment_date_bs` and `appointment_date_ad` correctly
+- [x] Create specialist booking API or extend booking API safely
+- [x] Create specialist slots API if needed
+- [x] Keep patient creation/linking logic working for specialist bookings
+- [x] Keep patient identity safety rules working for specialist bookings
+- [x] Show clear success and error messages
+- [x] Keep regular booking flow working separately
+- [x] Show Specialist/Regular badge in admin dashboard (desktop + mobile)
+- [x] Show specialist details in dashboard booking detail modal
+- [x] Show specialist badge and name in patient records booking history
+- [x] Show specialist label in patient booking detail modal
+- [x] Run npm run build successfully
+- [x] Commit Phase 9B to Git
 
 ### Phase 9C: Specialist Booking Admin Management
 
-- [ ] Add specialist bookings filter/section in admin dashboard
-- [ ] Create separate admin specialist bookings page if needed, for example `/admin/specialist-bookings`
-- [ ] Show specialist bookings separately from regular bookings where useful
-- [ ] Show specialist badge/label in admin booking table and booking details
-- [ ] Show specialist name in admin booking table and details
+- [ ] Add Specialist Bookings link in admin navigation
+- [ ] Create dedicated admin specialist bookings page, for example `/admin/specialist-bookings`
+- [ ] Main admin dashboard should continue showing specialist bookings with clear Specialist badge and specialist name
+- [ ] Keep regular booking dashboard workflow working separately
+- [ ] Keep regular booking status actions working
+- [ ] Specialist bookings page should automatically group bookings by specialist doctor
+- [ ] Show specialist summary card/section for each doctor:
+  - specialist name
+  - specialization
+  - treatment type
+  - visit date in BS and AD
+  - visit location
+  - available time window
+  - consultation fee or Free Consultation
+  - total bookings
+  - pending count
+  - confirmed count
+  - completed count
+  - cancelled count
+- [ ] Inside each specialist group, show patient booking list ordered by appointment time
+- [ ] Add filters:
+  - specialist doctor
+  - date
+  - status
+  - search patient by name or phone
+- [ ] Show specialist badge/label in admin specialist booking table and booking details
+- [ ] Show specialist name in admin specialist booking table and details
 - [ ] Show specialist specialization and treatment type in admin booking details
 - [ ] Show specialist visit location in admin booking details
 - [ ] Show specialist consultation fee or Free Consultation in admin booking details
@@ -571,20 +597,42 @@
 - [ ] Allow admin to confirm specialist booking
 - [ ] Allow admin to cancel specialist booking with reason
 - [ ] Allow admin to complete specialist booking
+- [ ] Allow admin to restore cancelled specialist booking if the time slot is still available
+- [ ] If restore fails because the specialist time slot is taken, allow reschedule
+- [ ] Allow specialist booking reschedule to choose another available time from the same specialist visit/session
+- [ ] Prevent rescheduling into an already booked specialist time slot
 - [ ] Allow admin to view linked patient record from specialist booking
-- [ ] Allow doctor/admin to start or continue checkup from specialist booking where appropriate
+- [ ] Allow doctor/admin to start checkup from specialist booking where appropriate
+- [ ] Allow doctor/admin to continue checkup from specialist booking if a visit record already exists
 - [ ] Save specialist visit/checkup notes into patient history
+- [ ] Show specialist-linked visit records clearly in Visit History
+- [ ] Keep doctor reference on specialist visit records
 - [ ] Show specialist booking details in patient records and booking history
 - [ ] Show specialist name/type/location in patient booking history
-- [ ] Show specialist-linked visit records clearly in Visit History
-- [ ] Keep regular booking dashboard workflow working separately
-- [ ] Keep regular booking status actions working
+- [ ] Patient Records should clearly show specialist bookings and specialist-linked visits
 - [ ] Keep walk-in visit workflow working
-- [ ] Keep doctor reference on specialist visit records
 - [ ] Prevent admin actions on inactive/deleted specialist records from breaking old bookings
+- [ ] Old specialist bookings should remain readable even if the specialist is later deactivated
+- [ ] Do not fully build specialist walk-in patients in this phase
+- [ ] Add placeholder/future task note for specialist walk-in patients if needed
 - [ ] Show clear success and error messages
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 9C to Git
+
+### Phase 9D: Specialist Walk-in Patients
+
+- [ ] Allow admin to add walk-in patient under a specific specialist visit
+- [ ] Allow admin to search existing patient for specialist walk-in
+- [ ] Allow admin to create new patient for specialist walk-in
+- [ ] Create specialist booking or specialist-linked visit for walk-in patients
+- [ ] Save specialist walk-in details into patient history
+- [ ] Clearly label specialist walk-ins in Visit History
+- [ ] Clearly label specialist walk-ins in Specialist Bookings admin page
+- [ ] Keep owner/admin full access to all specialist bookings for now
+- [ ] Do not build specialist-specific restricted access in this phase
+- [ ] Keep specialist-specific restricted access for a later advanced permissions phase
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 9D to Git
 
 ## Phase 10: Blog
 
@@ -628,6 +676,18 @@
 - [ ] Add Vercel deployment instructions
 - [ ] Deploy to Vercel
 
+#### Phase 13: Advanced Role Access and Specialist Permissions
+
+- Review all admin roles and permissions before deployment
+- Refine owner, doctor, receptionist, inventory_manager, and content_editor access
+- Add specialist-specific staff access
+- Link visiting specialist records to staff_profiles where needed
+- Allow specialist users to access only their own specialist bookings
+- Allow specialist users to view patient details needed for their own appointments
+- Allow specialist users to start or continue checkup only for their own specialist patients
+- Prevent specialist users from accessing unrelated admin sections
+- Add final permission testing before deployment
+
 
 ### Admin Mobile Navigation Polish
 
@@ -637,3 +697,13 @@
 - [ ] Ensure admin navigation works well on small screens
 - [ ] Run npm run build successfully
 - [ ] Commit admin mobile navigation polish to Git
+
+### Admin Navigation Polish
+
+- [ ] Redesign admin navigation so it can support more modules
+- [ ] Group related links, for example Specialists and Specialist Bookings
+- [ ] Add mobile-friendly admin menu
+- [ ] Keep Logout separate from navigation links
+- [ ] Ensure Blog, Shop, Orders, Staff, and Settings can fit cleanly
+- [ ] Run npm run build successfully
+- [ ] Commit admin navigation polish to Git
