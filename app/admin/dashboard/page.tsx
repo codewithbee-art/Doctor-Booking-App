@@ -11,6 +11,14 @@ import { formatBS } from "@/lib/dateConvert";
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
+interface SpecialistInfo {
+  name: string;
+  specialization?: string;
+  treatment_type?: string;
+  visit_location?: string;
+  consultation_fee?: number | null;
+}
+
 interface Booking {
   id: string;
   patient_id: string | null;
@@ -23,6 +31,8 @@ interface Booking {
   appointment_time: string;
   booking_type: string;
   specialist_id: string | null;
+  specialist_name: string | null;
+  specialist_info: SpecialistInfo | null;
   status: string;
   cancellation_reason: string | null;
   cancelled_at: string | null;
@@ -578,6 +588,20 @@ export default function AdminDashboardPage() {
                         <td className="px-4 py-3">
                           <p className="font-body text-sm font-semibold text-text-primary">{b.patient_name}</p>
                           <p className="font-body text-xs text-text-secondary">{b.patient_phone}</p>
+                          <div className="mt-1 flex flex-wrap gap-1 sm:hidden">
+                            {b.booking_type === "specialist" ? (
+                              <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 font-body text-[10px] font-semibold text-purple-700">{b.specialist_name || "Specialist"}</span>
+                            ) : (
+                              <span className="inline-block rounded-full border border-border bg-bg-light px-2 py-0.5 font-body text-[10px] font-semibold text-text-secondary">Regular</span>
+                            )}
+                            {b.is_new_patient ? (
+                              <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 font-body text-[10px] font-semibold text-blue-700">New</span>
+                            ) : (
+                              <span className="inline-block rounded-full border border-green-200 bg-green-50 px-2 py-0.5 font-body text-[10px] font-semibold text-green-700">
+                                Returning{b.visit_count > 0 ? ` (${b.visit_count})` : ""}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3 font-body text-sm text-text-primary whitespace-nowrap">
                           {formatDate(b.appointment_date_ad)}<br />
@@ -589,13 +613,20 @@ export default function AdminDashboardPage() {
                           </span>
                         </td>
                         <td className="px-4 py-3 hidden sm:table-cell">
-                          {b.is_new_patient ? (
-                            <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-body text-xs font-semibold text-blue-700">New</span>
-                          ) : (
-                            <span className="inline-block rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 font-body text-xs font-semibold text-green-700">
-                              Returning{b.visit_count > 0 ? ` (${b.visit_count})` : ""}
-                            </span>
-                          )}
+                          <div className="flex flex-col gap-1">
+                            {b.booking_type === "specialist" ? (
+                              <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 font-body text-xs font-semibold text-purple-700">Specialist</span>
+                            ) : (
+                              <span className="inline-block rounded-full border border-border bg-bg-light px-2.5 py-0.5 font-body text-xs font-semibold text-text-secondary">Regular</span>
+                            )}
+                            {b.is_new_patient ? (
+                              <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-body text-xs font-semibold text-blue-700">New</span>
+                            ) : (
+                              <span className="inline-block rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 font-body text-xs font-semibold text-green-700">
+                                Returning{b.visit_count > 0 ? ` (${b.visit_count})` : ""}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="px-4 py-3">
                           <button
@@ -799,7 +830,10 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Patient type badge */}
-            <div className="mb-4">
+            <div className="mb-4 flex flex-wrap gap-2">
+              {selectedBooking.booking_type === "specialist" && (
+                <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-3 py-0.5 font-body text-xs font-semibold text-purple-700">Specialist Booking</span>
+              )}
               {selectedBooking.is_new_patient ? (
                 <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-3 py-0.5 font-body text-xs font-semibold text-blue-700">New Patient</span>
               ) : (
@@ -810,6 +844,15 @@ export default function AdminDashboardPage() {
             </div>
 
             <dl className="space-y-3 font-body text-sm">
+              {selectedBooking.booking_type === "specialist" && selectedBooking.specialist_info && (
+                <div className="rounded-lg border border-purple-200 bg-purple-50/50 p-3 mb-1 space-y-1">
+                  <p className="font-semibold text-purple-800 text-xs uppercase tracking-wide">Specialist Details</p>
+                  <p className="text-text-primary font-semibold">{selectedBooking.specialist_info.name}</p>
+                  {selectedBooking.specialist_info.specialization && <p className="text-text-secondary text-xs">{selectedBooking.specialist_info.specialization} &middot; {selectedBooking.specialist_info.treatment_type}</p>}
+                  {selectedBooking.specialist_info.visit_location && <p className="text-text-secondary text-xs">Location: {selectedBooking.specialist_info.visit_location}</p>}
+                  <p className="text-text-secondary text-xs">Fee: {selectedBooking.specialist_info.consultation_fee != null ? `NPR ${selectedBooking.specialist_info.consultation_fee}` : "Free Consultation"}</p>
+                </div>
+              )}
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Patient</dt><dd className="text-text-primary">{selectedBooking.patient_name}</dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Phone</dt><dd className="text-text-primary">{selectedBooking.patient_phone}</dd></div>
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Email</dt><dd className="text-text-primary">{selectedBooking.patient_email || "—"}</dd></div>

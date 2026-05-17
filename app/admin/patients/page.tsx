@@ -54,6 +54,8 @@ interface PatientBooking {
   appointment_date_ad: string;
   appointment_time: string;
   booking_type: string;
+  specialist_id: string | null;
+  specialist_name: string | null;
   status: string;
   cancellation_reason: string | null;
   cancelled_at: string | null;
@@ -1223,9 +1225,16 @@ function AdminPatientsContent() {
                                 {formatBS(b.appointment_date_ad)} <span className="font-normal text-xs text-text-secondary">({formatDate(b.appointment_date_ad)})</span> at {formatTime(b.appointment_time)}
                               </p>
                               <p className="font-body text-xs text-text-secondary truncate">{b.problem}</p>
-                              <span className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[b.status] || ""}`}>
-                                {b.status}
-                              </span>
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[b.status] || ""}`}>
+                                  {b.status}
+                                </span>
+                                {b.booking_type === "specialist" && (
+                                  <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700">
+                                    {b.specialist_name || "Specialist"}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                             <div className="flex flex-shrink-0 gap-2">
                               {b.status === "confirmed" && (
@@ -1262,6 +1271,7 @@ function AdminPatientsContent() {
                           <tr className="border-b border-border">
                             <th className="pb-2 pr-4 font-semibold text-text-secondary">Date</th>
                             <th className="pb-2 pr-4 font-semibold text-text-secondary">Time</th>
+                            <th className="pb-2 pr-4 font-semibold text-text-secondary">Type</th>
                             <th className="pb-2 pr-4 font-semibold text-text-secondary">Problem</th>
                             <th className="pb-2 font-semibold text-text-secondary">Status</th>
                           </tr>
@@ -1271,6 +1281,18 @@ function AdminPatientsContent() {
                             <tr key={b.id} className="border-b border-border/50 last:border-0">
                               <td className="py-2 pr-4 text-text-primary whitespace-nowrap">{formatBS(b.appointment_date_ad)} <span className="text-text-secondary text-xs">({formatDate(b.appointment_date_ad)})</span></td>
                               <td className="py-2 pr-4 text-text-primary whitespace-nowrap">{formatTime(b.appointment_time)}</td>
+                              <td className="py-2 pr-4">
+                                <div className="flex flex-col gap-0.5">
+                                  {b.booking_type === "specialist" ? (
+                                    <>
+                                      <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700">Specialist</span>
+                                      {b.specialist_name && <span className="text-[10px] text-purple-600 truncate max-w-[140px]" title={b.specialist_name}>{b.specialist_name}</span>}
+                                    </>
+                                  ) : (
+                                    <span className="inline-block rounded-full border border-border bg-bg-light px-2.5 py-0.5 text-xs font-semibold text-text-secondary">Regular</span>
+                                  )}
+                                </div>
+                              </td>
                               <td className="py-2 pr-4 text-text-primary max-w-[200px] truncate">{b.problem}</td>
                               <td className="py-2">
                                 <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[b.status] || ""}`}>
@@ -1878,6 +1900,13 @@ function AdminPatientsContent() {
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
+
+            {viewBooking.booking_type === "specialist" && viewBooking.specialist_name && (
+              <div className="mb-3 rounded-lg border border-purple-200 bg-purple-50/50 px-3 py-2">
+                <span className="font-body text-xs font-semibold uppercase tracking-wide text-purple-800">Specialist Booking</span>
+                <p className="font-body text-sm font-semibold text-text-primary mt-0.5">{viewBooking.specialist_name}</p>
+              </div>
+            )}
 
             <dl className="space-y-2 font-body text-sm mb-4">
               <div className="flex gap-3"><dt className="w-24 flex-shrink-0 font-semibold text-text-secondary">Patient</dt><dd className="text-text-primary">{viewBooking.patient_name}</dd></div>

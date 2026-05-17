@@ -299,13 +299,28 @@ export default function SpecialistDetailPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
             </svg>
           </div>
-          <h2 className="font-heading text-lg font-bold text-text-primary mb-1">Specialist Booking Coming Soon</h2>
-          <p className="font-body text-sm text-text-secondary mb-4">
-            Online booking for visiting specialists will be available in a future update. For now, please contact the clinic to schedule an appointment with {s.specialist_name}.
-          </p>
-          <Link href="/booking" className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors">
-            Book a Regular Appointment
-          </Link>
+          {isPast ? (
+            <>
+              <h2 className="font-heading text-lg font-bold text-text-primary mb-1">Visit Date Has Passed</h2>
+              <p className="font-body text-sm text-text-secondary mb-4">
+                This specialist visit has already occurred. You can book a regular appointment instead.
+              </p>
+              <Link href="/booking" className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors">
+                Book a Regular Appointment
+              </Link>
+            </>
+          ) : (
+            <>
+              <h2 className="font-heading text-lg font-bold text-text-primary mb-1">Book an Appointment</h2>
+              <p className="font-body text-sm text-text-secondary mb-4">
+                Schedule your visit with {s.specialist_name} on {bsDisplay}.
+              </p>
+              <Link href={`/specialists/${s.id}/book`} className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+                Book Specialist
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Back link */}

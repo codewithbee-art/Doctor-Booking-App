@@ -454,7 +454,7 @@
 
 ### Phase 9A: Specialist Detail Page
 
-- [ ] Add optional profile/detail fields to `visiting_specialists`:
+- [x] Add optional profile/detail fields to `visiting_specialists`:
   - bio
   - qualifications
   - experience
@@ -469,64 +469,122 @@
   - license_number
   - consultation_mode
   - display_order
-- [ ] Create safe Supabase migration for the new specialist fields
-- [ ] Update TypeScript database types
-- [ ] Update admin specialist form to edit optional profile/detail fields
-- [ ] Add visit location field to admin specialist form
-- [ ] Add public note and preparation note fields to admin specialist form
-- [ ] Add languages spoken field to admin specialist form
-- [ ] Add optional gender field to admin specialist form
-- [ ] Add optional license/registration number field to admin specialist form
-- [ ] Add consultation mode field: In-person, Online, or Both
-- [ ] Add display order field for manual ordering
-- [ ] Allow admin to paste specialist photo URL
-- [ ] Add Supabase Storage support for specialist image uploads if practical
-- [ ] Create or document Supabase Storage bucket for specialist images
-- [ ] Allow admin to upload specialist photo from computer if storage is ready
-- [ ] Store final image URL in `profile_image_url`
-- [ ] Show initials/avatar placeholder when no image is provided
-- [ ] Create public `/specialists/[id]` detail page
-- [ ] Add View Profile button on specialist cards
-- [ ] Show visit location on public specialist cards
-- [ ] Show consultation mode on public specialist cards
-- [ ] Show consultation fee or Free Consultation clearly
-- [ ] Show specialist visit date in BS and AD
-- [ ] Detail page should show doctor photo/avatar, profile details, visit location, fee/free, BS/AD date, time, treatment areas, public note, and preparation note
-- [ ] Keep inactive specialists hidden publicly
-- [ ] Add placeholder CTA: Specialist booking coming soon
-- [ ] Keep specialist booking for Phase 9B
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 9A to Git
+- [x] Create safe Supabase migration for the new specialist fields
+- [x] Update TypeScript database types
+- [x] Update admin specialist form to edit optional profile/detail fields
+- [x] Add visit location field to admin specialist form
+- [x] Add public note and preparation note fields to admin specialist form
+- [x] Add languages spoken field to admin specialist form
+- [x] Add optional gender field to admin specialist form
+- [x] Add optional license/registration number field to admin specialist form
+- [x] Add consultation mode field: In-person, Online, or Both
+- [x] Add display order field for manual ordering
+- [x] Allow admin to paste specialist photo URL
+- [x] Add Supabase Storage support for specialist image uploads if practical
+- [x] Create or document Supabase Storage bucket for specialist images
+- [x] Allow admin to upload specialist photo from computer if storage is ready
+- [x] Store final image URL in `profile_image_url`
+- [x] Show initials/avatar placeholder when no image is provided
+- [x] Create public `/specialists/[id]` detail page
+- [x] Add View Profile button on specialist cards
+- [x] Show visit location on public specialist cards
+- [x] Show consultation mode on public specialist cards
+- [x] Show consultation fee or Free Consultation clearly
+- [x] Show specialist visit date in BS and AD
+- [x] Detail page should show doctor photo/avatar, profile details, visit location, fee/free, BS/AD date, time, treatment areas, public note, and preparation note
+- [x] Keep inactive specialists hidden publicly
+- [x] Add placeholder CTA: Specialist booking coming soon
+- [x] Keep specialist booking for Phase 9B
+- [x] Run npm run build successfully
+- [x] Commit Phase 9A to Git
 
 ### Phase 9A-fix: Specialist Image Upload
 
-- [ ] Create Supabase Storage bucket for specialist images
-- [ ] Add image upload button to admin specialist form
-- [ ] Allow admin to upload doctor photo from computer
-- [ ] Upload image to Supabase Storage using safe server-side/API logic
-- [ ] Save public image URL into `profile_image_url`
-- [ ] Keep manual image URL input as fallback
-- [ ] Show upload preview in admin form
-- [ ] Validate image file type and size
-- [ ] Show initials/avatar placeholder when no image is available
-- [ ] Ensure uploaded image appears on `/specialists` cards
-- [ ] Ensure uploaded image appears on `/specialists/[id]` detail page
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 9A-fix to Git
+- [x] Create Supabase Storage bucket for specialist images
+- [x] Add image upload button to admin specialist form
+- [x] Allow admin to upload doctor photo from computer
+- [x] Upload image to Supabase Storage using safe server-side/API logic
+- [x] Save public image URL into `profile_image_url`
+- [x] Keep manual image URL input as fallback
+- [x] Show upload preview in admin form
+- [x] Validate image file type and size
+- [x] Show initials/avatar placeholder when no image is available
+- [x] Ensure uploaded image appears on `/specialists` cards
+- [x] Ensure uploaded image appears on `/specialists/[id]` detail page
+- [x] Run npm run build successfully
+- [x] Commit Phase 9A-fix to Git
 
-### Phase 9B: Specialist Booking Flow
+### Phase 9B: Specialist Public Booking Flow
 
-- [ ] Add Book Specialist button on active specialist cards/detail page
-- [ ] Allow patient to book a selected specialist
-- [ ] Link specialist booking to `specialist_id` in bookings
-- [ ] Save `booking_type` as specialist
-- [ ] Show specialist name/type in booking form
-- [ ] Show specialist bookings clearly in admin dashboard
-- [ ] Show specialist booking details in patient records
+- [ ] Add specialist-specific booking route, for example `/specialists/[id]/book`
+- [ ] Add Book Specialist button on active specialist cards
+- [ ] Add Book Specialist button on specialist detail page
+- [ ] Specialist booking form should show selected specialist details:
+  - specialist name
+  - specialization
+  - treatment type
+  - visit date in BS and AD
+  - available time window
+  - visit location
+  - consultation fee or Free Consultation
+  - consultation mode
+  - preparation note where useful
+- [ ] Specialist booking should use the specialist visit date automatically
+- [ ] Prevent patient from selecting a different date for that specialist visit
+- [ ] Add specialist slot generation from `available_from`, `available_to`, and slot duration
+- [ ] Add `slot_duration_minutes` to `visiting_specialists`, default 30 minutes
+- [ ] Add optional `max_patients` to `visiting_specialists`
+- [ ] Update admin specialist form to set slot duration
+- [ ] Update admin specialist form to set optional max patients
+- [ ] Allow patient to choose an available specialist time slot
+- [ ] Prevent double booking of the same specialist, date, and time
+- [ ] Allow different specialists to be booked at the same time
+- [ ] Allow regular doctor and specialist bookings at the same time
 - [ ] Prevent booking inactive specialists
-- [ ] Keep regular booking flow working
+- [ ] Prevent booking past specialist visit dates
+- [ ] Prevent booking when specialist max patients limit is reached
+- [ ] Link specialist booking to `specialist_id` in `bookings`
+- [ ] Save `booking_type` as `specialist`
+- [ ] Save specialist appointment date/time into `bookings`
+- [ ] Save `appointment_date_bs` and `appointment_date_ad` correctly
+- [ ] Create specialist booking API or extend booking API safely
+- [ ] Create specialist slots API if needed
+- [ ] Keep patient creation/linking logic working for specialist bookings
+- [ ] Keep patient identity safety rules working for specialist bookings
+- [ ] Show clear success and error messages
+- [ ] Keep regular booking flow working separately
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 9B to Git
+
+### Phase 9C: Specialist Booking Admin Management
+
+- [ ] Add specialist bookings filter/section in admin dashboard
+- [ ] Create separate admin specialist bookings page if needed, for example `/admin/specialist-bookings`
+- [ ] Show specialist bookings separately from regular bookings where useful
+- [ ] Show specialist badge/label in admin booking table and booking details
+- [ ] Show specialist name in admin booking table and details
+- [ ] Show specialist specialization and treatment type in admin booking details
+- [ ] Show specialist visit location in admin booking details
+- [ ] Show specialist consultation fee or Free Consultation in admin booking details
+- [ ] Specialist bookings should support pending, confirmed, cancelled, and completed statuses
+- [ ] Specialist bookings should support cancellation reason
+- [ ] Allow admin to confirm specialist booking
+- [ ] Allow admin to cancel specialist booking with reason
+- [ ] Allow admin to complete specialist booking
+- [ ] Allow admin to view linked patient record from specialist booking
+- [ ] Allow doctor/admin to start or continue checkup from specialist booking where appropriate
+- [ ] Save specialist visit/checkup notes into patient history
+- [ ] Show specialist booking details in patient records and booking history
+- [ ] Show specialist name/type/location in patient booking history
+- [ ] Show specialist-linked visit records clearly in Visit History
+- [ ] Keep regular booking dashboard workflow working separately
+- [ ] Keep regular booking status actions working
+- [ ] Keep walk-in visit workflow working
+- [ ] Keep doctor reference on specialist visit records
+- [ ] Prevent admin actions on inactive/deleted specialist records from breaking old bookings
+- [ ] Show clear success and error messages
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 9C to Git
 
 ## Phase 10: Blog
 

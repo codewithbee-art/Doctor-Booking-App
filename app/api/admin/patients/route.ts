@@ -88,11 +88,30 @@ export async function GET(request: NextRequest) {
       const { data: bookings } = await supabaseAdmin
         .from("bookings")
         .select(
-          "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, status, cancellation_reason, cancelled_at, created_at"
+          "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, cancellation_reason, cancelled_at, created_at"
         )
         .eq("patient_id", id)
         .order("appointment_date_ad", { ascending: false })
         .order("appointment_time", { ascending: false });
+
+      // Enrich specialist bookings with specialist name
+      const specialistIds = Array.from(new Set((bookings ?? []).filter((b) => b.specialist_id).map((b) => b.specialist_id))) as string[];
+      let specialistNameMap: Record<string, string> = {};
+      if (specialistIds.length > 0) {
+        const { data: specialists } = await supabaseAdmin
+          .from("visiting_specialists")
+          .select("id, specialist_name")
+          .in("id", specialistIds);
+        if (specialists) {
+          for (const sp of specialists) {
+            specialistNameMap[sp.id] = sp.specialist_name;
+          }
+        }
+      }
+      const enrichedBookings = (bookings ?? []).map((b) => ({
+        ...b,
+        specialist_name: b.specialist_id ? (specialistNameMap[b.specialist_id] || null) : null,
+      }));
 
       // Fetch visits
       const { data: visits } = await supabaseAdmin
@@ -106,7 +125,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         patient,
-        bookings: bookings ?? [],
+        bookings: enrichedBookings,
         visits: visits ?? [],
       });
     }

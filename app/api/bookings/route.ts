@@ -71,11 +71,28 @@ export async function GET() {
       }
     }
 
+    // Fetch specialist names for specialist bookings
+    const specialistIds = Array.from(new Set((bookings ?? []).filter((b) => b.specialist_id).map((b) => b.specialist_id))) as string[];
+    let specialistNameMap: Record<string, { name: string; specialization?: string; treatment_type?: string; visit_location?: string; consultation_fee?: number | null }> = {};
+    if (specialistIds.length > 0) {
+      const { data: specialists } = await supabaseAdmin
+        .from("visiting_specialists")
+        .select("id, specialist_name, specialization, treatment_type, visit_location, consultation_fee")
+        .in("id", specialistIds);
+      if (specialists) {
+        for (const sp of specialists) {
+          specialistNameMap[sp.id] = { name: sp.specialist_name, specialization: sp.specialization, treatment_type: sp.treatment_type, visit_location: sp.visit_location, consultation_fee: sp.consultation_fee };
+        }
+      }
+    }
+
     const enriched = (bookings ?? []).map((b) => ({
       ...b,
       visit_count: b.patient_id ? (visitCountMap[b.patient_id] || 0) : 0,
       is_new_patient: b.patient_id ? (bookingCountMap[b.patient_id] || 0) <= 1 && (visitCountMap[b.patient_id] || 0) === 0 : true,
       has_visit: bookingVisitSet.has(b.id),
+      specialist_name: b.specialist_id ? (specialistNameMap[b.specialist_id]?.name || null) : null,
+      specialist_info: b.specialist_id ? (specialistNameMap[b.specialist_id] || null) : null,
     }));
 
     return NextResponse.json({ success: true, bookings: enriched });

@@ -112,6 +112,14 @@ export async function POST(request: NextRequest) {
     if ("display_order" in body) {
       insertData.display_order = Number(body.display_order) || 0;
     }
+    if ("slot_duration_minutes" in body) {
+      const sd = Number(body.slot_duration_minutes);
+      insertData.slot_duration_minutes = sd > 0 ? sd : 30;
+    }
+    if ("max_patients" in body) {
+      const mp = Number(body.max_patients);
+      insertData.max_patients = mp > 0 ? mp : null;
+    }
 
     const { data, error } = await supabaseAdmin
       .from("visiting_specialists")
@@ -200,6 +208,14 @@ export async function PATCH(request: NextRequest) {
     }
     if ("display_order" in body) {
       updates.display_order = Number(body.display_order) || 0;
+    }
+    if ("slot_duration_minutes" in body) {
+      const sd = Number(body.slot_duration_minutes);
+      updates.slot_duration_minutes = sd > 0 ? sd : 30;
+    }
+    if ("max_patients" in body) {
+      const mp = Number(body.max_patients);
+      updates.max_patients = mp > 0 ? mp : null;
     }
 
     if (Object.keys(updates).length === 0) {

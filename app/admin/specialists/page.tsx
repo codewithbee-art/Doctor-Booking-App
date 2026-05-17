@@ -36,6 +36,8 @@ interface Specialist {
   license_number: string | null;
   consultation_mode: string | null;
   display_order: number;
+  slot_duration_minutes: number;
+  max_patients: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -97,6 +99,8 @@ export default function AdminSpecialistsPage() {
   const [formLocation, setFormLocation] = useState("");
   const [formConsultMode, setFormConsultMode] = useState("");
   const [formDisplayOrder, setFormDisplayOrder] = useState("0");
+  const [formSlotDuration, setFormSlotDuration] = useState("30");
+  const [formMaxPatients, setFormMaxPatients] = useState("");
 
   // Profile form state
   const [showProfile, setShowProfile] = useState(false);
@@ -169,6 +173,7 @@ export default function AdminSpecialistsPage() {
     setFormDateAD(""); setFormFrom("09:00"); setFormTo("17:00");
     setFormFee(""); setFormFree(false);
     setFormLocation(""); setFormConsultMode(""); setFormDisplayOrder("0");
+    setFormSlotDuration("30"); setFormMaxPatients("");
     setShowProfile(false);
     setUploadMsg(null);
     setFormImageUrl(""); setFormBio(""); setFormQualifications("");
@@ -196,6 +201,8 @@ export default function AdminSpecialistsPage() {
     setFormLocation(s.visit_location || "");
     setFormConsultMode(s.consultation_mode || "");
     setFormDisplayOrder(String(s.display_order ?? 0));
+    setFormSlotDuration(String(s.slot_duration_minutes ?? 30));
+    setFormMaxPatients(s.max_patients != null ? String(s.max_patients) : "");
     setFormImageUrl(s.profile_image_url || "");
     setFormBio(s.bio || "");
     setFormQualifications(s.qualifications || "");
@@ -238,6 +245,8 @@ export default function AdminSpecialistsPage() {
       visit_location: formLocation.trim() || null,
       consultation_mode: formConsultMode || null,
       display_order: Number(formDisplayOrder) || 0,
+      slot_duration_minutes: Number(formSlotDuration) || 30,
+      max_patients: formMaxPatients ? Number(formMaxPatients) : null,
       profile_image_url: formImageUrl.trim() || null,
       bio: formBio.trim() || null,
       qualifications: formQualifications.trim() || null,
@@ -394,6 +403,16 @@ export default function AdminSpecialistsPage() {
                   <label htmlFor="sp-order" className={LABEL_CLS}>Display Order</label>
                   <input id="sp-order" type="number" min="0" value={formDisplayOrder} onChange={(e) => setFormDisplayOrder(e.target.value)} className={INPUT_CLS} placeholder="0 = default" />
                   <p className="mt-0.5 font-body text-xs text-text-secondary">Lower numbers appear first on public pages</p>
+                </div>
+                <div>
+                  <label htmlFor="sp-slot-dur" className={LABEL_CLS}>Slot Duration (minutes)</label>
+                  <input id="sp-slot-dur" type="number" min="5" max="120" step="5" value={formSlotDuration} onChange={(e) => setFormSlotDuration(e.target.value)} className={INPUT_CLS} placeholder="30" />
+                  <p className="mt-0.5 font-body text-xs text-text-secondary">Time per patient for booking slots</p>
+                </div>
+                <div>
+                  <label htmlFor="sp-max-pat" className={LABEL_CLS}>Max Patients (optional)</label>
+                  <input id="sp-max-pat" type="number" min="1" value={formMaxPatients} onChange={(e) => setFormMaxPatients(e.target.value)} className={INPUT_CLS} placeholder="Unlimited if empty" />
+                  <p className="mt-0.5 font-body text-xs text-text-secondary">Leave empty for no limit</p>
                 </div>
               </div>
 

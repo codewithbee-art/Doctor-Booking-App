@@ -114,11 +114,16 @@ Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking
 Phase 7: Complete (7A Staff Profiles, 7B Doctor Reference, 7C Roles, and Permissions)
 Phase 8: Complete (8 Real BS/AD Calendar Support)
 Phase 9: Complete (Visiting Specialists)
-Current: Phase 9A: Specialist Detail Page 
-- Phase 9B: Not started
-- Phase 10: Not started
-- Phase 11: Not started  
-- Phase 12: Not started    
+Phase 9A: Complete Specialist Detail Page 
+
+Current:
+- Phase 9B: Specialist Public Booking Flow
+
+Upcoming:
+- Phase 9C: Specialist Booking Admin Management
+- Phase 10: Blog
+- Phase 11: Medicine Shop
+- Phase 12: Checkout, Emails, SEO, Deployment 
 
 
 ## Phase Plan
@@ -463,16 +468,44 @@ Current: Phase 9A: Specialist Detail Page
 - Add a “Specialist booking coming soon” CTA until Phase 9B is built
 - Keep booking specialist appointments for Phase 9B
 
-#### Phase 9B: Specialist Booking Flow
+#### Phase 9B: Specialist Public Booking Flow
 
-- Add booking flow for active visiting specialists
-- Add Book Specialist button on specialist cards and detail page
-- Link specialist bookings to `specialist_id` in the bookings table
-- Save `booking_type` as specialist
-- Show selected specialist details inside the booking form
-- Show specialist bookings clearly in admin dashboard and patient records
+- Allow patients to book appointments with active visiting specialists
+- Add a specialist-specific booking route, such as `/specialists/[id]/book`
+- Add Book Specialist buttons on active specialist cards and specialist detail pages
+- Specialist booking should show the selected specialist’s name, specialization, treatment type, visit date in BS and AD, available time window, visit location, consultation mode, consultation fee/free status, and preparation note where useful
+- Specialist booking should use the specialist visit date automatically and should not allow the patient to select a different date
+- Specialist bookings should not use the global regular `available_slots` table
+- Specialist time slots should be generated from the specialist’s `available_from`, `available_to`, and `slot_duration_minutes`
+- Add `slot_duration_minutes` to specialist visits, with 30 minutes as the default
+- Add optional `max_patients` to specialist visits for daily/session capacity control
+- Prevent double booking for the same specialist, date, and time
+- Allow different specialists to be booked at the same time
+- Allow regular doctor bookings and specialist bookings at the same time
 - Prevent booking inactive specialists
-- Keep regular appointment booking working separately
+- Prevent booking past specialist visit dates
+- Prevent booking when the specialist maximum patient limit is reached
+- Specialist bookings should save `booking_type = specialist` and the selected `specialist_id`
+- Specialist bookings should save appointment date/time, `appointment_date_ad`, and `appointment_date_bs` correctly
+- Specialist booking should reuse the existing patient creation/linking and patient identity safety logic
+- Regular booking flow must continue working separately
+
+#### Phase 9C: Specialist Booking Admin Management
+
+- Add clear admin management for specialist bookings
+- Show specialist bookings separately from regular bookings where useful, either through dashboard filters/sections or a dedicated `/admin/specialist-bookings` page
+- Show specialist badge/label, specialist name, specialization, treatment type, visit location, consultation fee/free status, appointment date, time, and booking status in admin views
+- Specialist bookings should support the normal appointment workflow: pending, confirmed, cancelled, and completed
+- Specialist bookings should support cancellation reasons
+- Admin should be able to confirm, cancel, complete, and view specialist bookings
+- Admin should be able to open the linked patient record from a specialist booking
+- Doctor/admin should be able to start or continue checkup from a specialist booking where appropriate
+- Specialist visit/checkup notes should be saved into patient history
+- Patient records should show specialist appointment details clearly in booking history
+- Visit History should clearly identify specialist-linked visit records
+- Doctor reference should continue working for specialist visit records
+- Regular booking dashboard workflow, walk-in workflow, patient records, and standard status actions must continue working
+- Old specialist bookings should remain readable even if the specialist is later deactivated or removed
 
 ### Phase 10: Blog
 

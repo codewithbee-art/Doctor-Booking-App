@@ -32,6 +32,8 @@ export interface VisitingSpecialist {
   license_number: string | null;
   consultation_mode: ConsultationMode | null;
   display_order: number;
+  slot_duration_minutes: number;
+  max_patients: number | null;
   created_at: string;
   updated_at: string;
 }
