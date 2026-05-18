@@ -41,7 +41,7 @@ export async function PATCH(
     // Fetch full booking to get date/time for slot management
     const { data: existing, error: findError } = await supabaseAdmin
       .from("bookings")
-      .select("id, status, appointment_date_ad, appointment_time, booking_type, specialist_id")
+      .select("id, status, appointment_date_ad, appointment_time, booking_type, specialist_id, booking_source")
       .eq("id", id)
       .single();
 
@@ -54,6 +54,7 @@ export async function PATCH(
 
     const prevStatus = existing.status;
     const isSpecialist = existing.booking_type === "specialist" && existing.specialist_id;
+    const isWalkIn = existing.booking_source === "walk_in";
 
     // ---- Slot management: cancelling releases the slot (regular bookings only) ----
     if (status === "cancelled" && prevStatus !== "cancelled" && !isSpecialist) {
@@ -64,10 +65,18 @@ export async function PATCH(
         .eq("slot_time", existing.appointment_time);
     }
 
+    // ---- Determine restore target status ----
+    // Walk-in specialist bookings restore directly to confirmed (no slot blocking)
+    // Online specialist bookings restore to pending after slot check
+    const restoreTargetStatus = (isSpecialist && isWalkIn) ? "confirmed" : "pending";
+    const effectiveNewStatus = (prevStatus === "cancelled" && status === "pending") ? restoreTargetStatus : status;
+
     // ---- Slot management: restoring from cancelled ----
     if (prevStatus === "cancelled" && status === "pending") {
-      if (isSpecialist) {
-        // For specialist bookings: check if another booking occupies that slot
+      if (isSpecialist && isWalkIn) {
+        // Walk-in specialist bookings skip slot conflict check — restore directly to confirmed
+      } else if (isSpecialist) {
+        // For online specialist bookings: check if another booking occupies that slot
         const normalizedTime = existing.appointment_time.slice(0, 5);
         const { data: conflictingBookings } = await supabaseAdmin
           .from("bookings")
@@ -126,8 +135,8 @@ export async function PATCH(
     }
 
     // ---- Update booking status ----
-    const updatePayload: Record<string, string | null> = { status };
-    if (status === "cancelled") {
+    const updatePayload: Record<string, string | null> = { status: effectiveNewStatus };
+    if (effectiveNewStatus === "cancelled") {
       updatePayload.cancellation_reason = cancellation_reason?.trim() || null;
       updatePayload.cancelled_at = new Date().toISOString();
     }

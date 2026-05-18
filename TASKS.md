@@ -562,13 +562,13 @@
 
 ### Phase 9C: Specialist Booking Admin Management
 
-- [ ] Add Specialist Bookings link in admin navigation
-- [ ] Create dedicated admin specialist bookings page, for example `/admin/specialist-bookings`
-- [ ] Main admin dashboard should continue showing specialist bookings with clear Specialist badge and specialist name
-- [ ] Keep regular booking dashboard workflow working separately
-- [ ] Keep regular booking status actions working
-- [ ] Specialist bookings page should automatically group bookings by specialist doctor
-- [ ] Show specialist summary card/section for each doctor:
+- [x] Add Specialist Bookings link in admin navigation
+- [x] Create dedicated admin specialist bookings page, for example `/admin/specialist-bookings`
+- [x] Main admin dashboard should continue showing specialist bookings with clear Specialist badge and specialist name
+- [x] Keep regular booking dashboard workflow working separately
+- [x] Keep regular booking status actions working
+- [x] Specialist bookings page should automatically group bookings by specialist doctor
+- [x] Show specialist summary card/section for each doctor:
   - specialist name
   - specialization
   - treatment type
@@ -581,58 +581,148 @@
   - confirmed count
   - completed count
   - cancelled count
-- [ ] Inside each specialist group, show patient booking list ordered by appointment time
-- [ ] Add filters:
+- [x] Inside each specialist group, show patient booking list ordered by appointment time
+- [x] Add filters:
   - specialist doctor
   - date
   - status
   - search patient by name or phone
-- [ ] Show specialist badge/label in admin specialist booking table and booking details
-- [ ] Show specialist name in admin specialist booking table and details
-- [ ] Show specialist specialization and treatment type in admin booking details
-- [ ] Show specialist visit location in admin booking details
-- [ ] Show specialist consultation fee or Free Consultation in admin booking details
-- [ ] Specialist bookings should support pending, confirmed, cancelled, and completed statuses
-- [ ] Specialist bookings should support cancellation reason
-- [ ] Allow admin to confirm specialist booking
-- [ ] Allow admin to cancel specialist booking with reason
-- [ ] Allow admin to complete specialist booking
-- [ ] Allow admin to restore cancelled specialist booking if the time slot is still available
-- [ ] If restore fails because the specialist time slot is taken, allow reschedule
-- [ ] Allow specialist booking reschedule to choose another available time from the same specialist visit/session
-- [ ] Prevent rescheduling into an already booked specialist time slot
-- [ ] Allow admin to view linked patient record from specialist booking
-- [ ] Allow doctor/admin to start checkup from specialist booking where appropriate
-- [ ] Allow doctor/admin to continue checkup from specialist booking if a visit record already exists
-- [ ] Save specialist visit/checkup notes into patient history
-- [ ] Show specialist-linked visit records clearly in Visit History
-- [ ] Keep doctor reference on specialist visit records
-- [ ] Show specialist booking details in patient records and booking history
-- [ ] Show specialist name/type/location in patient booking history
-- [ ] Patient Records should clearly show specialist bookings and specialist-linked visits
-- [ ] Keep walk-in visit workflow working
-- [ ] Prevent admin actions on inactive/deleted specialist records from breaking old bookings
-- [ ] Old specialist bookings should remain readable even if the specialist is later deactivated
-- [ ] Do not fully build specialist walk-in patients in this phase
-- [ ] Add placeholder/future task note for specialist walk-in patients if needed
-- [ ] Show clear success and error messages
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 9C to Git
+- [x] Show specialist badge/label in admin specialist booking table and booking details
+- [x] Show specialist name in admin specialist booking table and details
+- [x] Show specialist specialization and treatment type in admin booking details
+- [x] Show specialist visit location in admin booking details
+- [x] Show specialist consultation fee or Free Consultation in admin booking details
+- [x] Specialist bookings should support pending, confirmed, cancelled, and completed statuses
+- [x] Specialist bookings should support cancellation reason
+- [x] Allow admin to confirm specialist booking
+- [x] Allow admin to cancel specialist booking with reason
+- [x] Allow admin to complete specialist booking
+- [x] Allow admin to restore cancelled specialist booking if the time slot is still available
+- [x] If restore fails because the specialist time slot is taken, allow reschedule
+- [x] Allow specialist booking reschedule to choose another available time from the same specialist visit/session
+- [x] Prevent rescheduling into an already booked specialist time slot
+- [x] Allow admin to view linked patient record from specialist booking
+- [x] Allow doctor/admin to start checkup from specialist booking where appropriate
+- [x] Allow doctor/admin to continue checkup from specialist booking if a visit record already exists
+- [x] Save specialist visit/checkup notes into patient history
+- [x] Show specialist-linked visit records clearly in Visit History
+- [x] Keep doctor reference on specialist visit records
+- [x] Show specialist booking details in patient records and booking history
+- [x] Show specialist name/type/location in patient booking history
+- [x] Patient Records should clearly show specialist bookings and specialist-linked visits
+- [x] Keep walk-in visit workflow working
+- [x] Prevent admin actions on inactive/deleted specialist records from breaking old bookings
+- [x] Old specialist bookings should remain readable even if the specialist is later deactivated
+- [x] Do not fully build specialist walk-in patients in this phase
+- [x] Add placeholder/future task note for specialist walk-in patients if needed
+- [x] Show clear success and error messages
+- [x] Run npm run build successfully
+- [x] Commit Phase 9C to Git
 
-### Phase 9D: Specialist Walk-in Patients
+### Phase 9D: Specialist Walk-in Queue
 
-- [ ] Allow admin to add walk-in patient under a specific specialist visit
-- [ ] Allow admin to search existing patient for specialist walk-in
-- [ ] Allow admin to create new patient for specialist walk-in
-- [ ] Create specialist booking or specialist-linked visit for walk-in patients
-- [ ] Save specialist walk-in details into patient history
-- [ ] Clearly label specialist walk-ins in Visit History
-- [ ] Clearly label specialist walk-ins in Specialist Bookings admin page
-- [ ] Keep owner/admin full access to all specialist bookings for now
-- [ ] Do not build specialist-specific restricted access in this phase
-- [ ] Keep specialist-specific restricted access for a later advanced permissions phase
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 9D to Git
+- [x] Add universal “Add Specialist Walk-in” button on `/admin/specialist-bookings`
+- [x] Add “Add Walk-in Patient” button inside each specialist doctor group
+- [x] Use one shared specialist walk-in modal/form for both entry points
+- [x] If opened from universal button, allow admin to select specialist visit from a dropdown
+- [x] If opened from specialist group button, pre-select that specialist visit automatically
+- [x] Specialist walk-ins should always belong to one selected specialist visit
+- [x] Specialist walk-ins should go directly into the selected specialist’s queue/group
+- [x] Show selected specialist details in the walk-in form:
+  - specialist name
+  - specialization
+  - treatment type
+  - visit date in BS and AD
+  - available time window
+  - visit location
+  - consultation fee or Free Consultation
+  - consultation mode
+- [x] Allow admin to search existing patient by name, phone, email, or date of birth
+- [x] Allow admin to select an existing patient for specialist walk-in
+- [x] Allow admin to create a new patient if no match is found
+- [x] New patient form should follow the existing Patient Records Add Patient layout:
+  - full name
+  - phone
+  - email optional
+  - date of birth optional
+  - General Patient Notes
+  - Identity / Contact Notes
+- [x] Keep patient identity safety rules working for specialist walk-ins
+- [x] Add Problem / Reason for Visit field
+- [x] Do not require online slot selection for specialist walk-ins
+- [x] Use current time as the default walk-in time
+- [x] Add optional manual time adjustment if practical
+- [x] Add `booking_source` support if needed, for example:
+  - online
+  - walk_in
+  - admin
+- [x] Save specialist walk-ins as `booking_source = walk_in`
+- [x] Save public specialist bookings as `booking_source = online` where useful
+- [x] Add to Queue should create specialist walk-in booking only
+- [x] Add to Queue should set booking status to confirmed
+- [x] Create specialist walk-in booking in `bookings`
+- [x] Save `booking_type = specialist`
+- [x] Save selected `specialist_id`
+- [x] Save selected or created `patient_id`
+- [x] Save specialist visit date as appointment date
+- [x] Save walk-in time as appointment time
+- [x] Show walk-in source badge in Specialist Bookings admin page
+- [x] Show walk-in source badge in main admin dashboard where specialist bookings appear
+- [x] Show specialist walk-in details in Patient Records booking history
+- [x] Inside each specialist group, show online bookings and walk-ins together, ordered by time
+- [x] Cancelled specialist walk-ins should restore directly to confirmed because they do not use slot blocking
+- [x] Online specialist booking restore should continue checking specialist slot availability
+- [x] Keep owner/admin full access to all specialist bookings for now
+- [x] Do not build specialist-specific restricted access in this phase
+- [x] Keep specialist-specific restricted access for a later advanced permissions phase
+- [x] Keep regular walk-in visit workflow working
+- [x] Keep online specialist booking workflow working
+- [x] Keep regular booking workflow working
+- [x] Show clear success and error messages
+- [x] Run npm run build successfully
+- [x] Commit Phase 9D to Git
+
+### Phase 9E: Specialist Walk-in Checkup Integration
+
+- [x] Add "Add & Start Checkup" action to the specialist walk-in modal
+- [x] Add & Start Checkup should create specialist walk-in booking first
+- [x] Add & Start Checkup should then open the existing specialist checkup form directly
+- [x] The checkup form should be linked to the specialist walk-in booking
+- [x] The checkup form should pre-fill:
+  - visit date
+  - walk-in time where useful
+  - patient problem/reason
+  - specialist context
+- [x] The checkup form should show specialist context clearly:
+  - specialist name
+  - specialization
+  - treatment type
+  - visit location
+  - booking source: Walk-in
+- [x] Save Visit should create or update a `patient_visits` record linked to the specialist walk-in booking
+- [x] Save Visit should keep the specialist walk-in booking status confirmed
+- [x] Save Visit & Complete should create or update the visit and mark the specialist walk-in booking completed
+- [x] Continue Checkup should work for specialist walk-ins with existing visit records
+- [x] Continue Checkup should load existing visit details for editing
+- [x] Completed specialist walk-ins should show View/Edit Visit where appropriate
+- [x] Save specialist walk-in checkup details into patient history through the existing Start/Continue Checkup flow
+- [x] Clearly label specialist walk-in visits in Visit History
+- [x] Show specialist name in patient Visit History where useful
+- [x] Show walk-in time in patient Visit History where useful
+- [x] Keep doctor reference on specialist walk-in visit records
+- [x] Visit records should save `doctor_id` and `doctor_name_snapshot` from the logged-in staff profile
+- [x] Specialist walk-in visit should remain linked to:
+  - patient_id
+  - booking_id
+  - specialist booking context
+- [x] Keep Add to Queue workflow working from Phase 9D
+- [x] Keep Start Checkup and Continue Checkup working for online specialist bookings
+- [x] Keep regular checkup workflow working
+- [x] Keep regular walk-in visit workflow working
+- [x] Keep patient records and visit editing working
+- [x] Show clear success and error messages
+- [x] Run npm run build successfully
+- [x] Commit Phase 9E to Git
 
 ## Phase 10: Blog
 
@@ -707,3 +797,16 @@
 - [ ] Ensure Blog, Shop, Orders, Staff, and Settings can fit cleanly
 - [ ] Run npm run build successfully
 - [ ] Commit admin navigation polish to Git
+
+
+### Performance and Admin Data Optimization
+
+- [ ] Add pagination or date limits to admin booking lists
+- [ ] Avoid loading all historical bookings by default
+- [ ] Add default filters such as Today / Upcoming
+- [ ] Optimize patient search queries
+- [ ] Optimize specialist booking queries
+- [ ] Check repeated API calls in Network tab
+- [ ] Optimize images with Next.js Image where useful
+- [ ] Test production build performance with `npm run build` and `npm run start`
+- [ ] Run Lighthouse check before deployment

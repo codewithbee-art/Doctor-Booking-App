@@ -229,6 +229,7 @@ export async function POST(
         specialist_id: specialistId,
         status: "pending",
         patient_id: patientId,
+        booking_source: "online",
       })
       .select("id")
       .single();

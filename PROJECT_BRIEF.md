@@ -114,17 +114,19 @@ Phase 6: Complete (6A database, 6B admin patients UI, 6C visit notes, 6D booking
 Phase 7: Complete (7A Staff Profiles, 7B Doctor Reference, 7C Roles, and Permissions)
 Phase 8: Complete (8 Real BS/AD Calendar Support)
 Phase 9: Complete (Visiting Specialists)
-Phase 9A: Complete Specialist Detail Page 
+Phase 9A: Complete (Specialist Detail Page)
 Phase 9B: Complete (Specialist Public Booking Flow)
+Phase 9C: Complete (Specialist Booking Admin Management — admin page, checkup modal, date range filter, dashboard Specialist filter tab)
 
 Current:
-- Phase 9C: Specialist Booking Admin Management
+- Phase 9D: Specialist Walk-in Queue
 
 Upcoming:
-- Phase 9D: Specialist Walk-in Patients
+- Phase 9E: Specialist Walk-in Checkup Integration
 - Phase 10: Blog
 - Phase 11: Medicine Shop
-- Phase 12: Checkout, Emails, SEO, Deployment 
+- Phase 12: Checkout, Emails, SEO, Deployment
+- Phase 13: Advanced Role Access and Specialist Permissions
 
 
 ## Phase Plan
@@ -512,17 +514,54 @@ Upcoming:
 - Old specialist bookings should remain readable even if the specialist is later deactivated or removed
 - Specialist walk-in patients and specialist-only staff access should be handled in a later phase
 
-#### Phase 9D: Specialist Walk-in Patients
+#### Phase 9D: Specialist Walk-in Queue
 
 - Allow admin to add walk-in patients under a specific specialist visit
-- Allow admin to search existing patients before creating a new specialist walk-in record
-- Allow admin to create a new patient for a specialist walk-in when no existing patient is found
-- Specialist walk-ins should create a specialist booking or specialist-linked visit depending on the workflow
-- Specialist walk-in details should be saved into the same patient history system
-- Visit History should clearly label specialist walk-ins
-- The Specialist Bookings admin page should clearly show specialist walk-in patients
-- Owner/admin should retain full access to all specialist bookings
-- Specialist-specific restricted login and access control should be handled later in an advanced permissions phase
+- Add both a universal “Add Specialist Walk-in” action and specialist-group-level “Add Walk-in Patient” action
+- Use one shared specialist walk-in modal/form so the workflow stays consistent
+- The universal button should allow admin to choose the specialist visit from a dropdown
+- The specialist-group button should pre-select that specialist visit automatically
+- Specialist walk-ins should always belong to one selected specialist visit
+- Specialist walk-ins should appear directly under the selected specialist’s queue/group
+- The walk-in form should show selected specialist details including specialist name, specialization, treatment type, BS/AD visit date, available time window, visit location, consultation fee/free status, and consultation mode
+- Admin should be able to search existing patients by name, phone, email, or date of birth
+- Admin should be able to select an existing patient or create a new patient if no match is found
+- The new patient form should follow the existing Patient Records Add Patient layout with full name, phone, optional email, optional date of birth, General Patient Notes, and Identity / Contact Notes
+- Patient identity safety rules should continue working for specialist walk-ins
+- Specialist walk-ins should include a Problem / Reason for Visit field
+- Specialist walk-ins should not require online slot selection
+- The system should use the current time as the default walk-in time, with optional manual time adjustment if practical
+- If `booking_source` is added, specialist walk-ins should use `booking_source = walk_in`
+- Public specialist bookings may use `booking_source = online` where useful
+- Add to Queue should create a confirmed specialist walk-in booking without clinical notes
+- Specialist walk-in bookings should be saved in the `bookings` table with `booking_type = specialist`, selected `specialist_id`, selected or created `patient_id`, specialist visit date, and walk-in time
+- Specialist walk-ins should be clearly labelled in Specialist Bookings, Dashboard, and Patient Records booking history
+- Online specialist bookings and walk-ins should appear together inside the selected specialist group, ordered by time
+- Cancelled specialist walk-ins should restore directly to confirmed because they do not use slot blocking
+- Online specialist booking restore should continue checking specialist slot availability
+- Owner/admin should keep full access to all specialist bookings for now
+- Specialist-specific restricted access should be handled later in an advanced permissions phase
+- Regular walk-in visits, online specialist bookings, and regular bookings should continue working
+
+
+#### Phase 9E: Specialist Walk-in Checkup Integration
+
+- Add an “Add & Start Checkup” action to the specialist walk-in workflow
+- Add & Start Checkup should create the specialist walk-in booking and then open the existing specialist checkup form directly
+- The checkup form should be linked to the specialist walk-in booking
+- The checkup form should pre-fill visit date, walk-in time where useful, patient problem/reason, and specialist context
+- The checkup form should clearly show specialist name, specialization, treatment type, visit location, and booking source as Walk-in
+- Save Visit should create or update a patient visit record linked to the specialist walk-in booking while keeping the booking confirmed
+- Save Visit & Complete should create or update the visit and mark the specialist walk-in booking completed
+- Continue Checkup should work for specialist walk-ins with existing visit records
+- Completed specialist walk-ins should allow View/Edit Visit where appropriate
+- Specialist walk-in checkup details should be saved into the same patient history system
+- Visit History should clearly label specialist walk-in visits
+- Patient Visit History should show specialist name and walk-in time where useful
+- Doctor reference should continue working for specialist walk-in visit records using `doctor_id` and `doctor_name_snapshot`
+- Specialist walk-in visit records should remain linked to the patient, booking, and specialist booking context
+- Add to Queue workflow from Phase 9D should continue working
+- Online specialist booking checkups, regular checkups, regular walk-ins, patient records, and visit editing should continue working
 
 ### Phase 10: Blog
 

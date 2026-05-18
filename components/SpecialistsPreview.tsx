@@ -1,3 +1,4 @@
+import { unstable_noStore as noStore } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import Link from "next/link";
 import { formatBS } from "@/lib/dateConvert";
@@ -37,6 +38,8 @@ function formatDate(dateStr: string) {
 }
 
 export default async function SpecialistsPreview() {
+  noStore();
+
   const today = new Date().toISOString().slice(0, 10);
 
   const { data } = await supabaseAdmin
@@ -77,10 +80,9 @@ export default async function SpecialistsPreview() {
       {specialists.map((s) => {
         const bsDisplay = s.visit_date_bs || formatBS(s.visit_date_ad);
         return (
-          <Link
+          <div
             key={s.id}
-            href={`/specialists/${s.id}`}
-            className="block rounded-xl border border-primary/20 bg-white p-5 shadow-sm hover:border-primary/40 transition-colors group"
+            className="flex flex-col rounded-xl border border-primary/20 bg-white p-5 shadow-sm hover:border-primary/40 transition-colors"
           >
             <div className="flex items-center gap-3 mb-3">
               {s.profile_image_url ? (
@@ -94,15 +96,29 @@ export default async function SpecialistsPreview() {
                 <p className="font-body text-sm text-primary font-semibold">{s.specialization}</p>
               </div>
             </div>
-            <div className="space-y-1 font-body text-sm">
+            <div className="space-y-1 font-body text-sm flex-1">
               <p className="text-text-primary font-medium">{bsDisplay}</p>
               <p className="text-text-secondary text-xs">{formatDate(s.visit_date_ad)}</p>
               <p className="text-text-secondary">{formatTime(s.available_from)} – {formatTime(s.available_to)}</p>
               <p className="text-text-primary font-semibold">{s.consultation_fee != null ? `NPR ${s.consultation_fee}` : "Free Consultation"}</p>
               {s.visit_location && <p className="text-text-secondary text-xs">{s.visit_location}</p>}
             </div>
-            <p className="mt-3 font-body text-xs font-semibold text-primary group-hover:text-primary/80 transition-colors">View Profile &rarr;</p>
-          </Link>
+            <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between">
+              <Link
+                href={`/specialists/${s.id}`}
+                className="inline-flex items-center gap-1.5 font-body text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+              >
+                View Profile
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+              </Link>
+              <Link
+                href={`/specialists/${s.id}/book`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-1.5 font-body text-xs font-semibold text-white hover:bg-accent-hover transition-colors"
+              >
+                Book Specialist
+              </Link>
+            </div>
+          </div>
         );
       })}
     </div>

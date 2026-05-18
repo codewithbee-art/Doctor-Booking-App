@@ -60,6 +60,7 @@ interface PatientBooking {
   cancellation_reason: string | null;
   cancelled_at: string | null;
   created_at: string;
+  booking_source: string | null;
 }
 
 const CANCEL_REASON_PRESETS = [
@@ -1234,6 +1235,9 @@ function AdminPatientsContent() {
                                     {b.specialist_name || "Specialist"}
                                   </span>
                                 )}
+                                {b.booking_source === "walk_in" && (
+                                  <span className="inline-block rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-xs font-semibold text-orange-700">Walk-in</span>
+                                )}
                               </div>
                             </div>
                             <div className="flex flex-shrink-0 gap-2">
@@ -1287,6 +1291,7 @@ function AdminPatientsContent() {
                                     <>
                                       <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-700">Specialist</span>
                                       {b.specialist_name && <span className="text-[10px] text-purple-600 truncate max-w-[140px]" title={b.specialist_name}>{b.specialist_name}</span>}
+                                      {b.booking_source === "walk_in" && <span className="inline-block rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-700">Walk-in</span>}
                                     </>
                                   ) : (
                                     <span className="inline-block rounded-full border border-border bg-bg-light px-2.5 py-0.5 text-xs font-semibold text-text-secondary">Regular</span>
@@ -1445,7 +1450,11 @@ function AdminPatientsContent() {
                     <p className="font-body text-sm text-text-secondary">No visit records yet.</p>
                   ) : patientVisits.length > 0 ? (
                     <div className="space-y-4">
-                      {patientVisits.map((v) => (
+                      {patientVisits.map((v) => {
+                        const linkedBooking = v.booking_id ? patientBookings.find((b) => b.id === v.booking_id) : null;
+                        const isSpecialistWalkIn = linkedBooking?.booking_source === "walk_in" && linkedBooking?.booking_type === "specialist";
+                        const isSpecialistOnline = linkedBooking?.booking_type === "specialist" && linkedBooking?.booking_source !== "walk_in";
+                        return (
                         <div key={v.id} className="rounded-xl border border-border p-4">
                           <div className="flex items-center justify-between mb-2">
                             <div>
@@ -1455,10 +1464,20 @@ function AdminPatientsContent() {
                               <span className="ml-1 font-body text-xs text-text-secondary">
                                 ({formatDate(v.visit_date_ad)})
                               </span>
-                              {v.booking_id ? (
+                              {isSpecialistWalkIn ? (
+                                <span className="ml-2 inline-block rounded border border-orange-200 bg-orange-50 px-1.5 py-0.5 font-body text-xs text-orange-700">Specialist Walk-in</span>
+                              ) : isSpecialistOnline ? (
+                                <span className="ml-2 inline-block rounded border border-purple-200 bg-purple-50 px-1.5 py-0.5 font-body text-xs text-purple-700">Specialist</span>
+                              ) : v.booking_id ? (
                                 <span className="ml-2 inline-block rounded border border-primary/30 bg-primary/5 px-1.5 py-0.5 font-body text-xs text-primary">Linked to booking</span>
                               ) : (
                                 <span className="ml-2 inline-block rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 font-body text-xs text-amber-700">Walk-in</span>
+                              )}
+                              {linkedBooking?.specialist_name && (
+                                <span className="ml-2 font-body text-xs text-purple-600">{linkedBooking.specialist_name}</span>
+                              )}
+                              {linkedBooking && (
+                                <span className="ml-2 font-body text-xs text-text-secondary">at {formatTime(linkedBooking.appointment_time)}</span>
                               )}
                               <span className="ml-2 font-body text-xs text-text-secondary">
                                 Treated by: {v.doctor_name_snapshot || <span className="italic">Not recorded</span>}
@@ -1512,7 +1531,8 @@ function AdminPatientsContent() {
                             </p>
                           )}
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : null}
                 </div>
@@ -1903,7 +1923,12 @@ function AdminPatientsContent() {
 
             {viewBooking.booking_type === "specialist" && viewBooking.specialist_name && (
               <div className="mb-3 rounded-lg border border-purple-200 bg-purple-50/50 px-3 py-2">
-                <span className="font-body text-xs font-semibold uppercase tracking-wide text-purple-800">Specialist Booking</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-body text-xs font-semibold uppercase tracking-wide text-purple-800">Specialist Booking</span>
+                  {viewBooking.booking_source === "walk_in" && (
+                    <span className="inline-block rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-700">Walk-in</span>
+                  )}
+                </div>
                 <p className="font-body text-sm font-semibold text-text-primary mt-0.5">{viewBooking.specialist_name}</p>
               </div>
             )}

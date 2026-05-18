@@ -40,6 +40,7 @@ interface Booking {
   visit_count: number;
   is_new_patient: boolean;
   has_visit: boolean;
+  booking_source: string | null;
 }
 
 const CANCEL_REASON_PRESETS = [
@@ -622,6 +623,9 @@ export default function AdminDashboardPage() {
                           <span className={`inline-block rounded-full border px-3 py-0.5 font-body text-xs font-semibold capitalize ${STATUS_STYLES[b.status] ?? "border-border bg-bg-light text-text-secondary"}`}>
                             {b.status}
                           </span>
+                          {b.booking_source === "walk_in" && (
+                            <span className="ml-1 inline-block rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-700">Walk-in</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 hidden sm:table-cell">
                           <div className="flex flex-col gap-1">
@@ -844,6 +848,9 @@ export default function AdminDashboardPage() {
             <div className="mb-4 flex flex-wrap gap-2">
               {selectedBooking.booking_type === "specialist" && (
                 <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-3 py-0.5 font-body text-xs font-semibold text-purple-700">Specialist Booking</span>
+              )}
+              {selectedBooking.booking_source === "walk_in" && (
+                <span className="inline-block rounded-full border border-orange-200 bg-orange-50 px-3 py-0.5 font-body text-xs font-semibold text-orange-700">Walk-in</span>
               )}
               {selectedBooking.is_new_patient ? (
                 <span className="inline-block rounded-full border border-blue-200 bg-blue-50 px-3 py-0.5 font-body text-xs font-semibold text-blue-700">New Patient</span>
