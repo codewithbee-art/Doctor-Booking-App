@@ -117,17 +117,17 @@ Phase 9: Complete (Visiting Specialists)
 Phase 9A: Complete (Specialist Detail Page)
 Phase 9B: Complete (Specialist Public Booking Flow)
 Phase 9C: Complete (Specialist Booking Admin Management — admin page, checkup modal, date range filter, dashboard Specialist filter tab)
+Phase 9D: Complete (Specialist Walk-in Queue)
+Phase 9E: Complete (Specialist Walk-in Checkup Integration)
 
 Current:
-- Phase 9D: Specialist Walk-in Queue
+- Phase 10A: Blog Database and Admin Blog Management
 
 Upcoming:
-- Phase 9E: Specialist Walk-in Checkup Integration
-- Phase 10: Blog
+- Phase 10B: Public Blog Pages, SEO, and Sharing
 - Phase 11: Medicine Shop
 - Phase 12: Checkout, Emails, SEO, Deployment
 - Phase 13: Advanced Role Access and Specialist Permissions
-
 
 ## Phase Plan
 
@@ -563,16 +563,46 @@ Upcoming:
 - Add to Queue workflow from Phase 9D should continue working
 - Online specialist booking checkups, regular checkups, regular walk-ins, patient records, and visit editing should continue working
 
-### Phase 10: Blog
+#### Phase 10A: Blog Database and Admin Blog Management
 
-- Blog listing page
-- Blog detail page
-- Blog cards
-- Blog API
-- Admin blog management
-- Create/edit blog posts
-- Rich text editor
-- SEO metadata
+- Add a professional blog system for health education, Ayurveda knowledge, clinic news, specialist advice, and SEO content
+- Create a `blog_posts` table with fields for title, slug, excerpt, content, cover image, cover image alt text, category, tags, author, reviewed by, status, published date, reading time, medical disclaimer, SEO title, SEO description, featured flag, created date, and updated date
+- Support draft, published, and archived blog post statuses
+- Create admin blog management pages for viewing, creating, editing, publishing, and archiving blog posts
+- Use a Markdown content editor with live preview instead of a full rich text toolbar
+- Support safe Markdown formatting for headings, bold text, italic text, bullet lists, numbered lists, links, quotes, and paragraphs
+- Add one Reading Time field; if left empty, reading time should be calculated automatically from the content, and if filled, the admin-entered value should be shown
+- Add optional author name and reviewed by fields to build trust for health content
+- Add a default medical disclaimer, while allowing admin to replace it with a custom disclaimer per post
+- Add a featured flag, but keep featured posts the same card size as normal posts
+- Only one blog post should be featured at a time; marking a post as featured should remove featured status from other posts
+- Add cover image URL support and cover image upload support using Supabase Storage if practical
+- Keep cover image URL as a fallback even if upload is added
+- Do not build comments, likes, ratings, or public user accounts in this phase
+
+#### Phase 10B: Public Blog Pages, SEO, and Sharing
+
+- Create public blog listing page at `/blog`
+- Create public blog detail page at `/blog/[slug]`
+- Show only published blog posts publicly
+- Blog listing should show same-size blog cards with cover image, category badge, featured badge where applicable, title, excerpt, author if available, reading time, published date, and Read More link
+- Add search and category filtering to the blog listing page
+- Homepage blog preview should show three posts total: the newest featured published post first if available, then newest published posts; if no featured post exists, show the three newest published posts
+- Featured posts should use an attractive Featured badge only and should not use a different large layout
+- Blog cards should have subtle professional hover animations such as slight lift, stronger shadow, and image zoom without layout shift
+- Blog detail page should use a professional article layout with article content on the left and recent posts sidebar on the right on large screens
+- On mobile, the blog detail page should move recent posts below the article
+- Blog detail pages should show title, category, author if available, reviewed by if available, published date, reading time, cover image, article content, medical disclaimer, share buttons, related posts, and booking CTA
+- Add WhatsApp, Facebook, and Copy Link sharing
+- Copy Link should show a clear copied confirmation
+- Add recent posts and related posts to help users discover more health content
+- Add CTA from blog articles to the booking page
+- Add SEO metadata and OpenGraph data for blog listing and detail pages
+- Use SEO title and SEO description where available, otherwise fall back to blog title and excerpt
+- Use cover image for OpenGraph image where available
+- Render Markdown content with clean readable typography for headings, paragraphs, lists, quotes, and links
+- Keep the public blog design clean, readable, mobile responsive, and professional
+- Do not build comments, likes, ratings, or public user accounts in this phase
 
 ### Phase 11: Medicine Shop
 

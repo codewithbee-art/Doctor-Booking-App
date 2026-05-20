@@ -724,19 +724,186 @@
 - [x] Run npm run build successfully
 - [x] Commit Phase 9E to Git
 
-## Phase 10: Blog
 
-- [ ] Create blog listing page
-- [ ] Create blog detail page
-- [ ] Create blog cards
-- [ ] Create blog API
-- [ ] Create admin blog page
-- [ ] Create new blog page
-- [ ] Create edit blog page
-- [ ] Add rich text editor
-- [ ] Add SEO metadata
+### Phase 10A: Blog Database and Admin Blog Management
+
+- [x] Create `blog_posts` table
+- [x] Add safe Supabase migration for blog posts
+- [x] Add fields:
+  - id
+  - title
+  - slug
+  - excerpt
+  - content
+  - cover_image_url
+  - cover_image_alt
+  - category
+  - tags
+  - author_name
+  - reviewed_by
+  - status
+  - published_at
+  - reading_time
+  - medical_disclaimer
+  - seo_title
+  - seo_description
+  - is_featured
+  - created_at
+  - updated_at
+- [x] Add status values:
+  - draft
+  - published
+  - archived
+- [x] Update TypeScript database types
+- [x] Create admin blog page `/admin/blog`
+- [x] Add Blog link to admin navigation or dashboard area where appropriate
+- [x] Admin can view all blog posts:
+  - draft
+  - published
+  - archived
+- [x] Create new blog page `/admin/blog/new`
+- [x] Create edit blog page `/admin/blog/[id]/edit`
+- [x] Add blog form fields:
+  - title
+  - slug
+  - excerpt
+  - category
+  - tags
+  - cover image URL
+  - cover image alt text
+  - author name optional
+  - reviewed by optional
+  - status
+  - published date/time
+  - reading time
+  - medical disclaimer
+  - SEO title
+  - SEO description
+  - featured toggle
+  - content
+- [x] Auto-generate slug from title
+- [x] Allow admin to manually edit slug
+- [x] Validate slug uniqueness
+- [x] Add one Reading Time field
+- [x] If Reading Time is empty, calculate reading time automatically from content
+- [x] If admin enters Reading Time, display the admin-entered value
+- [x] Add default medical disclaimer if admin leaves disclaimer empty
+- [x] Allow admin to replace the default medical disclaimer with custom text
+- [x] Add optional author name field
+- [x] Add optional reviewed by field
+- [x] Add is_featured flag
+- [x] Only one blog post should be featured at a time
+- [x] If admin marks a post as featured, automatically remove featured status from other posts
+- [x] Use same-size blog cards for featured and normal posts
+- [x] Featured posts should show a Featured badge only, not a separate large layout
+- [x] Add Markdown content editor with live preview
+- [x] Support Markdown formatting:
+  - headings
+  - bold
+  - italic
+  - bullet lists
+  - numbered lists
+  - links
+  - quotes
+  - paragraphs
+- [x] Render Markdown safely
+- [x] Do not add comments, likes, ratings, or public user accounts
+- [x] Add cover image upload from computer using Supabase Storage if practical
+- [x] Create or document `blog-images` Supabase Storage bucket if upload is added
+- [x] Keep cover image URL input as fallback
+- [x] Show cover image preview in admin form
+- [x] Validate image file type and size if upload is added
+- [x] Admin can create draft post
+- [x] Admin can publish post
+- [x] Admin can archive post
+- [x] Admin can edit existing post
+- [x] Admin can delete post only if safe, otherwise prefer archive
+- [x] Show clear success and error messages
+- [x] Run npm run build successfully
+- [x] Commit Phase 10A to Git
+
+### Phase 10B: Public Blog Pages, SEO, and Sharing
+
+- [ ] Create public blog listing page `/blog`
+- [ ] Create public blog detail page `/blog/[slug]`
+- [ ] Create reusable blog cards
+- [ ] Public pages should show only published posts
+- [ ] Blog listing should show all posts in same-size cards
+- [ ] Blog listing should support search
+- [ ] Blog listing should support category filtering
+- [ ] Blog listing should show Featured badge on featured post cards
+- [ ] Homepage blog preview should show 3 posts total:
+  - newest featured published post first, if available
+  - then newest published posts
+  - if no featured post exists, show 3 newest published posts
+- [ ] Homepage blog preview should use same-size cards
+- [ ] Blog cards should show:
+  - cover image or placeholder
+  - category badge
+  - featured badge if applicable
+  - title
+  - excerpt
+  - author if available
+  - reading time
+  - published date
+  - Read More link/button
+- [ ] Add smooth hover animation on blog cards:
+  - subtle shadow increase
+  - slight lift effect
+  - smooth transition
+- [ ] Add hover animation on blog cover images:
+  - slight zoom-in effect
+  - no layout shift
+  - rounded corners maintained
+- [ ] Blog detail page should use professional article layout
+- [ ] On large screens, blog detail page should show:
+  - main article content on the left
+  - recent posts sidebar on the right
+- [ ] On mobile, recent posts should move below the article
+- [ ] Blog detail page should show:
+  - title
+  - category
+  - author name if available
+  - reviewed by if available
+  - published date
+  - reading time
+  - cover image
+  - article content
+  - medical disclaimer
+  - share buttons
+  - copy link button
+  - related articles
+  - booking CTA
+- [ ] Add share buttons:
+  - WhatsApp
+  - Facebook
+  - Copy Link
+- [ ] Copy Link should show clear copied confirmation
+- [ ] Add recent posts sidebar on desktop
+- [ ] Add recent posts section below article on mobile
+- [ ] Add related posts section where practical
+- [ ] Related posts should prefer same category where possible
+- [ ] Add medical disclaimer to blog detail page
+- [ ] If post has custom medical disclaimer, show custom disclaimer
+- [ ] If post has no custom disclaimer, show default medical disclaimer
+- [ ] Add CTA from blog detail page to booking page
+- [ ] Add SEO metadata for blog listing page
+- [ ] Add SEO metadata for blog detail page
+- [ ] Use `seo_title` if available, otherwise use blog title
+- [ ] Use `seo_description` if available, otherwise use excerpt
+- [ ] Use cover image for OpenGraph image where available
+- [ ] Render Markdown content with clean typography:
+  - headings
+  - paragraphs
+  - bullet lists
+  - numbered lists
+  - quotes
+  - links
+- [ ] Keep typography readable for all age groups
+- [ ] Keep animations subtle and professional
+- [ ] Do not add comments, likes, ratings, or public user accounts
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 10 to Git
+- [ ] Commit Phase 10B to Git
 
 ## Phase 11: Medicine Shop
 

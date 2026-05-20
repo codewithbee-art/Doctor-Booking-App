@@ -178,12 +178,7 @@ export interface OrderItem {
 }
 
 // ----- blog_posts --------------------------------------------------
-export type BlogCategory =
-  | "health_tips"
-  | "medicine_info"
-  | "patient_stories"
-  | "medical_news"
-  | "general";
+export type BlogStatus = "draft" | "published" | "archived";
 
 export interface BlogPost {
   id: string;
@@ -191,11 +186,19 @@ export interface BlogPost {
   slug: string;
   excerpt: string | null;
   content: string;
-  featured_image_url: string | null;
-  author_name: string;
-  category: BlogCategory;
-  is_published: boolean;
+  cover_image_url: string | null;
+  cover_image_alt: string | null;
+  category: string;
+  tags: string[];
+  author_name: string | null;
+  reviewed_by: string | null;
+  status: BlogStatus;
   published_at: string | null;
+  reading_time: string | null;
+  medical_disclaimer: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  is_featured: boolean;
   created_at: string;
   updated_at: string;
 }
