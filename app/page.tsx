@@ -517,7 +517,7 @@ export default function HomePage() {
             Available Sunday to Saturday, 9 AM &ndash; 5 PM
           </p>
           <p className="mb-8 font-body text-base text-white/60">
-            Call us at +977 1234567890 or book online
+            Call us at +977-9868617515 or book online
           </p>
           <Link
             href="/booking"

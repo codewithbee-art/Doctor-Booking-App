@@ -905,7 +905,66 @@
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 10B to Git
 
-## Phase 11: Medicine Shop
+## Phase 11: Private Counselling Booking
+
+- [ ] Create public private counselling page `/private-counselling`
+- [ ] Add homepage section/card for Private & Confidential Counselling
+- [ ] Add CTA button: Book Private Counselling
+- [ ] CTA should open booking page with counselling mode enabled, for example `/booking?type=counselling`
+- [ ] Add private counselling option inside normal booking form
+- [ ] If patient checks private counselling, show counselling-specific fields
+- [ ] If patient comes from `/private-counselling`, counselling option should be enabled automatically
+- [ ] Add counselling booking fields to `bookings` if needed:
+  - booking_type
+  - consultation_mode
+  - privacy_preference
+  - payment_preference
+  - payment_status
+  - counselling_reason
+- [ ] Support `booking_type = counselling`
+- [ ] Consultation mode options:
+  - phone
+  - video
+  - in_person
+- [ ] Privacy preference options:
+  - private
+  - normal
+- [ ] Payment preference options:
+  - pay_now
+  - pay_later
+  - pay_on_visit
+- [ ] Payment status should prepare for future payment flow:
+  - unpaid
+  - pending
+  - paid
+  - failed
+  - refunded
+- [ ] Do not build full payment gateway in this phase
+- [ ] If Pay Now is selected, show clear message that online payment will be handled in the payment phase or route to placeholder if needed
+- [ ] If Pay Later is selected, show message that admin will contact the patient
+- [ ] If Pay on Visit is selected, allow only when consultation mode is in_person
+- [ ] Keep normal booking flow working when counselling is not selected
+- [ ] Counselling form should keep details minimal and respectful
+- [ ] Brief concern/reason should be optional or short
+- [ ] Do not force patients to describe sensitive issues in detail
+- [ ] Save counselling bookings into the existing `bookings` table
+- [ ] Keep patient creation/linking and identity safety logic working
+- [ ] Show Private Counselling badge/label in admin dashboard
+- [ ] Add Counselling filter/tab in admin dashboard booking filters
+- [ ] Show counselling details in booking detail modal:
+  - consultation mode
+  - privacy preference
+  - payment preference
+  - payment status
+  - brief concern/reason
+- [ ] Show counselling booking details in Patient Records booking history where appropriate
+- [ ] Keep sensitive counselling details visually separated from normal booking details
+- [ ] Keep doctor/admin checkup workflow working for counselling bookings
+- [ ] Add clear success and error messages
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 11 to Git
+
+## Phase 12: Medicine Shop
 
 - [ ] Create shop page
 - [ ] Create product detail page
@@ -917,9 +976,9 @@
 - [ ] Create sales/order history
 - [ ] Add product CRUD
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 11 to Git
+- [ ] Commit Phase 12 to Git
 
-## Phase 12: Checkout, Emails, Deployment
+## Phase 13: Checkout, Emails, Deployment
 
 - [ ] Add payment gateway setup from nepal (esewa, khalti, direct bank card)
 - [ ] Create checkout API
@@ -933,7 +992,7 @@
 - [ ] Add Vercel deployment instructions
 - [ ] Deploy to Vercel
 
-#### Phase 13: Advanced Role Access and Specialist Permissions
+#### Phase 14: Advanced Role Access and Specialist Permissions
 
 - Review all admin roles and permissions before deployment
 - Refine owner, doctor, receptionist, inventory_manager, and content_editor access

@@ -95,6 +95,9 @@ export default function AdminAvailabilityPage() {
   const [dayReason, setDayReason] = useState(BLOCK_REASONS[0]);
   const [dayCustomReason, setDayCustomReason] = useState("");
 
+  const [generating, setGenerating] = useState(false);
+  const [generateMsg, setGenerateMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   const [viewingSlot, setViewingSlot] = useState<Slot | null>(null);
 
   const [reschedPatientSlot, setReschedPatientSlot] = useState<Slot | null>(null);
@@ -172,10 +175,13 @@ export default function AdminAvailabilityPage() {
     }
   }, [blockReason, customReason]);
 
+  const [blockDaySuccess, setBlockDaySuccess] = useState<string | null>(null);
+
   /* ---- Block full day ---- */
   const blockFullDay = useCallback(async () => {
     setBlockingDay(true);
     setActionError(null);
+    setBlockDaySuccess(null);
     const reason = dayReason === "Other" ? dayCustomReason.trim() : dayReason;
 
     try {
@@ -186,6 +192,11 @@ export default function AdminAvailabilityPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to block day");
+      const msg = json.skipped_booked > 0
+        ? `${json.updated} free slot(s) blocked. ${json.skipped_booked} booked slot(s) were left untouched.`
+        : `${json.updated} free slot(s) blocked.`;
+      setBlockDaySuccess(msg);
+      setTimeout(() => setBlockDaySuccess(null), 6000);
       // Refresh
       await fetchSlots(selectedDate);
     } catch (err) {
@@ -195,6 +206,34 @@ export default function AdminAvailabilityPage() {
       setBlockingDay(false);
     }
   }, [selectedDate, dayReason, dayCustomReason, fetchSlots]);
+
+  /* ---- Generate future slots ---- */
+  const generateFutureSlots = useCallback(async () => {
+    setGenerating(true);
+    setGenerateMsg(null);
+    try {
+      const res = await fetch("/api/admin/slots/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ months: 3 }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to generate slots");
+      setGenerateMsg({
+        type: "success",
+        text: `Generated ${json.created} new slot(s) across ${json.total_days} days. ${json.skipped} existing slot(s) were skipped.`,
+      });
+      // Refresh current view
+      await fetchSlots(selectedDate);
+    } catch (err) {
+      setGenerateMsg({
+        type: "error",
+        text: err instanceof Error ? err.message : "Failed to generate slots",
+      });
+    } finally {
+      setGenerating(false);
+    }
+  }, [selectedDate, fetchSlots]);
 
   /* ---- Reschedule patient: fetch free slots when date changes ---- */
   useEffect(() => {
@@ -369,9 +408,62 @@ export default function AdminAvailabilityPage() {
           </div>
         </div>
 
+        {/* ===== Generate Future Slots ===== */}
+        <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-heading text-base font-bold text-text-primary">Generate Future Slots</h2>
+              <p className="mt-1 font-body text-sm text-text-secondary">
+                Create appointment slots for the next 3 months. Existing slots (booked, blocked, or available) are never overwritten.
+              </p>
+            </div>
+            <button
+              onClick={generateFutureSlots}
+              disabled={generating}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              {generating ? (
+                <>
+                  <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  Generating…
+                </>
+              ) : (
+                "Generate Next 3 Months"
+              )}
+            </button>
+          </div>
+          {generateMsg && (
+            <div className={`mt-4 rounded-lg border px-4 py-3 font-body text-sm ${
+              generateMsg.type === "success"
+                ? "border-green-300 bg-green-50 text-green-700"
+                : "border-red-300 bg-red-50 text-red-700"
+            }`}>
+              {generateMsg.text}
+            </div>
+          )}
+        </div>
+
         {/* ===== Block Full Day ===== */}
         <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
-          <h2 className="font-heading text-base font-bold text-text-primary mb-4">Block Entire Day</h2>
+          <h2 className="font-heading text-base font-bold text-text-primary mb-4">Block All Free Slots</h2>
+          {bookedCount > 0 && (
+            <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 flex items-start gap-2">
+              <svg className="h-5 w-5 flex-shrink-0 text-amber-600 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+              <p className="font-body text-sm text-amber-800">
+                This day has <strong>{bookedCount} booked appointment{bookedCount !== 1 ? "s" : ""}</strong>. Only free slots will be blocked. Booked slots must be rescheduled before they can be blocked.
+              </p>
+            </div>
+          )}
+          {blockDaySuccess && (
+            <div className="mb-4 rounded-lg border border-green-300 bg-green-50 px-4 py-3 font-body text-sm text-green-700">
+              {blockDaySuccess}
+            </div>
+          )}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
               <label htmlFor="day-reason" className="block font-body text-sm font-semibold text-text-secondary mb-1">
@@ -405,7 +497,7 @@ export default function AdminAvailabilityPage() {
             )}
             <button
               onClick={blockFullDay}
-              disabled={blockingDay || loadingSlots || slots.length === 0}
+              disabled={blockingDay || loadingSlots || slots.length === 0 || availableCount === 0}
               className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-2 font-body text-sm font-semibold text-white hover:bg-red-700 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             >
               {blockingDay ? (
@@ -417,7 +509,7 @@ export default function AdminAvailabilityPage() {
                   Blocking…
                 </>
               ) : (
-                "Block All Slots"
+                "Block All Free Slots"
               )}
             </button>
           </div>

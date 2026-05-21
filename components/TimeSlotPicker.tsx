@@ -100,7 +100,7 @@ export default function TimeSlotPicker({
               className={[
                 "rounded-lg border px-3 py-2 text-sm font-body font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
                 slot.isBooked
-                  ? "cursor-not-allowed border-border bg-bg-light text-border line-through"
+                  ? "cursor-not-allowed border-border bg-bg-light text-text-secondary line-through"
                   : isSelected
                   ? "border-primary bg-primary text-white shadow-sm"
                   : "border-border bg-white text-text-primary hover:border-primary hover:bg-light-blue hover:text-primary",

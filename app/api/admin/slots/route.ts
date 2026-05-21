@@ -120,7 +120,7 @@ export async function PATCH(request: NextRequest) {
 
 /* ------------------------------------------------------------------ */
 /*  POST /api/admin/slots/block-day                                    */
-/*  Block all slots on a given date                                    */
+/*  Block all FREE (unbooked) slots on a given date                    */
 /*  Body: { date, blocked_reason? }                                    */
 /* ------------------------------------------------------------------ */
 
@@ -146,13 +146,22 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    // Count booked slots that will be skipped
+    const { count: bookedCount } = await supabaseAdmin
+      .from("available_slots")
+      .select("id", { count: "exact", head: true })
+      .eq("slot_date_ad", date)
+      .eq("is_booked", true);
+
+    // Only block free (unbooked) slots
     const { error, count } = await supabaseAdmin
       .from("available_slots")
       .update({
         is_blocked: true,
         blocked_reason: blocked_reason?.trim() || null,
       })
-      .eq("slot_date_ad", date);
+      .eq("slot_date_ad", date)
+      .eq("is_booked", false);
 
     if (error) {
       return NextResponse.json(
@@ -161,7 +170,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, updated: count ?? 0 });
+    return NextResponse.json({
+      success: true,
+      updated: count ?? 0,
+      skipped_booked: bookedCount ?? 0,
+    });
   } catch {
     return NextResponse.json(
       { success: false, error: "An unexpected error occurred." },

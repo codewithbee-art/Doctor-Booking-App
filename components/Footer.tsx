@@ -48,14 +48,14 @@ export default function Footer() {
             </h3>
             <address className="mt-3 space-y-2 not-italic">
               <p className="font-body text-base text-white/80">
-                Kathmandu, Nepal
+                New Baneshwor, Kathmandu
               </p>
               <p>
                 <a
                   href="tel:+9771234567890"
                   className="font-body text-base text-white/80 hover:text-white transition-colors"
                 >
-                  +977 1234567890
+                  +977-9868617515
                 </a>
               </p>
               <p>
@@ -63,7 +63,7 @@ export default function Footer() {
                   href="mailto:info@dracharya.com"
                   className="font-body text-base text-white/80 hover:text-white transition-colors"
                 >
-                  info@dracharya.com
+                  dr.bishnuacharya.np@gmail.com
                 </a>
               </p>
             </address>

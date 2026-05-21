@@ -240,7 +240,7 @@ export default function BookingPage() {
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <a
-                href="tel:+977-000000000"
+                href="tel:+977-9868617515"
                 className="flex items-center gap-2 rounded-lg border border-border bg-white px-6 py-3 font-body text-base font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               >
                 <svg className="h-4 w-4 text-primary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -413,8 +413,8 @@ export default function BookingPage() {
               </svg>
               <p className="font-body text-sm text-text-secondary leading-relaxed">
                 Need help? Call us at{" "}
-                <a href="tel:+977-000000000" className="font-semibold text-primary underline underline-offset-2 hover:text-primary-dark">
-                  +977-000000000
+                <a href="tel:+977-9868617515" className="font-semibold text-primary underline underline-offset-2 hover:text-primary-dark">
+                  +977-9868617515
                 </a>{" "}
                 and we will book your appointment over the phone.
               </p>

@@ -119,15 +119,16 @@ Phase 9B: Complete (Specialist Public Booking Flow)
 Phase 9C: Complete (Specialist Booking Admin Management — admin page, checkup modal, date range filter, dashboard Specialist filter tab)
 Phase 9D: Complete (Specialist Walk-in Queue)
 Phase 9E: Complete (Specialist Walk-in Checkup Integration)
+Phase 10A: Complete Blog Database and Admin Blog Management
 
 Current:
-- Phase 10A: Blog Database and Admin Blog Management
+- Phase 10B: Public Blog Pages, SEO, and Sharing
 
 Upcoming:
-- Phase 10B: Public Blog Pages, SEO, and Sharing
-- Phase 11: Medicine Shop
-- Phase 12: Checkout, Emails, SEO, Deployment
-- Phase 13: Advanced Role Access and Specialist Permissions
+- Phase 11: Private Counselling Booking
+- Phase 12: Medicine Shop
+- Phase 13: Checkout, Emails, SEO, Deployment
+- Phase 14: Advanced Role Access and Specialist Permissions
 
 ## Phase Plan
 
@@ -604,7 +605,26 @@ Upcoming:
 - Keep the public blog design clean, readable, mobile responsive, and professional
 - Do not build comments, likes, ratings, or public user accounts in this phase
 
-### Phase 11: Medicine Shop
+#### Phase 11: Private Counselling Booking
+
+- Add a dedicated public private counselling page at `/private-counselling`
+- Add a homepage section/card for Private & Confidential Counselling
+- Use the existing booking system instead of creating a separate booking engine
+- Add a private counselling option inside the normal booking form
+- When patients arrive from the private counselling page, the booking form should automatically enable counselling mode
+- Counselling mode should show extra fields for consultation method, privacy preference, payment preference, and brief concern/reason
+- Consultation method should support phone call, video call, and in-person
+- Privacy preference should allow patients to request minimal/private details
+- Payment preference should prepare for pay now, pay later, or pay on visit
+- Full payment gateway integration should be handled later in the checkout/payment phase
+- Counselling bookings should be saved in the existing `bookings` table using `booking_type = counselling`
+- Counselling booking details should be clearly labelled in the admin dashboard and patient records
+- Admin dashboard should include a Counselling filter/tab
+- Booking detail views should show consultation mode, privacy preference, payment preference, payment status, and brief concern/reason
+- The normal booking flow must continue working for patients who do not select counselling
+- The counselling form should be respectful, privacy-focused, and should not force patients to describe sensitive issues in detail
+
+### Phase 12: Medicine Shop
 
 - Shop page
 - Product detail page
@@ -615,7 +635,7 @@ Upcoming:
 - Sales/order history
 - Product CRUD
 
-### Phase 12: Checkout, Emails, SEO, Deployment
+### Phase 13: Checkout, Emails, SEO, Deployment
 
 - Nepal payment gateway setup: eSewa, Khalti, or direct bank card
 - Checkout API
