@@ -824,20 +824,20 @@
 
 ### Phase 10B: Public Blog Pages, SEO, and Sharing
 
-- [ ] Create public blog listing page `/blog`
-- [ ] Create public blog detail page `/blog/[slug]`
-- [ ] Create reusable blog cards
-- [ ] Public pages should show only published posts
-- [ ] Blog listing should show all posts in same-size cards
-- [ ] Blog listing should support search
-- [ ] Blog listing should support category filtering
-- [ ] Blog listing should show Featured badge on featured post cards
-- [ ] Homepage blog preview should show 3 posts total:
+- [x] Create public blog listing page `/blog`
+- [x] Create public blog detail page `/blog/[slug]`
+- [x] Create reusable blog cards
+- [x] Public pages should show only published posts
+- [x] Blog listing should show all posts in same-size cards
+- [x] Blog listing should support search
+- [x] Blog listing should support category filtering
+- [x] Blog listing should show Featured badge on featured post cards
+- [x] Homepage blog preview should show 3 posts total:
   - newest featured published post first, if available
   - then newest published posts
   - if no featured post exists, show 3 newest published posts
-- [ ] Homepage blog preview should use same-size cards
-- [ ] Blog cards should show:
+- [x] Homepage blog preview should use same-size cards
+- [x] Blog cards should show:
   - cover image or placeholder
   - category badge
   - featured badge if applicable
@@ -847,20 +847,20 @@
   - reading time
   - published date
   - Read More link/button
-- [ ] Add smooth hover animation on blog cards:
+- [x] Add smooth hover animation on blog cards:
   - subtle shadow increase
   - slight lift effect
   - smooth transition
-- [ ] Add hover animation on blog cover images:
+- [x] Add hover animation on blog cover images:
   - slight zoom-in effect
   - no layout shift
   - rounded corners maintained
-- [ ] Blog detail page should use professional article layout
-- [ ] On large screens, blog detail page should show:
+- [x] Blog detail page should use professional article layout
+- [x] On large screens, blog detail page should show:
   - main article content on the left
   - recent posts sidebar on the right
-- [ ] On mobile, recent posts should move below the article
-- [ ] Blog detail page should show:
+- [x] On mobile, recent posts should move below the article
+- [x] Blog detail page should show:
   - title
   - category
   - author name if available
@@ -874,36 +874,36 @@
   - copy link button
   - related articles
   - booking CTA
-- [ ] Add share buttons:
+- [x] Add share buttons:
   - WhatsApp
   - Facebook
   - Copy Link
-- [ ] Copy Link should show clear copied confirmation
-- [ ] Add recent posts sidebar on desktop
-- [ ] Add recent posts section below article on mobile
-- [ ] Add related posts section where practical
-- [ ] Related posts should prefer same category where possible
-- [ ] Add medical disclaimer to blog detail page
-- [ ] If post has custom medical disclaimer, show custom disclaimer
-- [ ] If post has no custom disclaimer, show default medical disclaimer
-- [ ] Add CTA from blog detail page to booking page
-- [ ] Add SEO metadata for blog listing page
-- [ ] Add SEO metadata for blog detail page
-- [ ] Use `seo_title` if available, otherwise use blog title
-- [ ] Use `seo_description` if available, otherwise use excerpt
-- [ ] Use cover image for OpenGraph image where available
-- [ ] Render Markdown content with clean typography:
+- [x] Copy Link should show clear copied confirmation
+- [x] Add recent posts sidebar on desktop
+- [x] Add recent posts section below article on mobile
+- [x] Add related posts section where practical
+- [x] Related posts should prefer same category where possible
+- [x] Add medical disclaimer to blog detail page
+- [x] If post has custom medical disclaimer, show custom disclaimer
+- [x] If post has no custom disclaimer, show default medical disclaimer
+- [x] Add CTA from blog detail page to booking page
+- [x] Add SEO metadata for blog listing page
+- [x] Add SEO metadata for blog detail page
+- [x] Use `seo_title` if available, otherwise use blog title
+- [x] Use `seo_description` if available, otherwise use excerpt
+- [x] Use cover image for OpenGraph image where available
+- [x] Render Markdown content with clean typography:
   - headings
   - paragraphs
   - bullet lists
   - numbered lists
   - quotes
   - links
-- [ ] Keep typography readable for all age groups
-- [ ] Keep animations subtle and professional
-- [ ] Do not add comments, likes, ratings, or public user accounts
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 10B to Git
+- [x] Keep typography readable for all age groups
+- [x] Keep animations subtle and professional
+- [x] Do not add comments, likes, ratings, or public user accounts
+- [x] Run npm run build successfully
+- [x] Commit Phase 10B to Git
 
 ## Phase 11: Private Counselling Booking
 

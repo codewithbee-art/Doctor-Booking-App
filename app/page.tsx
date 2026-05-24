@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import SpecialistsPreview from "@/components/SpecialistsPreview";
+import BlogPreview from "@/components/BlogPreview";
 
 export const dynamic = "force-dynamic";
 
@@ -397,52 +398,7 @@ export default function HomePage() {
       </section>
 
       {/* Blog Preview */}
-      <section className="bg-white px-4 py-16 md:py-20">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="mb-10 text-3xl font-bold md:text-4xl">
-            Health Tips &amp; Insights
-          </h2>
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            {[1, 2, 3].map((item) => (
-              <article
-                key={item}
-                className="rounded-lg border border-border bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="mb-4 flex h-40 items-center justify-center rounded-lg bg-bg-off">
-                  <svg className="h-10 w-10 text-border" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6V7.5z" />
-                  </svg>
-                </div>
-                <span className="mb-2 inline-block rounded bg-light-blue px-3 py-1 font-body text-xs font-semibold text-primary">
-                  Health Tips
-                </span>
-                <h3 className="mb-2 text-lg font-semibold">Blog Post Title</h3>
-                <p className="mb-4 font-body text-base text-text-secondary line-clamp-3">
-                  Short excerpt of the blog post content goes here. This
-                  preview gives readers a quick idea of the article.
-                </p>
-                <div className="flex items-center justify-between">
-                  <p className="font-body text-sm text-text-secondary">
-                    By Dr. Bishnu Acharya
-                  </p>
-                  <Link href="/blog" className="inline-flex items-center gap-1 font-body text-sm font-semibold text-primary hover:text-secondary transition-colors">
-                    Read More
-                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-          <div className="mt-8 text-center">
-            <Link
-              href="/blog"
-              className="inline-block rounded-lg border-2 border-primary px-8 py-3 font-body text-base font-semibold text-primary hover:bg-primary hover:text-white transition-colors"
-            >
-              View All Posts
-            </Link>
-          </div>
-        </div>
-      </section>
+      <BlogPreview />
 
       {/* How to Book */}
       <section className="bg-light-blue px-4 py-16 md:py-20">

@@ -535,6 +535,18 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
         </p>
       </div>
 
+      {/* Inline feedback near action buttons */}
+      {error && (
+        <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 font-body text-sm text-red-700">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="rounded-lg border border-green-300 bg-green-50 px-4 py-3 font-body text-sm text-green-700">
+          {success}
+        </div>
+      )}
+
       {/* Action Buttons */}
       <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border">
         <button
@@ -567,6 +579,15 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
           Cancel
         </a>
       </div>
+
+      {/* Fixed toast notification */}
+      {(success || error) && (
+        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 animate-[fadeInUp_0.3s_ease-out]">
+          <div className={`rounded-lg px-5 py-3 shadow-lg font-body text-sm font-semibold ${success ? "border border-green-300 bg-green-50 text-green-700" : "border border-red-300 bg-red-50 text-red-700"}`}>
+            {success || error}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
