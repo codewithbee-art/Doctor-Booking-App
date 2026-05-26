@@ -61,6 +61,11 @@ interface PatientBooking {
   cancelled_at: string | null;
   created_at: string;
   booking_source: string | null;
+  consultation_mode: string | null;
+  privacy_preference: string | null;
+  payment_preference: string | null;
+  payment_status: string | null;
+  counselling_reason: string | null;
 }
 
 const CANCEL_REASON_PRESETS = [
@@ -1235,6 +1240,9 @@ function AdminPatientsContent() {
                                     {b.specialist_name || "Specialist"}
                                   </span>
                                 )}
+                                {b.booking_type === "counselling" && (
+                                  <span className="inline-block rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700">Private Counselling</span>
+                                )}
                                 {b.booking_source === "walk_in" && (
                                   <span className="inline-block rounded-full border border-orange-200 bg-orange-50 px-2.5 py-0.5 text-xs font-semibold text-orange-700">Walk-in</span>
                                 )}
@@ -1293,6 +1301,8 @@ function AdminPatientsContent() {
                                       {b.specialist_name && <span className="text-[10px] text-purple-600 truncate max-w-[140px]" title={b.specialist_name}>{b.specialist_name}</span>}
                                       {b.booking_source === "walk_in" && <span className="inline-block rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-[10px] font-semibold text-orange-700">Walk-in</span>}
                                     </>
+                                  ) : b.booking_type === "counselling" ? (
+                                    <span className="inline-block rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700">Private Counselling</span>
                                   ) : (
                                     <span className="inline-block rounded-full border border-border bg-bg-light px-2.5 py-0.5 text-xs font-semibold text-text-secondary">Regular</span>
                                   )}
@@ -1930,6 +1940,29 @@ function AdminPatientsContent() {
                   )}
                 </div>
                 <p className="font-body text-sm font-semibold text-text-primary mt-0.5">{viewBooking.specialist_name}</p>
+              </div>
+            )}
+
+            {viewBooking.booking_type === "counselling" && (
+              <div className="mb-3 rounded-lg border border-teal-200 bg-teal-50/50 px-3 py-2 space-y-1">
+                <p className="font-body text-xs font-semibold uppercase tracking-wide text-teal-800">Private Counselling Details</p>
+                {viewBooking.consultation_mode && (
+                  <p className="font-body text-sm text-text-primary">Mode: {viewBooking.consultation_mode === "phone" ? "Phone Call" : viewBooking.consultation_mode === "video" ? "Video Call" : "In-Person"}</p>
+                )}
+                {viewBooking.privacy_preference && (
+                  <p className="font-body text-sm text-text-primary">Privacy: {viewBooking.privacy_preference === "private" ? "Private" : "Normal"}</p>
+                )}
+                {viewBooking.payment_preference && (
+                  <p className="font-body text-sm text-text-primary">Payment: {viewBooking.payment_preference === "pay_now" ? "Pay Now" : viewBooking.payment_preference === "pay_later" ? "Pay Later" : "Pay on Visit"}</p>
+                )}
+                {viewBooking.payment_status && (
+                  <p className="font-body text-sm text-text-primary capitalize">Status: {viewBooking.payment_status}</p>
+                )}
+                {viewBooking.counselling_reason ? (
+                  <p className="font-body text-sm text-text-primary">Brief Concern: {viewBooking.counselling_reason}</p>
+                ) : (
+                  <p className="font-body text-sm text-text-secondary">Brief Concern: —</p>
+                )}
               </div>
             )}
 

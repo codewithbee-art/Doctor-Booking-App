@@ -88,8 +88,12 @@ export interface PatientVisit {
 }
 
 // ----- bookings ----------------------------------------------------
-export type BookingType = "regular" | "specialist";
+export type BookingType = "regular" | "specialist" | "counselling";
 export type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
+export type CounsellingConsultationMode = "phone" | "video" | "in_person";
+export type CounsellingPrivacyPreference = "private" | "normal";
+export type CounsellingPaymentPreference = "pay_now" | "pay_later" | "pay_on_visit";
+export type CounsellingPaymentStatus = "unpaid" | "pending" | "paid" | "failed" | "refunded";
 
 export interface Booking {
   id: string;
@@ -106,6 +110,11 @@ export interface Booking {
   status: BookingStatus;
   cancellation_reason: string | null;
   cancelled_at: string | null;
+  consultation_mode: CounsellingConsultationMode | null;
+  privacy_preference: CounsellingPrivacyPreference | null;
+  payment_preference: CounsellingPaymentPreference | null;
+  payment_status: CounsellingPaymentStatus | null;
+  counselling_reason: string | null;
   created_at: string;
   updated_at: string;
 }

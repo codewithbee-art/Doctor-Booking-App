@@ -7,6 +7,12 @@ export interface BookingFormData {
   phone: string;
   email: string;
   problem: string;
+  // Counselling fields
+  isCounsellingBooking?: boolean;
+  consultation_mode?: string;
+  privacy_preference?: string;
+  payment_preference?: string;
+  counselling_reason?: string;
 }
 
 interface BookingFormProps {
@@ -15,6 +21,7 @@ interface BookingFormProps {
   onBack: () => void;
   onSubmit: (data: BookingFormData) => void;
   isSubmitting: boolean;
+  isCounselling?: boolean;
 }
 
 interface FormErrors {
@@ -46,12 +53,18 @@ export default function BookingForm({
   onBack,
   onSubmit,
   isSubmitting,
+  isCounselling = false,
 }: BookingFormProps) {
+  const [showCounselling, setShowCounselling] = useState(isCounselling);
   const [form, setForm] = useState<BookingFormData>({
     fullName: "",
     phone: "",
     email: "",
     problem: "",
+    consultation_mode: isCounselling ? "phone" : undefined,
+    privacy_preference: isCounselling ? "private" : undefined,
+    payment_preference: isCounselling ? "pay_later" : undefined,
+    counselling_reason: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -84,18 +97,48 @@ export default function BookingForm({
     return Object.keys(newErrors).length === 0;
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => {
+      const next = { ...prev, [name]: value };
+      // Reset pay_on_visit if consultation mode changes away from in_person
+      if (name === "consultation_mode" && value !== "in_person" && prev.payment_preference === "pay_on_visit") {
+        next.payment_preference = "pay_later";
+      }
+      return next;
+    });
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  }
+
+  function toggleCounselling() {
+    const next = !showCounselling;
+    setShowCounselling(next);
+    if (next) {
+      setForm((prev) => ({
+        ...prev,
+        consultation_mode: prev.consultation_mode || "phone",
+        privacy_preference: prev.privacy_preference || "private",
+        payment_preference: prev.payment_preference || "pay_later",
+      }));
     }
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (validate()) {
-      onSubmit(form);
+      if (showCounselling) {
+        onSubmit({ ...form, isCounsellingBooking: true });
+      } else {
+        onSubmit({
+          fullName: form.fullName,
+          phone: form.phone,
+          email: form.email,
+          problem: form.problem,
+          isCounsellingBooking: false,
+        });
+      }
     }
   }
 
@@ -218,13 +261,13 @@ export default function BookingForm({
             <textarea
               id="problem"
               name="problem"
-              rows={4}
+              rows={showCounselling ? 2 : 4}
               value={form.problem}
               onChange={handleChange}
               aria-required="true"
               aria-describedby={errors.problem ? "problem-error" : "problem-hint"}
               aria-invalid={!!errors.problem}
-              placeholder="Briefly describe your symptoms or the reason for your visit..."
+              placeholder={showCounselling ? "General reason (e.g. stress, personal concern)…" : "Briefly describe your symptoms or the reason for your visit..."}
               className={[
                 "w-full resize-none rounded-lg border px-4 py-3 font-body text-base text-text-primary placeholder:text-text-secondary/60 transition-colors focus:outline-none focus:ring-2 focus:ring-primary",
                 errors.problem ? "border-danger bg-red-50" : "border-border bg-white hover:border-secondary",
@@ -236,10 +279,143 @@ export default function BookingForm({
               </p>
             ) : (
               <p id="problem-hint" className="mt-1 font-body text-sm text-text-secondary">
-                This helps the doctor prepare for your appointment.
+                {showCounselling ? "You do not need to share sensitive details here. The doctor will discuss everything during the session." : "This helps the doctor prepare for your appointment."}
               </p>
             )}
           </div>
+
+          {/* Private Counselling toggle card */}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-pressed={showCounselling}
+            onClick={toggleCounselling}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleCounselling(); } }}
+            className={[
+              "flex items-start gap-3 rounded-xl border-2 p-4 cursor-pointer transition-colors select-none",
+              showCounselling ? "border-primary bg-primary/5" : "border-border bg-white hover:border-secondary",
+            ].join(" ")}
+          >
+            <div className={[
+              "mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded border-2 transition-colors",
+              showCounselling ? "border-primary bg-primary" : "border-border bg-white",
+            ].join(" ")}>
+              {showCounselling && (
+                <svg className="h-3 w-3 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              )}
+            </div>
+            <div>
+              <p className="font-body text-base font-semibold text-text-primary">
+                I would like Private Counselling
+              </p>
+              <p className="font-body text-sm text-text-secondary mt-0.5">
+                Phone, video, or in-person confidential consultation
+              </p>
+            </div>
+          </div>
+
+          {/* Private Counselling fields */}
+          {showCounselling && (
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 space-y-5">
+              <div className="flex items-center gap-2 mb-1">
+                <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                <span className="font-body text-sm font-semibold text-primary">Private Counselling Details</span>
+              </div>
+
+              {/* Consultation Mode */}
+              <div>
+                <label htmlFor="consultation_mode" className="block font-body text-sm font-semibold text-text-primary mb-1">
+                  Consultation Mode <span className="text-danger" aria-hidden="true">*</span>
+                </label>
+                <select
+                  id="consultation_mode"
+                  name="consultation_mode"
+                  value={form.consultation_mode || "phone"}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-border bg-white px-4 py-3 font-body text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="phone">Phone Call</option>
+                  <option value="video">Video Call</option>
+                  <option value="in_person">In-Person Visit</option>
+                </select>
+                <p className="mt-1 font-body text-xs text-text-secondary">
+                  Choose how you would like to have your consultation.
+                </p>
+              </div>
+
+              {/* Privacy Preference */}
+              <div>
+                <label htmlFor="privacy_preference" className="block font-body text-sm font-semibold text-text-primary mb-1">
+                  Privacy Level
+                </label>
+                <select
+                  id="privacy_preference"
+                  name="privacy_preference"
+                  value={form.privacy_preference || "private"}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-border bg-white px-4 py-3 font-body text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="private">Private — minimal details stored</option>
+                  <option value="normal">Normal — standard record keeping</option>
+                </select>
+              </div>
+
+              {/* Payment Preference */}
+              <div>
+                <label htmlFor="payment_preference" className="block font-body text-sm font-semibold text-text-primary mb-1">
+                  Payment Preference
+                </label>
+                <select
+                  id="payment_preference"
+                  name="payment_preference"
+                  value={form.payment_preference || "pay_later"}
+                  onChange={handleChange}
+                  className="w-full rounded-lg border border-border bg-white px-4 py-3 font-body text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <option value="pay_later">Pay Later — admin will contact you</option>
+                  {form.consultation_mode === "in_person" && (
+                    <option value="pay_on_visit">Pay on Visit</option>
+                  )}
+                  <option value="pay_now">Pay Now (online payment coming soon)</option>
+                </select>
+                {form.payment_preference === "pay_now" && (
+                  <p className="mt-1 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 font-body text-xs text-amber-800">
+                    Online payment is not yet available. Our team will contact you to arrange payment after your booking is confirmed.
+                  </p>
+                )}
+                {form.payment_preference === "pay_later" && (
+                  <p className="mt-1 font-body text-xs text-text-secondary">
+                    Our admin team will call you to discuss payment options.
+                  </p>
+                )}
+              </div>
+
+              {/* Counselling Reason (optional, brief) */}
+              <div>
+                <label htmlFor="counselling_reason" className="block font-body text-sm font-semibold text-text-primary mb-1">
+                  Brief Concern{" "}
+                  <span className="font-normal text-text-secondary text-xs">(optional)</span>
+                </label>
+                <input
+                  id="counselling_reason"
+                  name="counselling_reason"
+                  type="text"
+                  value={form.counselling_reason || ""}
+                  onChange={handleChange}
+                  maxLength={100}
+                  placeholder="e.g. stress, anxiety, personal health…"
+                  className="w-full rounded-lg border border-border bg-white px-4 py-3 font-body text-base text-text-primary placeholder:text-text-secondary/60 focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <p className="mt-1 font-body text-xs text-text-secondary">
+                  Optional. Keep it brief — you can discuss details during your session.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Actions */}

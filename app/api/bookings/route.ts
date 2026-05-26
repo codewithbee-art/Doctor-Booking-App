@@ -14,14 +14,23 @@ interface BookingRequestBody {
   appointment_date_ad?: string;
   appointment_date_bs?: string;
   appointment_time?: string;
+  booking_type?: string;
+  consultation_mode?: string;
+  privacy_preference?: string;
+  payment_preference?: string;
+  counselling_reason?: string;
 }
+
+const VALID_CONSULTATION_MODES = ["phone", "video", "in_person"];
+const VALID_PRIVACY_PREFERENCES = ["private", "normal"];
+const VALID_PAYMENT_PREFERENCES = ["pay_now", "pay_later", "pay_on_visit"];
 
 export async function GET() {
   try {
     const { data: bookings, error: fetchError } = await supabaseAdmin
       .from("bookings")
       .select(
-        "id, patient_id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, cancellation_reason, cancelled_at, created_at, booking_source"
+        "id, patient_id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, cancellation_reason, cancelled_at, created_at, booking_source, consultation_mode, privacy_preference, payment_preference, payment_status, counselling_reason"
       )
       .order("appointment_date_ad", { ascending: true })
       .order("appointment_time", { ascending: true });
@@ -124,6 +133,11 @@ export async function POST(request: NextRequest) {
     appointment_date_ad,
     appointment_date_bs,
     appointment_time,
+    booking_type,
+    consultation_mode,
+    privacy_preference,
+    payment_preference,
+    counselling_reason,
   } = body;
 
   // ---- Validate required fields ----
@@ -154,6 +168,23 @@ export async function POST(request: NextRequest) {
     errors.push("Appointment time is required.");
   }
 
+  const isCounselling = booking_type === "counselling";
+
+  if (isCounselling) {
+    if (!consultation_mode || !VALID_CONSULTATION_MODES.includes(consultation_mode)) {
+      errors.push("A valid consultation mode is required for counselling bookings.");
+    }
+    if (privacy_preference && !VALID_PRIVACY_PREFERENCES.includes(privacy_preference)) {
+      errors.push("Invalid privacy preference.");
+    }
+    if (payment_preference && !VALID_PAYMENT_PREFERENCES.includes(payment_preference)) {
+      errors.push("Invalid payment preference.");
+    }
+    if (payment_preference === "pay_on_visit" && consultation_mode !== "in_person") {
+      errors.push("Pay on Visit is only available for in-person consultations.");
+    }
+  }
+
   if (errors.length > 0) {
     return NextResponse.json(
       { success: false, error: "Validation failed.", details: errors },
@@ -172,6 +203,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (slotError || !slot) {
+      console.error("[bookings POST] slot_lookup failed", slotError?.code);
       return NextResponse.json(
         { success: false, error: "The selected time slot does not exist for this date." },
         { status: 404 }
@@ -194,6 +226,7 @@ export async function POST(request: NextRequest) {
       .eq("is_booked", false); // extra guard against race conditions
 
     if (updateError) {
+      console.error("[bookings POST] slot_mark_booked failed", updateError?.code);
       return NextResponse.json(
         { success: false, error: "Failed to reserve the time slot. Please try again." },
         { status: 500 }
@@ -291,24 +324,35 @@ export async function POST(request: NextRequest) {
 
     // ---- Insert the booking ----
 
+    const insertData: Record<string, unknown> = {
+      patient_name: trimmedName,
+      patient_phone: trimmedPhone,
+      patient_email: trimmedEmail,
+      problem: problem!.trim(),
+      appointment_date_ad: appointment_date_ad!,
+      appointment_date_bs: appointment_date_bs?.trim() || "",
+      appointment_time: appointment_time!,
+      booking_type: isCounselling ? "counselling" : "regular",
+      status: "pending",
+      patient_id: patientId,
+    };
+
+    if (isCounselling) {
+      insertData.consultation_mode = consultation_mode;
+      insertData.privacy_preference = privacy_preference || "private";
+      insertData.payment_preference = payment_preference || "pay_later";
+      insertData.payment_status = "unpaid";
+      insertData.counselling_reason = counselling_reason?.trim() || null;
+    }
+
     const { data: booking, error: insertError } = await supabaseAdmin
       .from("bookings")
-      .insert({
-        patient_name: trimmedName,
-        patient_phone: trimmedPhone,
-        patient_email: trimmedEmail,
-        problem: problem!.trim(),
-        appointment_date_ad: appointment_date_ad!,
-        appointment_date_bs: appointment_date_bs?.trim() || "",
-        appointment_time: appointment_time!,
-        booking_type: "regular",
-        status: "pending",
-        patient_id: patientId,
-      })
+      .insert(insertData)
       .select("id")
       .single();
 
     if (insertError || !booking) {
+      console.error("[bookings POST] booking_insert failed", insertError?.code);
       // Rollback: un-book the slot if booking insert fails
       await supabaseAdmin
         .from("available_slots")
@@ -325,7 +369,8 @@ export async function POST(request: NextRequest) {
       success: true,
       booking_id: booking.id,
     });
-  } catch {
+  } catch (err) {
+    console.error("[bookings POST] unexpected exception", err instanceof Error ? err.message : String(err));
     return NextResponse.json(
       { success: false, error: "An unexpected error occurred. Please try again." },
       { status: 500 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import BSADCalendar, { CalendarMode } from "@/components/BSADCalendar";
 import TimeSlotPicker, { TimeSlot } from "@/components/TimeSlotPicker";
 import BookingForm, { BookingFormData } from "@/components/BookingForm";
@@ -24,7 +25,10 @@ function formatDisplayTime(timeStr: string) {
   return `${hour}:${String(m).padStart(2, "0")} ${suffix}`;
 }
 
-export default function BookingPage() {
+function BookingPageInner() {
+  const searchParams = useSearchParams();
+  const isCounselling = searchParams.get("type") === "counselling";
+
   const [step, setStep] = useState<Step>("pick");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -32,6 +36,8 @@ export default function BookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [confirmedName, setConfirmedName] = useState("");
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [counsellingDetails, setCounsellingDetails] = useState<{ consultation_mode?: string; payment_preference?: string } | null>(null);
+  const [submittedAsCounselling, setSubmittedAsCounselling] = useState(false);
 
   // Slots API state
   const [slots, setSlots] = useState<TimeSlot[]>([]);
@@ -111,18 +117,29 @@ export default function BookingPage() {
     setSubmitError(null);
 
     try {
+      const payload: Record<string, unknown> = {
+        patient_name: data.fullName,
+        patient_phone: data.phone,
+        patient_email: data.email || undefined,
+        problem: data.problem,
+        appointment_date_ad: selectedDate,
+        appointment_date_bs: formatBS(selectedDate),
+        appointment_time: selectedTime,
+      };
+
+      const isCounsellingSubmission = !!data.isCounsellingBooking;
+      if (isCounsellingSubmission) {
+        payload.booking_type = "counselling";
+        payload.consultation_mode = data.consultation_mode;
+        payload.privacy_preference = data.privacy_preference;
+        payload.payment_preference = data.payment_preference;
+        payload.counselling_reason = data.counselling_reason || undefined;
+      }
+
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patient_name: data.fullName,
-          patient_phone: data.phone,
-          patient_email: data.email || undefined,
-          problem: data.problem,
-          appointment_date_ad: selectedDate,
-          appointment_date_bs: formatBS(selectedDate),
-          appointment_time: selectedTime,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -134,6 +151,13 @@ export default function BookingPage() {
       if (result.success && result.booking_id) {
         setConfirmedName(data.fullName);
         setBookingId(result.booking_id);
+        setSubmittedAsCounselling(isCounsellingSubmission);
+        if (isCounsellingSubmission) {
+          setCounsellingDetails({
+            consultation_mode: data.consultation_mode,
+            payment_preference: data.payment_preference,
+          });
+        }
         setStep("success");
         // Refresh slots so the booked slot appears unavailable
         await refreshSlots();
@@ -192,13 +216,24 @@ export default function BookingPage() {
   return (
     <main className="min-h-screen bg-bg-light">
       {/* Page Header */}
+
       <div className="bg-primary px-4 py-12 md:py-16 text-center">
         <h1 className="font-heading text-3xl font-bold text-white md:text-4xl">
-          Book an Appointment
+          {isCounselling ? "Book Private Counselling" : "Book an Appointment"}
         </h1>
         <p className="mt-3 font-body text-lg text-light-blue/90 max-w-xl mx-auto">
-          Choose a convenient date and time, then fill in your details. We will confirm your appointment promptly.
+          {isCounselling
+            ? "Choose a convenient date and time for your confidential consultation. Your privacy is our priority."
+            : "Choose a convenient date and time, then fill in your details. We will confirm your appointment promptly."}
         </p>
+        {isCounselling && (
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 font-body text-sm text-white/90">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            Private &amp; Confidential
+          </div>
+        )}
       </div>
 
       <div className="mx-auto max-w-3xl px-4 py-10 md:py-14">
@@ -211,14 +246,24 @@ export default function BookingPage() {
               </svg>
             </div>
             <h2 className="font-heading text-2xl font-bold text-text-primary md:text-3xl">
-              Booking Received!
+              {submittedAsCounselling ? "Private Counselling Booking Received!" : "Booking Received!"}
             </h2>
             <p className="mt-3 font-body text-lg text-text-secondary">
-              Thank you, <span className="font-semibold text-text-primary">{confirmedName}</span>. Your appointment request has been submitted.
+              Thank you, <span className="font-semibold text-text-primary">{confirmedName}</span>. Your {submittedAsCounselling ? "private counselling" : "appointment"} request has been submitted.
             </p>
             {selectedDate && selectedTime && (
               <div className="mt-5 inline-block rounded-xl border border-light-blue bg-light-blue/30 px-6 py-4 text-left">
-                <p className="font-body text-sm font-semibold text-primary mb-2">Appointment Details</p>
+                <p className="font-body text-sm font-semibold text-primary mb-2">
+                  {submittedAsCounselling ? "Private Counselling Details" : "Appointment Details"}
+                </p>
+                {submittedAsCounselling && (
+                  <p className="font-body text-sm text-text-primary mb-1">
+                    <span className="font-semibold">Type:</span>{" "}
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                      Private Counselling
+                    </span>
+                  </p>
+                )}
                 <p className="font-body text-base text-text-primary">
                   <span className="font-semibold">Date (BS):</span> {formatBS(selectedDate)}
                 </p>
@@ -228,6 +273,18 @@ export default function BookingPage() {
                 <p className="font-body text-base text-text-primary mt-1">
                   <span className="font-semibold">Time:</span> {formatDisplayTime(selectedTime)}
                 </p>
+                {submittedAsCounselling && counsellingDetails && (
+                  <>
+                    <p className="font-body text-sm text-text-primary mt-1">
+                      <span className="font-semibold">Mode:</span>{" "}
+                      {counsellingDetails.consultation_mode === "phone" ? "Phone Call" : counsellingDetails.consultation_mode === "video" ? "Video Call" : "In-Person"}
+                    </p>
+                    <p className="font-body text-sm text-text-primary mt-0.5">
+                      <span className="font-semibold">Payment:</span>{" "}
+                      {counsellingDetails.payment_preference === "pay_later" ? "Pay Later" : counsellingDetails.payment_preference === "pay_on_visit" ? "Pay on Visit" : "Pay Now"}
+                    </p>
+                  </>
+                )}
                 {bookingId && (
                   <p className="font-body text-sm text-text-secondary mt-2">
                     <span className="font-semibold">Booking ID:</span> {bookingId}
@@ -236,7 +293,13 @@ export default function BookingPage() {
               </div>
             )}
             <p className="mt-5 font-body text-base text-text-secondary">
-              We will call you to confirm. If you do not hear from us within 24 hours, please call us directly.
+              {submittedAsCounselling && counsellingDetails?.payment_preference === "pay_later"
+                ? "Our team will contact you to confirm your appointment and discuss payment."
+                : submittedAsCounselling && counsellingDetails?.payment_preference === "pay_on_visit"
+                ? "Please visit the clinic at your scheduled time. Payment will be collected during your visit."
+                : submittedAsCounselling && counsellingDetails?.payment_preference === "pay_now"
+                ? "Our team will contact you to arrange payment and confirm your appointment."
+                : "We will call you to confirm. If you do not hear from us within 24 hours, please call us directly."}
             </p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <a
@@ -400,6 +463,7 @@ export default function BookingPage() {
                       onBack={handleBack}
                       onSubmit={handleSubmit}
                       isSubmitting={isSubmitting}
+                      isCounselling={isCounselling}
                     />
                   </>
                 )}
@@ -423,5 +487,20 @@ export default function BookingPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function BookingPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-bg-light">
+        <div className="bg-primary px-4 py-12 md:py-16 text-center">
+          <h1 className="font-heading text-3xl font-bold text-white md:text-4xl">Book an Appointment</h1>
+          <p className="mt-3 font-body text-lg text-light-blue/90">Loading...</p>
+        </div>
+      </main>
+    }>
+      <BookingPageInner />
+    </Suspense>
   );
 }

@@ -120,12 +120,12 @@ Phase 9C: Complete (Specialist Booking Admin Management — admin page, checkup 
 Phase 9D: Complete (Specialist Walk-in Queue)
 Phase 9E: Complete (Specialist Walk-in Checkup Integration)
 Phase 10A: Complete Blog Database and Admin Blog Management
+Phase 10B: Complete Public Blog Pages, SEO, and Sharing
 
 Current:
-- Phase 10B: Public Blog Pages, SEO, and Sharing
+- Phase 11: Private Counselling Booking
 
 Upcoming:
-- Phase 11: Private Counselling Booking
 - Phase 12: Medicine Shop
 - Phase 13: Checkout, Emails, SEO, Deployment
 - Phase 14: Advanced Role Access and Specialist Permissions
@@ -609,6 +609,8 @@ Upcoming:
 
 - Add a dedicated public private counselling page at `/private-counselling`
 - Add a homepage section/card for Private & Confidential Counselling
+- Place the homepage private counselling section after “What We Treat” and before “Visiting Specialists”
+- Do not modify the existing “What We Treat” cards in this phase
 - Use the existing booking system instead of creating a separate booking engine
 - Add a private counselling option inside the normal booking form
 - When patients arrive from the private counselling page, the booking form should automatically enable counselling mode
@@ -621,8 +623,10 @@ Upcoming:
 - Counselling booking details should be clearly labelled in the admin dashboard and patient records
 - Admin dashboard should include a Counselling filter/tab
 - Booking detail views should show consultation mode, privacy preference, payment preference, payment status, and brief concern/reason
+- Booking success screen should show a clear next-step message depending on payment preference
 - The normal booking flow must continue working for patients who do not select counselling
 - The counselling form should be respectful, privacy-focused, and should not force patients to describe sensitive issues in detail
+- Doctor/admin checkup workflow should continue working for counselling bookings
 
 ### Phase 12: Medicine Shop
 

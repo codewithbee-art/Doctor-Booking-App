@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
       const { data: bookings } = await supabaseAdmin
         .from("bookings")
         .select(
-          "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, cancellation_reason, cancelled_at, created_at, booking_source"
+          "id, patient_name, patient_phone, patient_email, problem, appointment_date_bs, appointment_date_ad, appointment_time, booking_type, specialist_id, status, cancellation_reason, cancelled_at, created_at, booking_source, consultation_mode, privacy_preference, payment_preference, payment_status, counselling_reason"
         )
         .eq("patient_id", id)
         .order("appointment_date_ad", { ascending: false })

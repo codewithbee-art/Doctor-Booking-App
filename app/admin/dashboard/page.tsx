@@ -41,6 +41,11 @@ interface Booking {
   is_new_patient: boolean;
   has_visit: boolean;
   booking_source: string | null;
+  consultation_mode: string | null;
+  privacy_preference: string | null;
+  payment_preference: string | null;
+  payment_status: string | null;
+  counselling_reason: string | null;
 }
 
 const CANCEL_REASON_PRESETS = [
@@ -52,7 +57,7 @@ const CANCEL_REASON_PRESETS = [
   "Clinic closed / holiday",
 ];
 
-type FilterTab = "all" | "today" | "pending" | "confirmed" | "cancelled" | "completed" | "specialist";
+type FilterTab = "all" | "today" | "pending" | "confirmed" | "cancelled" | "completed" | "specialist" | "counselling";
 
 interface AvailableSlot {
   id: string;
@@ -186,6 +191,7 @@ export default function AdminDashboardPage() {
       if (filter === "cancelled" && b.status !== "cancelled")         return false;
       if (filter === "completed" && b.status !== "completed")         return false;
       if (filter === "specialist" && b.booking_type !== "specialist")  return false;
+      if (filter === "counselling" && b.booking_type !== "counselling")  return false;
       if (q && !b.patient_name.toLowerCase().includes(q) && !b.patient_phone.includes(q)) return false;
       return true;
     });
@@ -418,6 +424,7 @@ export default function AdminDashboardPage() {
     { key: "cancelled", label: "Cancelled" },
     { key: "completed", label: "Completed" },
     { key: "specialist", label: "Specialist" },
+    { key: "counselling", label: "Private Counselling" },
   ];
 
   return (
@@ -612,6 +619,8 @@ export default function AdminDashboardPage() {
                           <div className="mt-1 flex flex-wrap gap-1 sm:hidden">
                             {b.booking_type === "specialist" ? (
                               <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 font-body text-[10px] font-semibold text-purple-700">{b.specialist_name || "Specialist"}</span>
+                            ) : b.booking_type === "counselling" ? (
+                              <span className="inline-block rounded-full border border-teal-200 bg-teal-50 px-2 py-0.5 font-body text-[10px] font-semibold text-teal-700">Private Counselling</span>
                             ) : (
                               <span className="inline-block rounded-full border border-border bg-bg-light px-2 py-0.5 font-body text-[10px] font-semibold text-text-secondary">Regular</span>
                             )}
@@ -640,6 +649,8 @@ export default function AdminDashboardPage() {
                           <div className="flex flex-col gap-1">
                             {b.booking_type === "specialist" ? (
                               <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 font-body text-xs font-semibold text-purple-700">Specialist</span>
+                            ) : b.booking_type === "counselling" ? (
+                              <span className="inline-block rounded-full border border-teal-200 bg-teal-50 px-2.5 py-0.5 font-body text-xs font-semibold text-teal-700">Private Counselling</span>
                             ) : (
                               <span className="inline-block rounded-full border border-border bg-bg-light px-2.5 py-0.5 font-body text-xs font-semibold text-text-secondary">Regular</span>
                             )}
@@ -858,6 +869,9 @@ export default function AdminDashboardPage() {
               {selectedBooking.booking_type === "specialist" && (
                 <span className="inline-block rounded-full border border-purple-200 bg-purple-50 px-3 py-0.5 font-body text-xs font-semibold text-purple-700">Specialist Booking</span>
               )}
+              {selectedBooking.booking_type === "counselling" && (
+                <span className="inline-block rounded-full border border-teal-200 bg-teal-50 px-3 py-0.5 font-body text-xs font-semibold text-teal-700">Private Counselling</span>
+              )}
               {selectedBooking.booking_source === "walk_in" && (
                 <span className="inline-block rounded-full border border-orange-200 bg-orange-50 px-3 py-0.5 font-body text-xs font-semibold text-orange-700">Walk-in</span>
               )}
@@ -878,6 +892,33 @@ export default function AdminDashboardPage() {
                   {selectedBooking.specialist_info.specialization && <p className="text-text-secondary text-xs">{selectedBooking.specialist_info.specialization} &middot; {selectedBooking.specialist_info.treatment_type}</p>}
                   {selectedBooking.specialist_info.visit_location && <p className="text-text-secondary text-xs">Location: {selectedBooking.specialist_info.visit_location}</p>}
                   <p className="text-text-secondary text-xs">Fee: {selectedBooking.specialist_info.consultation_fee != null ? `NPR ${selectedBooking.specialist_info.consultation_fee}` : "Free Consultation"}</p>
+                </div>
+              )}
+              {selectedBooking.booking_type === "counselling" && (
+                <div className="rounded-lg border border-teal-200 bg-teal-50/50 p-3 mb-1 space-y-1">
+                  <p className="font-semibold text-teal-800 text-xs uppercase tracking-wide">Private Counselling Details</p>
+                  <div className="flex gap-3 text-sm">
+                    <span className="font-semibold text-text-secondary w-28 flex-shrink-0">Mode</span>
+                    <span className="text-text-primary">{selectedBooking.consultation_mode === "phone" ? "Phone Call" : selectedBooking.consultation_mode === "video" ? "Video Call" : selectedBooking.consultation_mode === "in_person" ? "In-Person" : "—"}</span>
+                  </div>
+                  <div className="flex gap-3 text-sm">
+                    <span className="font-semibold text-text-secondary w-28 flex-shrink-0">Privacy</span>
+                    <span className="text-text-primary">{selectedBooking.privacy_preference === "private" ? "Private" : selectedBooking.privacy_preference === "normal" ? "Normal" : "—"}</span>
+                  </div>
+                  <div className="flex gap-3 text-sm">
+                    <span className="font-semibold text-text-secondary w-28 flex-shrink-0">Payment Pref.</span>
+                    <span className="text-text-primary">{selectedBooking.payment_preference === "pay_now" ? "Pay Now" : selectedBooking.payment_preference === "pay_later" ? "Pay Later" : selectedBooking.payment_preference === "pay_on_visit" ? "Pay on Visit" : "—"}</span>
+                  </div>
+                  <div className="flex gap-3 text-sm">
+                    <span className="font-semibold text-text-secondary w-28 flex-shrink-0">Payment Status</span>
+                    <span className="text-text-primary capitalize">{selectedBooking.payment_status || "unpaid"}</span>
+                  </div>
+                  {selectedBooking.counselling_reason && (
+                    <div className="flex gap-3 text-sm">
+                      <span className="font-semibold text-text-secondary w-28 flex-shrink-0">Brief Concern</span>
+                      <span className="text-text-primary">{selectedBooking.counselling_reason}</span>
+                    </div>
+                  )}
                 </div>
               )}
               <div className="flex gap-3"><dt className="w-28 flex-shrink-0 font-semibold text-text-secondary">Patient</dt><dd className="text-text-primary">{selectedBooking.patient_name}</dd></div>

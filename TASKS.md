@@ -907,62 +907,82 @@
 
 ## Phase 11: Private Counselling Booking
 
-- [ ] Create public private counselling page `/private-counselling`
-- [ ] Add homepage section/card for Private & Confidential Counselling
-- [ ] Add CTA button: Book Private Counselling
-- [ ] CTA should open booking page with counselling mode enabled, for example `/booking?type=counselling`
-- [ ] Add private counselling option inside normal booking form
-- [ ] If patient checks private counselling, show counselling-specific fields
-- [ ] If patient comes from `/private-counselling`, counselling option should be enabled automatically
-- [ ] Add counselling booking fields to `bookings` if needed:
+- [x] Create public private counselling page `/private-counselling`
+- [x] Add homepage section/card for Private & Confidential Counselling
+- [x] Place homepage private counselling section after “What We Treat” and before “Visiting Specialists”
+- [x] Do not modify the existing “What We Treat” cards in this phase
+- [x] Private counselling section should feel calm, respectful, and privacy-focused
+- [x] Add CTA button: Book Private Counselling
+- [x] CTA should open booking page with counselling mode enabled, for example `/booking?type=counselling`
+- [x] Private counselling page should explain:
+  - confidential consultation
+  - phone/video/in-person options
+  - suitable for sensitive concerns
+  - patient does not need to share full details online
+  - admin/doctor will handle the booking respectfully
+- [x] Add private counselling option inside normal booking form
+- [x] If patient checks private counselling, show counselling-specific fields
+- [x] If patient comes from `/private-counselling`, counselling option should be enabled automatically
+- [x] Add counselling booking fields to `bookings` if needed:
   - booking_type
   - consultation_mode
   - privacy_preference
   - payment_preference
   - payment_status
   - counselling_reason
-- [ ] Support `booking_type = counselling`
-- [ ] Consultation mode options:
+- [x] Support `booking_type = counselling`
+- [x] Consultation mode options:
   - phone
   - video
   - in_person
-- [ ] Privacy preference options:
+- [x] Privacy preference options:
   - private
   - normal
-- [ ] Payment preference options:
+- [x] Payment preference options:
   - pay_now
   - pay_later
   - pay_on_visit
-- [ ] Payment status should prepare for future payment flow:
+- [x] Payment status should prepare for future payment flow:
   - unpaid
   - pending
   - paid
   - failed
   - refunded
-- [ ] Do not build full payment gateway in this phase
-- [ ] If Pay Now is selected, show clear message that online payment will be handled in the payment phase or route to placeholder if needed
-- [ ] If Pay Later is selected, show message that admin will contact the patient
-- [ ] If Pay on Visit is selected, allow only when consultation mode is in_person
-- [ ] Keep normal booking flow working when counselling is not selected
-- [ ] Counselling form should keep details minimal and respectful
-- [ ] Brief concern/reason should be optional or short
-- [ ] Do not force patients to describe sensitive issues in detail
-- [ ] Save counselling bookings into the existing `bookings` table
-- [ ] Keep patient creation/linking and identity safety logic working
-- [ ] Show Private Counselling badge/label in admin dashboard
-- [ ] Add Counselling filter/tab in admin dashboard booking filters
-- [ ] Show counselling details in booking detail modal:
+- [x] Do not build full payment gateway in this phase
+- [x] If Pay Now is selected, show clear message that online payment will be handled in the payment phase or route to safe placeholder if needed
+- [x] If Pay Later is selected, show message that admin will contact the patient
+- [x] If Pay on Visit is selected, allow only when consultation mode is in_person
+- [x] Keep normal booking flow working when counselling is not selected
+- [x] Counselling form should keep details minimal and respectful
+- [x] Brief concern/reason should be optional or short
+- [x] Do not force patients to describe sensitive issues in detail
+- [x] Save counselling bookings into the existing `bookings` table
+- [x] Keep patient creation/linking and identity safety logic working
+- [x] Booking success screen should clearly show:
+  - Private Counselling booking type
+  - consultation mode
+  - payment preference
+  - next step message
+- [x] Show Private Counselling badge/label in admin dashboard
+- [x] Add Counselling filter/tab in admin dashboard booking filters
+- [x] Show counselling details in booking detail modal:
   - consultation mode
   - privacy preference
   - payment preference
   - payment status
   - brief concern/reason
-- [ ] Show counselling booking details in Patient Records booking history where appropriate
-- [ ] Keep sensitive counselling details visually separated from normal booking details
-- [ ] Keep doctor/admin checkup workflow working for counselling bookings
-- [ ] Add clear success and error messages
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 11 to Git
+- [x] Keep sensitive counselling details visually separated from normal booking details
+- [x] Show counselling booking details in Patient Records booking history where appropriate
+- [x] Keep doctor/admin checkup workflow working for counselling bookings
+- [x] Counselling bookings should support normal booking statuses:
+  - pending
+  - confirmed
+  - cancelled
+  - completed
+- [x] Counselling bookings should support cancellation reason
+- [x] Add clear success and error messages
+- [x] Run npm run build successfully
+- [x] Commit Phase 11 to Git
 
 ## Phase 12: Medicine Shop
 
