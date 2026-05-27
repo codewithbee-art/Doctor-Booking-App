@@ -131,59 +131,31 @@ export interface AvailableSlot {
 }
 
 // ----- products ----------------------------------------------------
-export type ProductCategory =
-  | "pain_relief"
-  | "antibiotics"
-  | "vitamins"
-  | "first_aid"
-  | "supplements"
-  | "other";
+export type StockStatus = "in_stock" | "low_stock" | "out_of_stock" | "hidden";
 
 export interface Product {
   id: string;
   name: string;
+  slug: string;
+  short_description: string | null;
   description: string | null;
-  category: ProductCategory;
+  category: string;
   price: number;
-  stock_quantity: number;
+  sale_price: number | null;
   image_url: string | null;
-  requires_prescription: boolean;
-  is_available: boolean;
+  image_alt: string | null;
+  stock_quantity: number;
+  stock_status: StockStatus;
+  is_active: boolean;
+  is_featured: boolean;
+  requires_consultation: boolean;
+  allow_delivery: boolean;
+  allow_pickup: boolean;
+  usage_instructions: string | null;
+  ingredients: string | null;
+  warnings: string | null;
   created_at: string;
   updated_at: string;
-}
-
-// ----- orders ------------------------------------------------------
-export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
-export type OrderStatus =
-  | "processing"
-  | "confirmed"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
-
-export interface Order {
-  id: string;
-  customer_name: string;
-  customer_phone: string;
-  customer_email: string;
-  customer_address: string;
-  total_amount: number;
-  payment_status: PaymentStatus;
-  stripe_payment_intent_id: string | null;
-  order_status: OrderStatus;
-  created_at: string;
-  updated_at: string;
-}
-
-// ----- order_items -------------------------------------------------
-export interface OrderItem {
-  id: string;
-  order_id: string;
-  product_id: string | null;
-  product_name: string;
-  quantity: number;
-  price_at_purchase: number;
 }
 
 // ----- blog_posts --------------------------------------------------
@@ -275,20 +247,6 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Omit<Product, "id" | "created_at" | "updated_at">>;
-      };
-      orders: {
-        Row: Order;
-        Insert: Omit<Order, "id" | "created_at" | "updated_at"> & {
-          id?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: Partial<Omit<Order, "id" | "created_at" | "updated_at">>;
-      };
-      order_items: {
-        Row: OrderItem;
-        Insert: Omit<OrderItem, "id"> & { id?: string };
-        Update: Partial<Omit<OrderItem, "id">>;
       };
       blog_posts: {
         Row: BlogPost;

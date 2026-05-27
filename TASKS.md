@@ -986,17 +986,289 @@
 
 ## Phase 12: Medicine Shop
 
-- [ ] Create shop page
-- [ ] Create product detail page
-- [ ] Create product cards
-- [ ] Create cart page
-- [ ] Add cart functionality
-- [ ] Create products API
-- [ ] Create admin shop page
-- [ ] Create sales/order history
-- [ ] Add product CRUD
+### Phase 12A: Product Catalogue and Admin Product Management
+
+- [x] Create `products` table
+- [x] Add safe Supabase migration for products
+- [x] Include explicit Supabase GRANT statements for the new `products` table
+- [x] Enable RLS on `products`
+- [x] Add RLS policies for `products`:
+  - anon can read only active public products
+  - authenticated can read only active public products unless using server-side admin API
+  - service_role can manage all products
+- [x] Do not expose hidden/inactive products to public users
+- [x] Add product fields:
+  - id
+  - name
+  - slug
+  - short_description
+  - description
+  - category
+  - price
+  - sale_price
+  - image_url
+  - image_alt
+  - stock_quantity
+  - stock_status
+  - is_active
+  - is_featured
+  - requires_consultation
+  - allow_delivery
+  - allow_pickup
+  - usage_instructions
+  - ingredients
+  - warnings
+  - created_at
+  - updated_at
+- [x] Add stock status values:
+  - in_stock
+  - low_stock
+  - out_of_stock
+  - hidden
+- [x] Update TypeScript database types
+- [x] Create admin shop page `/admin/shop`
+- [x] Add Shop link to admin navigation or dashboard area where appropriate
+- [x] Admin can view all products:
+  - active
+  - inactive
+  - out of stock
+  - hidden
+- [x] Create new product page or modal
+- [x] Create edit product page or modal
+- [x] Admin can create product
+- [x] Admin can edit product
+- [x] Admin can archive/deactivate product
+- [x] Admin can mark product active/inactive
+- [x] Admin can mark product as featured
+- [x] Admin can update stock quantity manually
+- [x] Admin can update stock status manually
+- [x] Admin can set product as consultation-required
+- [x] Admin can control delivery/pickup availability:
+  - allow delivery
+  - allow pickup
+- [x] Add product image URL field
+- [x] Add product image upload from computer using Supabase Storage if practical
+- [x] Use Supabase Storage bucket named `product-images` if upload is added
+- [x] Keep image URL input as fallback
+- [x] Show product image preview in admin form
+- [x] Validate image file type and size if upload is added
+- [x] Auto-generate slug from product name
+- [x] Allow admin to manually edit slug
+- [x] Validate slug uniqueness
+- [x] Create public shop page `/shop`
+- [x] Create public product detail page `/shop/[slug]`
+- [x] Create reusable product cards
+- [x] Public shop should show only active products
+- [x] Hidden/inactive products should not appear publicly
+- [x] Product cards should show:
+  - image or placeholder
+  - name
+  - category
+  - short description
+  - price
+  - sale price if available
+  - stock status
+  - consultation-required badge if needed
+  - pickup/delivery availability where useful
+  - View Details button
+- [x] Product detail page should show:
+  - product image
+  - name
+  - category
+  - price and sale price if available
+  - stock status
+  - full description
+  - usage instructions
+  - ingredients
+  - warnings/precautions
+  - consultation-required notice if needed
+  - pickup/delivery availability
+- [x] Add product search on `/shop`
+- [x] Add category filter on `/shop`
+- [x] Add stock/availability filter where practical
+- [x] Add featured products support
+- [x] Homepage “Order Medicine Online” section should show real featured products if practical
+- [x] If homepage products are not wired in this phase, keep existing placeholder safely and note it as follow-up
+- [x] Add medicine safety disclaimer on shop/product pages
+- [x] Avoid strong medical claims such as “cures” or “guaranteed result”
+- [x] Do not build cart in Phase 12A
+- [x] Do not build order submission in Phase 12A
+- [x] Do not build payment in Phase 12A
+- [x] Do not build analytics in Phase 12A
+- [x] Show clear success and error messages
+- [x] Run npm run build successfully
+- [x] Commit Phase 12A to Git
+
+### Phase 12B: Cart, Order Request, and Admin Order History
+
+- [ ] Create `orders` table
+- [ ] Create `order_items` table
+- [ ] Add safe Supabase migration for orders and order items
+- [ ] Include explicit Supabase GRANT statements for the new `orders` and `order_items` tables
+- [ ] Enable RLS on `orders` and `order_items`
+- [ ] Add RLS policies for `orders` and `order_items`:
+  - service_role can manage all orders and order items
+  - public users should not directly read private order/customer data
+  - public order creation should happen through secure server-side API routes
+- [ ] Do not expose customer names, phone numbers, addresses, order contents, or payment details to anonymous users
+- [ ] Add `orders` fields:
+  - id
+  - order_number
+  - customer_name
+  - customer_phone
+  - customer_email
+  - fulfillment_method
+  - delivery_address
+  - delivery_notes
+  - order_status
+  - payment_preference
+  - payment_status
+  - subtotal
+  - delivery_fee
+  - total
+  - has_consultation_items
+  - notes
+  - created_at
+  - updated_at
+- [ ] Add `order_items` fields:
+  - id
+  - order_id
+  - product_id
+  - product_name_snapshot
+  - quantity
+  - unit_price
+  - subtotal
+  - requires_consultation_snapshot
+  - allow_delivery_snapshot
+  - allow_pickup_snapshot
+  - created_at
+- [ ] Add fulfillment method options:
+  - pickup
+  - delivery
+- [ ] Add order status options:
+  - pending
+  - needs_review
+  - confirmed
+  - ready_for_pickup
+  - out_for_delivery
+  - completed
+  - cancelled
+- [ ] Add payment preference options:
+  - pay_later
+  - pay_on_pickup
+  - pay_on_delivery
+  - pay_now_later_phase
+- [ ] Add payment status options:
+  - unpaid
+  - pending
+  - paid
+  - failed
+  - refunded
+- [ ] Update TypeScript database types
+- [ ] Add cart functionality using localStorage
+- [ ] Cart should persist if user leaves and returns in the same browser
+- [ ] Clear cart after successful order request
+- [ ] Add Add to Cart button on product cards/detail pages
+- [ ] Add quantity selector
+- [ ] Prevent adding out-of-stock products where appropriate
+- [ ] Show consultation-required warning before/after adding relevant products
+- [ ] Create cart page `/cart`
+- [ ] Cart page should show:
+  - product image
+  - product name
+  - quantity
+  - unit price
+  - subtotal
+  - remove item
+  - update quantity
+  - order total
+- [ ] Cart page should allow customer to choose:
+  - collect from shop
+  - home delivery
+- [ ] If collect from shop is selected:
+  - show pickup location
+  - show opening hours where available
+  - delivery address should not be required
+- [ ] If home delivery is selected:
+  - require delivery address
+  - allow delivery notes
+- [ ] If any cart item has `allow_delivery = false`, disable home delivery and explain why
+- [ ] If any cart item has `allow_pickup = false`, disable pickup and explain why
+- [ ] If any cart item requires consultation:
+  - show clear consultation-required warning
+  - order status should become `needs_review` or similar
+  - explain that admin/doctor will review before confirming
+- [ ] Submit order request through server-side API
+- [ ] Do not build full payment gateway in this phase
+- [ ] Save order into `orders`
+- [ ] Save line items into `order_items`
+- [ ] Save product name/price/flags snapshots into `order_items`
+- [ ] Create admin orders page `/admin/orders` or `/admin/shop/orders`
+- [ ] Admin can view order history
+- [ ] Admin can view order details
+- [ ] Admin can filter orders by:
+  - status
+  - fulfillment method
+  - payment status
+  - date
+  - customer name/phone
+- [ ] Admin can update order status
+- [ ] Admin can confirm order
+- [ ] Admin can cancel order with reason if practical
+- [ ] Admin can mark order ready for pickup
+- [ ] Admin can mark order out for delivery
+- [ ] Admin can mark order completed
+- [ ] Stock should reduce automatically when admin confirms an order
+- [ ] Stock should not reduce when order is only pending
+- [ ] Stock should restore if a confirmed order is cancelled
+- [ ] Admin can still manually update stock quantity from product management
+- [ ] Keep customer details visible in order history
+- [ ] Do not build separate customer CRM page in this phase
+- [ ] Use order history as first version of customer record
+- [ ] Show returning customer count by phone if practical
+- [ ] Homepage “Order Medicine Online” Add to Cart buttons should work if homepage products are wired
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 12 to Git
+- [ ] Commit Phase 12B to Git
+
+### Phase 12C: Shop Analytics and Stock Insights
+
+- [ ] Create admin shop analytics page `/admin/shop/analytics` or section inside admin shop
+- [ ] Use completed/confirmed order data for analytics
+- [ ] Show key summary cards:
+  - total orders
+  - pending orders
+  - completed orders
+  - total sales value
+  - low stock products
+  - out of stock products
+  - consultation-required order requests
+- [ ] Show best-selling products
+- [ ] Show slow-moving products
+- [ ] Show low-stock alerts
+- [ ] Show out-of-stock products
+- [ ] Show sales trend by:
+  - day
+  - week
+  - month
+  - year where practical
+- [ ] Show product/category performance
+- [ ] Show pickup vs delivery breakdown
+- [ ] Show consultation-required product request count
+- [ ] Show top customers by phone/order count if practical
+- [ ] Add basic date range filter:
+  - today
+  - this week
+  - this month
+  - this year
+  - custom range if practical
+- [ ] Add charts where practical and lightweight
+- [ ] Keep analytics server-side or API-backed so large order history does not slow the admin UI
+- [ ] Avoid loading unnecessary full order details if summary data is enough
+- [ ] Add clear empty states when there is not enough sales data
+- [ ] Do not build payment gateway in this phase
+- [ ] Do not modify core order logic unless analytics exposes a bug
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 12C to Git
 
 ## Phase 13: Checkout, Emails, Deployment
 
@@ -1023,6 +1295,42 @@
 - Allow specialist users to start or continue checkup only for their own specialist patients
 - Prevent specialist users from accessing unrelated admin sections
 - Add final permission testing before deployment
+
+## Phase 15: Supabase Grants and RLS Audit
+
+- [ ] Review all existing tables in the `public` schema
+- [ ] List every table and decide access category:
+  - public readable
+  - admin-only/private
+  - mixed public/private
+- [ ] Add explicit Supabase grants for every existing table
+- [ ] Add `service_role` grants for server-side admin/API access where needed
+- [ ] Add `anon` SELECT grants only for safe public data
+- [ ] Add `authenticated` grants only where needed
+- [ ] Enable or verify RLS on sensitive tables
+- [ ] Verify RLS policies protect private data
+- [ ] Do not expose patient, booking, staff, order, or clinical private data to anon users
+- [ ] Public-readable tables may include:
+  - published blog posts
+  - active public products
+  - active visiting specialist public profile data
+  - public availability/slots if required by booking flow
+- [ ] Private/admin tables include:
+  - patients
+  - patient_visits
+  - bookings
+  - staff_profiles
+  - orders
+  - order_items
+- [ ] Check public booking flow after grants
+- [ ] Check admin dashboard after grants
+- [ ] Check patient records after grants
+- [ ] Check specialist booking after grants
+- [ ] Check blog after grants
+- [ ] Check shop after grants
+- [ ] Run Supabase Security Advisor and review warnings
+- [ ] Run npm run build successfully
+- [ ] Commit Supabase grants and RLS audit to Git
 
 
 ### Admin Mobile Navigation Polish

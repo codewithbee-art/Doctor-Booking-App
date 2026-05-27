@@ -121,12 +121,14 @@ Phase 9D: Complete (Specialist Walk-in Queue)
 Phase 9E: Complete (Specialist Walk-in Checkup Integration)
 Phase 10A: Complete Blog Database and Admin Blog Management
 Phase 10B: Complete Public Blog Pages, SEO, and Sharing
+Phase 11: Complete Private Counselling Booking
 
 Current:
-- Phase 11: Private Counselling Booking
+- Phase 12A: Product Catalogue and Admin Product Management
 
 Upcoming:
-- Phase 12: Medicine Shop
+- Phase 12B: Cart, Order Request, and Admin Order History
+- Phase 12C: Shop Analytics and Stock Insights
 - Phase 13: Checkout, Emails, SEO, Deployment
 - Phase 14: Advanced Role Access and Specialist Permissions
 
@@ -628,16 +630,58 @@ Upcoming:
 - The counselling form should be respectful, privacy-focused, and should not force patients to describe sensitive issues in detail
 - Doctor/admin checkup workflow should continue working for counselling bookings
 
-### Phase 12: Medicine Shop
+#### Phase 12A: Product Catalogue and Admin Product Management
 
-- Shop page
-- Product detail page
-- Product cards
-- Cart functionality
-- Products API
-- Admin shop management
-- Sales/order history
-- Product CRUD
+- Build the medicine shop foundation with a product catalogue and admin product management
+- Create a `products` table with product details, pricing, stock, image, consultation requirement, delivery/pickup availability, and active/featured status
+- Include explicit Supabase GRANT statements and RLS policies for the products table because Supabase Data API access now requires explicit grants for new tables
+- Public users should see only active public products
+- Hidden or inactive products should not be exposed publicly
+- Admin should be able to create, edit, activate/deactivate, feature, and manage stock for products
+- Product images should support image URL and upload from computer using Supabase Storage if practical
+- Public shop page should be available at `/shop`
+- Public product detail pages should be available at `/shop/[slug]`
+- Product detail pages are important for user trust, SEO, usage instructions, ingredients, warnings, and consultation-required information
+- Product cards should show image, name, category, short description, price, sale price where available, stock status, consultation-required badge, and View Details button
+- Shop should support product search and category filtering
+- Medicine safety disclaimers should appear on shop/product pages
+- Avoid strong medical claims such as “cures” or “guaranteed result”
+- Cart, order submission, payment, and analytics should not be built in Phase 12A
+
+#### Phase 12B: Cart, Order Request, and Admin Order History
+
+- Add cart functionality using localStorage so cart items persist in the same browser until the customer submits or clears the cart
+- Create `orders` and `order_items` tables with explicit Supabase GRANT statements and RLS policies to protect customer/order data
+- Public users should not directly read customer names, phone numbers, addresses, order contents, or payment details
+- Order requests should be submitted through secure server-side API routes
+- Cart page should allow customers to update quantity, remove products, and choose collect from shop or home delivery
+- Delivery address should only be required for home delivery
+- Pickup should show clinic/shop location and opening hours where available
+- Products can control whether delivery or pickup is allowed
+- If any cart item cannot be delivered, home delivery should be disabled with a clear explanation
+- If any cart item requires consultation, order should be marked as needs review and admin/doctor should confirm before sale
+- Save order-level details in `orders` and product snapshots in `order_items`
+- Admin should have an order history page to view orders, customer details, order items, fulfillment method, payment status, and order status
+- Admin should be able to confirm, cancel, mark ready for pickup, mark out for delivery, and complete orders
+- Stock should reduce when admin confirms an order, not when the customer first submits it
+- Stock should restore if a confirmed order is cancelled
+- Admin should still be able to manually update stock from product management
+- Do not build a separate customer CRM page in this phase; order history acts as the first version of customer records
+- Full payment gateway should not be built in Phase 12B
+
+#### Phase 12C: Shop Analytics and Stock Insights
+
+- Add shop analytics and stock insights for admin decision-making
+- Analytics should use confirmed/completed order data where appropriate
+- Show summary cards for total orders, pending orders, completed orders, total sales value, low stock products, out-of-stock products, and consultation-required order requests
+- Show best-selling products and slow-moving products
+- Show low-stock and out-of-stock alerts
+- Show sales trends by day, week, month, and year where practical
+- Show category performance, pickup vs delivery breakdown, and consultation-required product request count
+- Add date range filters such as today, this week, this month, this year, and custom range if practical
+- Use lightweight charts where practical
+- Keep analytics efficient by avoiding loading unnecessary full order details when summary data is enough
+- Payment gateway should not be built in Phase 12C
 
 ### Phase 13: Checkout, Emails, SEO, Deployment
 
@@ -650,3 +694,15 @@ Upcoming:
 - OpenGraph metadata
 - Accessibility checks
 - Vercel deployment
+
+#### Phase 15: Supabase Grants and RLS Audit
+
+- Audit all existing Supabase public schema tables for the newer Supabase Data API grant behaviour
+- Add explicit GRANT statements to existing tables so the app remains compatible with Supabase’s upcoming grant enforcement
+- Categorize tables as public-readable, admin-only/private, or mixed public/private before applying grants
+- Public-readable tables should only expose safe public content through RLS policies
+- Patient, booking, staff, order, and clinical data must not be exposed to anonymous users
+- Service role access should remain available for trusted server-side API routes
+- Verify RLS policies protect private data
+- Test public booking, admin dashboard, patient records, specialist booking, blog, and shop after applying grants
+- Review Supabase Security Advisor before deployment
