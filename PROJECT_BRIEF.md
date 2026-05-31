@@ -124,12 +124,12 @@ Phase 10B: Complete Public Blog Pages, SEO, and Sharing
 Phase 11: Complete Private Counselling Booking
 Phase 12A: Complete Product Catalogue and Admin Product Management
 Phase 12B-1: Complete Cart and Order Request Foundation
+Phase 12B-2: Complete Admin Order Management and Stock Workflow
 
 Current:
-- Phase 12B-2: Admin Order Management and Stock Workflow
+- Phase 12C: Shop Analytics and Stock Insights
 
 Upcoming:
-- Phase 12C: Shop Analytics and Stock Insights
 - Phase 13: Payment Integration
 - Phase 14: Advanced Role Access and Specialist Permissions
 

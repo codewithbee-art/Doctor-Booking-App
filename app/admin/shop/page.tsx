@@ -391,12 +391,6 @@ export default function AdminShopPage() {
               <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
               Dashboard
             </a>
-            <a
-              href="/admin/orders"
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors"
-            >
-              Orders
-            </a>
             <button
               onClick={openCreate}
               className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors"
@@ -405,6 +399,13 @@ export default function AdminShopPage() {
               New Product
             </button>
           </div>
+        </div>
+
+        {/* Shop admin tabs */}
+        <div className="flex gap-1 mb-6 border-b border-border">
+          <span className="px-4 py-2.5 font-body text-sm font-semibold text-primary border-b-2 border-primary">Products</span>
+          <a href="/admin/orders" className="px-4 py-2.5 font-body text-sm font-semibold text-text-secondary hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary/30">Orders</a>
+          <a href="/admin/shop/analytics" className="px-4 py-2.5 font-body text-sm font-semibold text-text-secondary hover:text-primary transition-colors border-b-2 border-transparent hover:border-primary/30">Analytics</a>
         </div>
 
         {/* Action message */}

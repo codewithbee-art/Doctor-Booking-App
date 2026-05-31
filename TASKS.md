@@ -1241,9 +1241,9 @@
 
 ### Phase 12C: Shop Analytics and Stock Insights
 
-- [ ] Create admin shop analytics page `/admin/shop/analytics` or section inside admin shop
-- [ ] Use completed/confirmed order data for analytics
-- [ ] Show key summary cards:
+- [x] Create admin shop analytics page `/admin/shop/analytics` or section inside admin shop
+- [x] Use completed/confirmed order data for analytics
+- [x] Show key summary cards:
   - total orders
   - pending orders
   - completed orders
@@ -1251,33 +1251,33 @@
   - low stock products
   - out of stock products
   - consultation-required order requests
-- [ ] Show best-selling products
-- [ ] Show slow-moving products
-- [ ] Show low-stock alerts
-- [ ] Show out-of-stock products
-- [ ] Show sales trend by:
+- [x] Show best-selling products
+- [x] Show slow-moving products
+- [x] Show low-stock alerts
+- [x] Show out-of-stock products
+- [x] Show sales trend by:
   - day
   - week
   - month
   - year where practical
-- [ ] Show product/category performance
-- [ ] Show pickup vs delivery breakdown
-- [ ] Show consultation-required product request count
-- [ ] Show top customers by phone/order count if practical
-- [ ] Add basic date range filter:
+- [x] Show product/category performance
+- [x] Show pickup vs delivery breakdown
+- [x] Show consultation-required product request count
+- [x] Show top customers by phone/order count if practical
+- [x] Add basic date range filter:
   - today
   - this week
   - this month
   - this year
   - custom range if practical
-- [ ] Add charts where practical and lightweight
-- [ ] Keep analytics server-side or API-backed so large order history does not slow the admin UI
-- [ ] Avoid loading unnecessary full order details if summary data is enough
-- [ ] Add clear empty states when there is not enough sales data
-- [ ] Do not build payment gateway in this phase
-- [ ] Do not modify core order logic unless analytics exposes a bug
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 12C to Git
+- [x] Add charts where practical and lightweight
+- [x] Keep analytics server-side or API-backed so large order history does not slow the admin UI
+- [x] Avoid loading unnecessary full order details if summary data is enough
+- [x] Add clear empty states when there is not enough sales data
+- [x] Do not build payment gateway in this phase
+- [x] Do not modify core order logic unless analytics exposes a bug
+- [x] Run npm run build successfully
+- [x] Commit Phase 12C to Git
 
 ## Phase 13: Checkout, Emails, Deployment
 
