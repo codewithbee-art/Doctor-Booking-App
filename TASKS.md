@@ -1211,33 +1211,33 @@
 
 ### Phase 12B-2: Admin Order Management and Stock Workflow
 
-- [ ] Create admin orders page `/admin/orders` or `/admin/shop/orders`
-- [ ] Admin can view order history
-- [ ] Admin can view order details
-- [ ] Admin can filter orders by:
+- [x] Create admin orders page `/admin/orders` or `/admin/shop/orders`
+- [x] Admin can view order history
+- [x] Admin can view order details
+- [x] Admin can filter orders by:
   - status
   - fulfillment method
   - payment status
   - date
   - customer name/phone
-- [ ] Admin can update order status
-- [ ] Admin can confirm order
-- [ ] Admin can cancel order with reason if practical
-- [ ] Admin can mark order ready for pickup
-- [ ] Admin can mark order out for delivery
-- [ ] Admin can mark order completed
-- [ ] Stock should reduce automatically when admin confirms an order
-- [ ] Stock should not reduce when order is only pending
-- [ ] Stock should restore if a confirmed order is cancelled
-- [ ] Admin can still manually update stock quantity from product management
-- [ ] Keep customer details visible in order history
-- [ ] Do not build separate customer CRM page in this phase
-- [ ] Use order history as first version of customer record
-- [ ] Show returning customer count by phone if practical
-- [ ] Homepage “Order Medicine Online” Add to Cart buttons should work if homepage products are wired
-- [ ] Do not build full payment gateway in this phase
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 12B-2 to Git
+- [x] Admin can update order status
+- [x] Admin can confirm order
+- [x] Admin can cancel order with reason if practical
+- [x] Admin can mark order ready for pickup
+- [x] Admin can mark order out for delivery
+- [x] Admin can mark order completed
+- [x] Stock should reduce automatically when admin confirms an order
+- [x] Stock should not reduce when order is only pending
+- [x] Stock should restore if a confirmed order is cancelled
+- [x] Admin can still manually update stock quantity from product management
+- [x] Keep customer details visible in order history
+- [x] Do not build separate customer CRM page in this phase
+- [x] Use order history as first version of customer record
+- [x] Show returning customer count by phone if practical
+- [x] Homepage “Order Medicine Online” Add to Cart buttons should work if homepage products are wired
+- [x] Do not build full payment gateway in this phase
+- [x] Run npm run build successfully
+- [x] Commit Phase 12B-2 to Git
 
 ### Phase 12C: Shop Analytics and Stock Insights
 

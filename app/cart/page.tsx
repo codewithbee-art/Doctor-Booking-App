@@ -71,12 +71,11 @@ export default function CartPage() {
   const paymentLabels: Record<string, string> = {
     pay_later: "Pay Later (after confirmation)",
     pay_on_pickup: "Pay on Pickup",
-    pay_on_delivery: "Pay on Delivery",
   };
 
   const availablePaymentOptions = useMemo(() => {
     if (effectiveFulfillment === "pickup") return ["pay_later", "pay_on_pickup"] as const;
-    return ["pay_later", "pay_on_delivery"] as const;
+    return ["pay_later"] as const;
   }, [effectiveFulfillment]);
 
   // Auto-reset payment preference when fulfillment changes and current choice becomes invalid
