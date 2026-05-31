@@ -158,6 +158,61 @@ export interface Product {
   updated_at: string;
 }
 
+// ----- orders ------------------------------------------------------
+export type FulfillmentMethod = "pickup" | "delivery";
+
+export type OrderStatus =
+  | "pending"
+  | "needs_review"
+  | "confirmed"
+  | "ready_for_pickup"
+  | "out_for_delivery"
+  | "completed"
+  | "cancelled";
+
+export type PaymentPreference =
+  | "pay_later"
+  | "pay_on_pickup"
+  | "pay_on_delivery"
+  | "pay_now_later_phase";
+
+export type PaymentStatus = "unpaid" | "pending" | "paid" | "failed" | "refunded";
+
+export interface Order {
+  id: string;
+  order_number: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+  fulfillment_method: FulfillmentMethod;
+  delivery_address: string | null;
+  delivery_notes: string | null;
+  order_status: OrderStatus;
+  payment_preference: PaymentPreference;
+  payment_status: PaymentStatus;
+  subtotal: number;
+  delivery_fee: number;
+  total: number;
+  has_consultation_items: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: string | null;
+  product_name_snapshot: string;
+  quantity: number;
+  unit_price: number;
+  subtotal: number;
+  requires_consultation_snapshot: boolean;
+  allow_delivery_snapshot: boolean;
+  allow_pickup_snapshot: boolean;
+  created_at: string;
+}
+
 // ----- blog_posts --------------------------------------------------
 export type BlogStatus = "draft" | "published" | "archived";
 
@@ -256,6 +311,23 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Omit<BlogPost, "id" | "created_at" | "updated_at">>;
+      };
+      orders: {
+        Row: Order;
+        Insert: Omit<Order, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<Order, "id" | "created_at" | "updated_at">>;
+      };
+      order_items: {
+        Row: OrderItem;
+        Insert: Omit<OrderItem, "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Omit<OrderItem, "id" | "created_at">>;
       };
     };
   };

@@ -1099,19 +1099,19 @@
 - [x] Run npm run build successfully
 - [x] Commit Phase 12A to Git
 
-### Phase 12B: Cart, Order Request, and Admin Order History
+### Phase 12B-1: Cart and Order Request Foundation
 
-- [ ] Create `orders` table
-- [ ] Create `order_items` table
-- [ ] Add safe Supabase migration for orders and order items
-- [ ] Include explicit Supabase GRANT statements for the new `orders` and `order_items` tables
-- [ ] Enable RLS on `orders` and `order_items`
-- [ ] Add RLS policies for `orders` and `order_items`:
+- [x] Create `orders` table
+- [x] Create `order_items` table
+- [x] Add safe Supabase migration for orders and order items
+- [x] Include explicit Supabase GRANT statements for the new `orders` and `order_items` tables
+- [x] Enable RLS on `orders` and `order_items`
+- [x] Add RLS policies for `orders` and `order_items`:
   - service_role can manage all orders and order items
   - public users should not directly read private order/customer data
   - public order creation should happen through secure server-side API routes
-- [ ] Do not expose customer names, phone numbers, addresses, order contents, or payment details to anonymous users
-- [ ] Add `orders` fields:
+- [x] Do not expose customer names, phone numbers, addresses, order contents, or payment details to anonymous users
+- [x] Add `orders` fields:
   - id
   - order_number
   - customer_name
@@ -1130,7 +1130,7 @@
   - notes
   - created_at
   - updated_at
-- [ ] Add `order_items` fields:
+- [x] Add `order_items` fields:
   - id
   - order_id
   - product_id
@@ -1142,10 +1142,10 @@
   - allow_delivery_snapshot
   - allow_pickup_snapshot
   - created_at
-- [ ] Add fulfillment method options:
+- [x] Add fulfillment method options:
   - pickup
   - delivery
-- [ ] Add order status options:
+- [x] Add order status options:
   - pending
   - needs_review
   - confirmed
@@ -1153,27 +1153,27 @@
   - out_for_delivery
   - completed
   - cancelled
-- [ ] Add payment preference options:
+- [x] Add payment preference options:
   - pay_later
   - pay_on_pickup
   - pay_on_delivery
   - pay_now_later_phase
-- [ ] Add payment status options:
+- [x] Add payment status options:
   - unpaid
   - pending
   - paid
   - failed
   - refunded
-- [ ] Update TypeScript database types
-- [ ] Add cart functionality using localStorage
-- [ ] Cart should persist if user leaves and returns in the same browser
-- [ ] Clear cart after successful order request
-- [ ] Add Add to Cart button on product cards/detail pages
-- [ ] Add quantity selector
-- [ ] Prevent adding out-of-stock products where appropriate
-- [ ] Show consultation-required warning before/after adding relevant products
-- [ ] Create cart page `/cart`
-- [ ] Cart page should show:
+- [x] Update TypeScript database types
+- [x] Add cart functionality using localStorage
+- [x] Cart should persist if user leaves and returns in the same browser
+- [x] Clear cart after successful order request
+- [x] Add Add to Cart button on product cards/detail pages
+- [x] Add quantity selector
+- [x] Prevent adding out-of-stock products where appropriate
+- [x] Show consultation-required warning before/after adding relevant products
+- [x] Create cart page `/cart`
+- [x] Cart page should show:
   - product image
   - product name
   - quantity
@@ -1182,27 +1182,35 @@
   - remove item
   - update quantity
   - order total
-- [ ] Cart page should allow customer to choose:
+- [x] Cart page should allow customer to choose:
   - collect from shop
   - home delivery
-- [ ] If collect from shop is selected:
+- [x] If collect from shop is selected:
   - show pickup location
   - show opening hours where available
   - delivery address should not be required
-- [ ] If home delivery is selected:
+- [x] If home delivery is selected:
   - require delivery address
   - allow delivery notes
-- [ ] If any cart item has `allow_delivery = false`, disable home delivery and explain why
-- [ ] If any cart item has `allow_pickup = false`, disable pickup and explain why
-- [ ] If any cart item requires consultation:
+- [x] If any cart item has `allow_delivery = false`, disable home delivery and explain why
+- [x] If any cart item has `allow_pickup = false`, disable pickup and explain why
+- [x] If any cart item requires consultation:
   - show clear consultation-required warning
   - order status should become `needs_review` or similar
   - explain that admin/doctor will review before confirming
-- [ ] Submit order request through server-side API
-- [ ] Do not build full payment gateway in this phase
-- [ ] Save order into `orders`
-- [ ] Save line items into `order_items`
-- [ ] Save product name/price/flags snapshots into `order_items`
+- [x] Submit order request through server-side API
+- [x] Do not build full payment gateway in this phase
+- [x] Save order into `orders`
+- [x] Save line items into `order_items`
+- [x] Save product name/price/flags snapshots into `order_items`
+- [x] Do not reduce stock in Phase 12B-1
+- [x] Stock reduction should happen later in Phase 12B-2 when admin confirms an order
+- [x] Show clear order request success message
+- [x] Run npm run build successfully
+- [x] Commit Phase 12B-1 to Git
+
+### Phase 12B-2: Admin Order Management and Stock Workflow
+
 - [ ] Create admin orders page `/admin/orders` or `/admin/shop/orders`
 - [ ] Admin can view order history
 - [ ] Admin can view order details
@@ -1227,8 +1235,9 @@
 - [ ] Use order history as first version of customer record
 - [ ] Show returning customer count by phone if practical
 - [ ] Homepage “Order Medicine Online” Add to Cart buttons should work if homepage products are wired
+- [ ] Do not build full payment gateway in this phase
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 12B to Git
+- [ ] Commit Phase 12B-2 to Git
 
 ### Phase 12C: Shop Analytics and Stock Insights
 

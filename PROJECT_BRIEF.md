@@ -122,14 +122,15 @@ Phase 9E: Complete (Specialist Walk-in Checkup Integration)
 Phase 10A: Complete Blog Database and Admin Blog Management
 Phase 10B: Complete Public Blog Pages, SEO, and Sharing
 Phase 11: Complete Private Counselling Booking
+Phase 12A: Complete Product Catalogue and Admin Product Management
 
 Current:
-- Phase 12A: Product Catalogue and Admin Product Management
+- Phase 12B-1: Cart and Order Request Foundation
 
 Upcoming:
-- Phase 12B: Cart, Order Request, and Admin Order History
+- Phase 12B-2: Admin Order Management and Stock Workflow
 - Phase 12C: Shop Analytics and Stock Insights
-- Phase 13: Checkout, Emails, SEO, Deployment
+- Phase 13: Payment Integration
 - Phase 14: Advanced Role Access and Specialist Permissions
 
 ## Phase Plan
@@ -648,7 +649,7 @@ Upcoming:
 - Avoid strong medical claims such as “cures” or “guaranteed result”
 - Cart, order submission, payment, and analytics should not be built in Phase 12A
 
-#### Phase 12B: Cart, Order Request, and Admin Order History
+#### Phase 12B-1: Cart and Order Request Foundation
 
 - Add cart functionality using localStorage so cart items persist in the same browser until the customer submits or clears the cart
 - Create `orders` and `order_items` tables with explicit Supabase GRANT statements and RLS policies to protect customer/order data
@@ -661,13 +662,18 @@ Upcoming:
 - If any cart item cannot be delivered, home delivery should be disabled with a clear explanation
 - If any cart item requires consultation, order should be marked as needs review and admin/doctor should confirm before sale
 - Save order-level details in `orders` and product snapshots in `order_items`
+- Stock should not reduce in this phase; stock reduction will happen when admin confirms orders in Phase 12B-2
+- Full payment gateway should not be built in Phase 12B-1
+
+#### Phase 12B-2: Admin Order Management and Stock Workflow
+
 - Admin should have an order history page to view orders, customer details, order items, fulfillment method, payment status, and order status
 - Admin should be able to confirm, cancel, mark ready for pickup, mark out for delivery, and complete orders
 - Stock should reduce when admin confirms an order, not when the customer first submits it
 - Stock should restore if a confirmed order is cancelled
 - Admin should still be able to manually update stock from product management
 - Do not build a separate customer CRM page in this phase; order history acts as the first version of customer records
-- Full payment gateway should not be built in Phase 12B
+- Full payment gateway should not be built in Phase 12B-2
 
 #### Phase 12C: Shop Analytics and Stock Insights
 

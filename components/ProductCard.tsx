@@ -1,7 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import ProductImage from "@/components/ProductImage";
+import { useCart } from "@/contexts/CartContext";
 
 interface ProductCardProps {
+  id: string;
   slug: string;
   name: string;
   short_description: string | null;
@@ -43,10 +48,34 @@ const STOCK_STATUS_STYLES: Record<string, string> = {
 };
 
 export default function ProductCard({
-  slug, name, short_description, category, price, sale_price,
+  id, slug, name, short_description, category, price, sale_price,
   image_url, image_alt, stock_status, is_featured,
   requires_consultation, allow_delivery, allow_pickup,
 }: ProductCardProps) {
+  const { addItem, getItemQuantity } = useCart();
+  const [added, setAdded] = useState(false);
+  const inCart = getItemQuantity(id);
+  const canAdd = stock_status !== "out_of_stock" && stock_status !== "hidden";
+
+  function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    if (!canAdd) return;
+    addItem({
+      product_id: id,
+      name,
+      slug,
+      price,
+      sale_price,
+      image_url,
+      stock_status,
+      requires_consultation,
+      allow_delivery,
+      allow_pickup,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  }
+
   return (
     <div className="group rounded-xl border border-slate-200 bg-white shadow-sm transition-all hover:border-secondary/30 hover:shadow-md flex flex-col">
       {/* Image */}
@@ -114,12 +143,31 @@ export default function ProductCard({
               <span className="font-body text-lg font-bold text-primary">NPR {price}</span>
             )}
           </div>
-          <Link
-            href={`/shop/${slug}`}
-            className="block w-full rounded-lg bg-accent px-4 py-2.5 text-center font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors"
-          >
-            View Details
-          </Link>
+          <div className="flex gap-2">
+            <button
+              onClick={handleAddToCart}
+              disabled={!canAdd}
+              className={`flex-1 rounded-lg px-3 py-2.5 text-center font-body text-sm font-semibold transition-colors ${
+                !canAdd
+                  ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                  : added
+                  ? "bg-green-600 text-white"
+                  : "bg-accent text-white hover:bg-accent-hover"
+              }`}
+              aria-label={`Add ${name} to cart`}
+            >
+              {!canAdd ? "Out of Stock" : added ? "Added!" : inCart > 0 ? `In Cart (${inCart})` : "Add to Cart"}
+            </button>
+            <Link
+              href={`/shop/${slug}`}
+              className="rounded-lg border border-border px-3 py-2.5 text-center font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors"
+            >
+              Details
+            </Link>
+          </div>
+          {requires_consultation && inCart > 0 && (
+            <p className="mt-1.5 font-body text-[10px] text-purple-700">Consultation required — admin will review your order.</p>
+          )}
         </div>
       </div>
     </div>
