@@ -29,6 +29,38 @@ const config: Config = {
         heading: ["var(--font-playfair)", "serif"],
         body: ["var(--font-source-sans)", "sans-serif"],
       },
+      keyframes: {
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        slideDown: {
+          "0%": { opacity: "0", transform: "translateY(-8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
+        drift: {
+          "0%, 100%": { transform: "translate(0, 0)" },
+          "25%": { transform: "translate(8px, -8px)" },
+          "50%": { transform: "translate(0, -14px)" },
+          "75%": { transform: "translate(-8px, -6px)" },
+        },
+        floatSpin: {
+          "0%": { transform: "translateY(0) rotate(0deg)" },
+          "50%": { transform: "translateY(-10px) rotate(8deg)" },
+          "100%": { transform: "translateY(0) rotate(0deg)" },
+        },
+      },
+      animation: {
+        fadeIn: "fadeIn 0.2s ease-out",
+        slideDown: "slideDown 0.25s ease-out",
+        float: "float 6s ease-in-out infinite",
+        drift: "drift 8s ease-in-out infinite",
+        floatSpin: "floatSpin 9s ease-in-out infinite",
+      },
     },
   },
   plugins: [require("@tailwindcss/typography")],

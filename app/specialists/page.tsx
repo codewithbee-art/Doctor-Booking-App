@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { formatBS } from "@/lib/dateConvert";
+import PageHero from "@/components/PageHero";
+
+// Change this path to use a page-specific hero image when available
+const SPECIALISTS_HERO_IMAGE = "/Images/PageHero/Specialist4.webp";
 
 interface Specialist {
   id: string;
@@ -74,29 +78,14 @@ export default function SpecialistsPage() {
 
   return (
     <main className="min-h-screen bg-bg-light">
-      {/* Header */}
-      <div className="bg-primary px-4 py-12 md:py-16 text-center">
-        <h1 className="font-heading text-3xl font-bold text-white md:text-4xl">
-          Visiting Specialists
-        </h1>
-        <p className="mt-3 font-body text-lg text-light-blue/90 max-w-xl mx-auto">
-          Expert doctors visit our clinic regularly. Check upcoming specialist availability below.
-        </p>
-      </div>
+      <PageHero
+        title="Visiting Specialists"
+        subtitle="Expert doctors visit our clinic regularly. Check upcoming specialist availability below."
+        breadcrumb={{ label: "Back to Home", href: "/" }}
+        backgroundImage={SPECIALISTS_HERO_IMAGE}
+      />
 
       <div className="mx-auto max-w-5xl px-4 py-10 md:py-14">
-        {/* Back link */}
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 font-body text-sm font-semibold text-primary hover:text-secondary transition-colors"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            Back to Home
-          </Link>
-        </div>
 
         {loading && (
           <div className="text-center py-16">

@@ -3,6 +3,10 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import BlogCard, { BlogCardPost } from "@/components/BlogCard";
+import PageHero from "@/components/PageHero";
+
+// Change this path to use a page-specific hero image when available
+const BLOG_HERO_IMAGE = "/Images/PageHero/blog1.jpeg";
 
 const CATEGORIES = [
   { value: "", label: "All Categories" },
@@ -52,27 +56,12 @@ export default function BlogListingPage() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary/5 via-white to-light-blue px-4 py-12 md:py-16">
-        <div className="mx-auto max-w-7xl">
-          <Link
-            href="/"
-            className="mb-6 inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-body text-sm font-medium text-text-secondary hover:text-primary hover:bg-primary/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-            Back to Home
-          </Link>
-          <div className="text-center">
-            <h1 className="font-heading text-3xl font-bold text-text-primary md:text-4xl lg:text-5xl">
-              Health Tips &amp; Insights
-            </h1>
-            <p className="mx-auto mt-4 max-w-2xl font-body text-base text-text-secondary md:text-lg">
-              Expert health advice, medical tips, and wellness articles from our experienced medical team.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        title="Health Tips & Insights"
+        subtitle="Expert health advice, medical tips, and wellness articles from our experienced medical team."
+        breadcrumb={{ label: "Back to Home", href: "/" }}
+        backgroundImage={BLOG_HERO_IMAGE}
+      />
 
       {/* Filters */}
       <section className="border-b border-border bg-white px-4 py-5 sticky top-0 z-10">

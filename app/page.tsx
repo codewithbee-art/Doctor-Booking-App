@@ -3,6 +3,8 @@ import Image from "next/image";
 import SpecialistsPreview from "@/components/SpecialistsPreview";
 import BlogPreview from "@/components/BlogPreview";
 import ShopPreview from "@/components/ShopPreview";
+import HeroParticles from "@/components/HeroParticles";
+import DoctorNameAnimation from "@/components/DoctorNameAnimation";
 
 export const dynamic = "force-dynamic";
 
@@ -54,28 +56,46 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-white px-4 py-16 md:py-24">
-        <div className="absolute -right-40 -top-40 h-96 w-96 rounded-full bg-light-blue/30 blur-3xl" aria-hidden="true" />
-        <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-light-blue/20 blur-3xl" aria-hidden="true" />
-        <div className="relative mx-auto max-w-7xl">
+      <section className="relative overflow-hidden bg-gradient-to-br from-white via-sky-50/60 to-teal-50/40 px-4 py-16 md:py-24">
+        {/* Ambient background glows */}
+        <div className="absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-sky-100/50 blur-3xl" aria-hidden="true" />
+        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-teal-100/40 blur-3xl" aria-hidden="true" />
+        <div className="absolute top-1/2 left-1/4 h-64 w-64 -translate-y-1/2 rounded-full bg-blue-50/30 blur-2xl" aria-hidden="true" />
+        <HeroParticles />
+        <div className="relative z-10 mx-auto max-w-7xl">
           <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
-            <div className="space-y-6 text-center md:text-left">
-              <h1 className="text-4xl font-bold md:text-5xl lg:text-6xl">
-                Dr. Bishnu Acharya
-              </h1>
-              <p className="font-body text-lg text-text-secondary md:text-2xl">
+            {/* Left: Text Content */}
+            <div className="max-w-[40rem] space-y-5 text-center md:text-left">
+              {/* Pill tag */}
+              <span className="inline-block rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 font-body text-xs font-semibold uppercase tracking-wider text-primary">
                 Ayurvedic General Physician &amp; Family Care
+              </span>
+
+              {/* Animated doctor name */}
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl lg:text-6xl">
+                <DoctorNameAnimation />
+              </h1>
+
+              {/* Value statement */}
+              <p className="font-body text-base leading-relaxed text-text-secondary md:text-lg">
+                Personalized Ayurvedic care for everyday health, family wellness, and long-term balance.
               </p>
-              <p className="font-body text-2xl font-bold text-secondary md:text-4xl">
-                &#x0924;&#x092A;&#x093E;&#x0908;&#x0902;&#x0915;&#x094B; &#x0938;&#x094D;&#x0935;&#x093E;&#x0938;&#x094D;&#x0925;&#x094D;&#x092F;, &#x0939;&#x093E;&#x092E;&#x094D;&#x0930;&#x094B; &#x092A;&#x094D;&#x0930;&#x093E;&#x0925;&#x092E;&#x093F;&#x0915;&#x0924;&#x093E;
+
+              {/* Nepali line */}
+              <p className="font-body text-xl font-semibold text-secondary md:text-2xl">
+                तपाईंको स्वास्थ्य, हाम्रो प्राथमिकता
               </p>
-              <p className="font-body text-lg text-text-secondary md:text-3xl">
-                (Your Health, Our Priority)
+
+              {/* English translation */}
+              <p className="font-body text-sm text-text-secondary/70 md:text-base">
+                Your Health, Our Priority
               </p>
-              <div className="flex flex-col gap-4 sm:flex-row">
+
+              {/* Buttons */}
+              <div className="flex flex-col gap-4 pt-2 sm:flex-row">
                 <Link
                   href="/booking"
-                  className="rounded-lg bg-accent px-8 py-3 text-center font-body text-base font-semibold text-white hover:bg-accent-hover transition-colors"
+                  className="rounded-lg bg-accent px-8 py-3 text-center font-body text-base font-semibold text-white shadow-sm hover:bg-accent-hover transition-colors"
                 >
                   Book Appointment
                 </Link>
@@ -88,14 +108,17 @@ export default function HomePage() {
               </div>
             </div>
 
+            {/* Right: Doctor Image */}
             <div className="flex items-center justify-center">
               <div className="relative">
+                {/* Subtle glow behind card */}
+                <div className="absolute -inset-4 rounded-3xl bg-sky-100/40 blur-xl" aria-hidden="true" />
                 <Image
                   src="/images/HeroImage.jpeg"
                   alt="Dr. Bishnu Acharya"
                   width={380}
                   height={475}
-                  className="rounded-2xl object-cover shadow-lg"
+                  className="relative rounded-2xl object-cover shadow-lg"
                   priority
                 />
                 <div className="absolute -right-2 top-4 rounded-full bg-accent px-4 py-2 font-body text-sm font-semibold text-white shadow-md">

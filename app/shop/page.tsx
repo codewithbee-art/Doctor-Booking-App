@@ -3,6 +3,10 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
+import PageHero from "@/components/PageHero";
+
+// Change this path to use a page-specific hero image when available
+const SHOP_HERO_IMAGE = "/Images/PageHero/shop7.jpg";
 
 interface ShopProduct {
   id: string;
@@ -76,12 +80,12 @@ export default function ShopPage() {
   return (
     <main className="min-h-screen bg-bg-light">
       {/* Hero */}
-      <div className="bg-primary px-4 py-12 md:py-16 text-center">
-        <h1 className="font-heading text-3xl font-bold text-white md:text-4xl">Medicine Shop</h1>
-        <p className="mt-3 font-body text-lg text-light-blue/90">
-          Browse our range of quality medicines and health products
-        </p>
-      </div>
+      <PageHero
+        title="Medicine Shop"
+        subtitle="Browse our range of quality medicines and health products"
+        breadcrumb={{ label: "Back to Home", href: "/" }}
+        backgroundImage={SHOP_HERO_IMAGE}
+      />
 
       <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
         {/* Search + Filters */}
