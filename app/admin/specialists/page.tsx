@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
-import LogoutButton from "../dashboard/LogoutButton";
+import AdminPageHeader from "@/components/AdminPageHeader";
 import { formatBS } from "@/lib/dateConvert";
 
 /* ------------------------------------------------------------------ */
@@ -311,29 +311,10 @@ export default function AdminSpecialistsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-light">
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border bg-white/95 backdrop-blur-sm shadow-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-              </svg>
-            </div>
-            <h1 className="font-heading text-xl font-bold text-text-primary">Visiting Specialists</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <a href="/admin/dashboard" className="inline-flex items-center gap-1 sm:gap-2 rounded-lg border border-border bg-white px-2.5 sm:px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" /></svg>
-              <span className="hidden sm:inline">Dashboard</span>
-            </a>
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
+    <>
+      <AdminPageHeader title="Visiting Specialists" description="Manage specialist visits and schedules." />
 
-      <div className="mx-auto max-w-6xl px-4 py-6">
+      <div className="mx-auto max-w-6xl">
         {canManage && (
           <div className="mb-6 flex items-center justify-between">
             <p className="font-body text-sm text-text-secondary">{specialists.length} specialist visit{specialists.length !== 1 ? "s" : ""}</p>
@@ -584,6 +565,6 @@ export default function AdminSpecialistsPage() {
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }

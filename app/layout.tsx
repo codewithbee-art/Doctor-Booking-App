@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FloatingButtons from "@/components/FloatingButtons";
 import { CartProvider } from "@/contexts/CartContext";
+import PublicShell from "@/components/PublicShell";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -48,10 +46,7 @@ export default function RootLayout({
     <html lang="en" className={`${playfair.variable} ${sourceSans.variable}`}>
       <body className="flex min-h-screen flex-col">
         <CartProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <FloatingButtons />
+          <PublicShell>{children}</PublicShell>
         </CartProvider>
       </body>
     </html>

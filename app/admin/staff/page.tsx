@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
-import LogoutButton from "../dashboard/LogoutButton";
+import AdminPageHeader from "@/components/AdminPageHeader";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -55,7 +55,7 @@ function formatDate(dateStr: string) {
 
 export default function AdminStaffPage() {
   const router = useRouter();
-  const { loading: staffLoading, userEmail, profile: myProfile, noSession, inactive, hasRole } = useStaffProfile();
+  const { loading: staffLoading, profile: myProfile, noSession, inactive, hasRole } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   // Staff list
@@ -226,51 +226,20 @@ export default function AdminStaffPage() {
   }
 
   return (
-    <main className="min-h-screen bg-bg-light">
-      {/* ===== Header ===== */}
-      <header className="bg-white border-b border-border px-4 py-4">
-        <div className="mx-auto max-w-4xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
-              </svg>
-            </div>
-            <h1 className="font-heading text-xl font-bold text-text-primary">Staff Management</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="/admin/dashboard"
-              className="inline-flex items-center gap-1 sm:gap-2 rounded-lg border border-border bg-white px-2.5 sm:px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-              <span className="hidden sm:inline">Dashboard</span>
-            </a>
-            {userEmail && (
-              <span className="font-body text-sm text-text-secondary hidden md:inline">{userEmail}</span>
-            )}
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
+    <>
+      <AdminPageHeader title="Staff Management" description="Manage staff accounts and roles.">
+        <button
+          onClick={() => { setShowCreate(true); setCreateError(null); setCreateSuccess(null); }}
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Add Staff
+        </button>
+      </AdminPageHeader>
 
-      <div className="mx-auto max-w-4xl px-4 py-6">
-        {/* ===== Create Staff Button ===== */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="font-heading text-lg font-bold text-text-primary">Staff Members</h2>
-          <button
-            onClick={() => { setShowCreate(true); setCreateError(null); setCreateSuccess(null); }}
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Add Staff
-          </button>
-        </div>
-
+      <div className="mx-auto max-w-4xl">
         {/* ===== Error/Loading ===== */}
         {fetchError && (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 font-body text-sm text-red-700">{fetchError}</div>
@@ -573,6 +542,6 @@ export default function AdminStaffPage() {
           </div>
         </div>
       )}
-    </main>
+    </>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
+import AdminPageHeader from "@/components/AdminPageHeader";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -167,31 +168,18 @@ export default function AdminBlogPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-bg-light">
-      <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="font-heading text-2xl font-bold text-text-primary md:text-3xl">Blog Management</h1>
-            <p className="font-body text-sm text-text-secondary mt-1">Create, edit, and manage blog posts.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="/admin/dashboard"
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
-              Dashboard
-            </a>
-            <a
-              href="/admin/blog/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-              New Post
-            </a>
-          </div>
-        </div>
+    <>
+      <AdminPageHeader title="Blog Management" description="Create, edit, and manage blog posts.">
+        <a
+          href="/admin/blog/new"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          New Post
+        </a>
+      </AdminPageHeader>
+
+      <div className="mx-auto max-w-6xl">
 
         {/* Action message */}
         {actionMsg && (
@@ -355,6 +343,6 @@ export default function AdminBlogPage() {
           </p>
         )}
       </div>
-    </main>
+    </>
   );
 }

@@ -125,13 +125,17 @@ Phase 11: Complete Private Counselling Booking
 Phase 12A: Complete Product Catalogue and Admin Product Management
 Phase 12B-1: Complete Cart and Order Request Foundation
 Phase 12B-2: Complete Admin Order Management and Stock Workflow
+Phase 12C: Complete Shop Analytics and Stock Insights
 
 Current:
-- Phase 12C: Shop Analytics and Stock Insights
+- Phase 13A: Manual Payment Settings and Receipt/Invoice System
 
 Upcoming:
-- Phase 13: Payment Integration
+- Phase 13B: Email Notifications with Resend
+- Phase 13C: OpenGraph Metadata and Final Content Polish
 - Phase 14: Advanced Role Access and Specialist Permissions
+- Phase 15: Supabase Grants and RLS Audit
+- Phase 16: Final QA, Accessibility, SEO, and Deployment
 
 ## Phase Plan
 
@@ -689,17 +693,61 @@ Upcoming:
 - Keep analytics efficient by avoiding loading unnecessary full order details when summary data is enough
 - Payment gateway should not be built in Phase 12C
 
-### Phase 13: Checkout, Emails, SEO, Deployment
+#### Phase 12D: Admin Layout and Settings Shell
 
-- Nepal payment gateway setup: eSewa, Khalti, or direct bank card
-- Checkout API
-- Orders and order items
-- Resend email setup
-- Booking confirmation email
-- Doctor notification email
-- OpenGraph metadata
-- Accessibility checks
-- Vercel deployment
+- Refactor the admin area into a scalable admin layout before building manual payments and email settings
+- Remove the public website navbar from admin pages so the admin area feels like a dedicated internal system
+- Replace the crowded admin top navigation row with a reusable sidebar navigation
+- Sidebar navigation should include Dashboard, Patients, Bookings, Availability, Specialists, Specialist Bookings, Blog, Shop, Orders, Staff, and Settings
+- Admin pages should have a consistent page header area for title, description, and page-specific actions
+- Desktop admin layout should use a sidebar, with optional collapsible/icon-only behaviour where practical
+- Mobile admin layout should use a drawer menu that overlays the page and does not push content down
+- Admin email/account information and Logout should live in the sidebar/footer area
+- Create a `/admin/settings` shell with tabs for Clinic Info, Payment Methods, Email Settings, Admin Notifications, Shop Settings, SEO / Metadata, Security & Account, and System Settings
+- Settings tabs should be placeholders in this phase so Phase 13 can build Payment Methods and Email Settings cleanly
+- Do not build payment settings, email settings, password reset/change password, or role permissions in Phase 12D
+- Do not change database schema in Phase 12D
+- Existing admin features and protected routes must continue working
+
+#### Phase 13A: Manual Payment Settings and Receipt/Invoice System
+
+- Replace direct online payment gateway integration with a manual payment workflow for the first production-ready version
+- Do not integrate eSewa, Khalti, or card payment gateway in this phase because gateway fees, onboarding, settlement, and delivery-fee uncertainty make manual payment safer for launch
+- Create admin-managed payment methods so the doctor/admin can add bank accounts, wallet details, QR codes, and payment instructions without editing code
+- Support multiple enabled payment methods at the same time, such as one bank account and one wallet/QR option
+- New receipts and invoices should show all currently enabled payment methods
+- Old receipts and invoices should preserve a payment method snapshot from the time the order or booking was created, so later payment setting changes do not alter old payment instructions
+- Add clear order and booking reference numbers for payment remarks, such as ORD, REG, SPEC, and PRIV references
+- Patients should be instructed to include their order or booking reference number in bank/wallet payment remarks
+- Payment should only be considered confirmed after doctor/admin verification
+- Admin should be able to manually update payment status, payment notes, paid amount, and payment reference where practical
+- Shop order receipts should include customer details, product details, quantities, prices, subtotal, delivery fee where applicable, estimated/final total, payment status, and payment instructions
+- Booking receipts should include patient details, appointment details, service/booking type, payment status, and payment instructions
+- Delivery orders should instruct patients not to pay until admin confirms delivery fee and final total
+- Consultation-required medicine orders should instruct patients not to pay until consultation review and admin confirmation
+- Receipts should be printable/downloadable from the confirmation screen and accessible from admin order/booking details
+- Do not build online payment gateway in this phase
+- Do not deploy to Vercel in this phase
+
+#### Phase 13B: Email Notifications with Resend
+
+- Add Resend email service setup for order and booking notifications
+- Send confirmation emails to customers/patients when an email address is provided
+- Send notification emails to doctor/admin for new shop orders and bookings
+- Email content should include the order or booking reference number, relevant order/appointment details, payment status, manual payment instructions, enabled payment method snapshot where relevant, and clinic contact details
+- Private counselling emails should avoid exposing unnecessary sensitive details
+- Email failure should not block order or booking creation
+- Email errors should be logged safely without exposing sensitive customer/patient details
+- The admin should still see all orders and bookings even if email delivery fails
+
+#### Phase 13C: OpenGraph Metadata and Final Content Polish
+
+- Add or improve OpenGraph metadata for public pages including homepage, shop, product detail pages, blog listing, blog detail pages, and specialist pages where appropriate
+- Add page titles and descriptions where missing
+- Improve alt text and basic accessibility on touched pages where practical
+- Keep this as a lightweight content/metadata polish phase
+- Do not run the final deployment accessibility audit in this phase
+- Do not deploy to Vercel in this phase
 
 #### Phase 15: Supabase Grants and RLS Audit
 

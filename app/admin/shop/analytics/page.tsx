@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
+import AdminPageHeader from "@/components/AdminPageHeader";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -172,22 +173,10 @@ export default function AdminShopAnalyticsPage() {
   const s = data?.summary;
 
   return (
-    <main className="min-h-screen bg-bg-light">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <h1 className="font-heading text-2xl font-bold text-text-primary md:text-3xl">Shop Analytics</h1>
-            <p className="font-body text-sm text-text-secondary mt-1">Sales performance, stock insights, and customer trends.</p>
-          </div>
-          <a
-            href="/admin/dashboard"
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
-            Dashboard
-          </a>
-        </div>
+    <>
+      <AdminPageHeader title="Shop Analytics" description="Sales performance, stock insights, and customer trends." />
+
+      <div className="mx-auto max-w-7xl">
 
         {/* Shop admin tabs */}
         <div className="flex gap-1 mb-6 border-b border-border">
@@ -463,7 +452,7 @@ export default function AdminShopAnalyticsPage() {
           </div>
         )}
       </div>
-    </main>
+    </>
   );
 }
 

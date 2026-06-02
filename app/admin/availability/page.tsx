@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
-import LogoutButton from "../dashboard/LogoutButton";
+import AdminPageHeader from "@/components/AdminPageHeader";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -78,7 +78,7 @@ function formatTime(timeStr: string) {
 
 export default function AdminAvailabilityPage() {
   const router = useRouter();
-  const { loading: staffLoading, userEmail, profile: staffProfile, noSession, inactive, hasRole } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasRole } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [selectedDate, setSelectedDate] = useState(todayAD());
@@ -336,40 +336,10 @@ export default function AdminAvailabilityPage() {
   const bookedCount = slots.filter((s) => s.is_booked && !s.is_blocked).length;
 
   return (
-    <main className="min-h-screen bg-bg-light">
-      {/* ===== Header ===== */}
-      <header className="bg-white border-b border-border px-4 py-4">
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-              <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="font-heading text-xl font-bold text-text-primary">Availability Management</h1>
-              <p className="font-body text-sm text-text-secondary hidden sm:block">Block and manage time slots</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <a
-              href="/admin/dashboard"
-              className="inline-flex items-center gap-1 sm:gap-2 rounded-lg border border-border bg-white px-2.5 sm:px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-              </svg>
-              <span className="hidden sm:inline">Dashboard</span>
-            </a>
-            {userEmail && (
-              <span className="font-body text-sm text-text-secondary hidden md:inline">{userEmail}</span>
-            )}
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
+    <>
+      <AdminPageHeader title="Availability Management" description="Block and manage time slots." />
 
-      <div className="mx-auto max-w-5xl px-4 py-6 space-y-6">
+      <div className="mx-auto max-w-5xl space-y-6">
         {/* ===== Date Picker + Stats ===== */}
         <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -921,6 +891,6 @@ export default function AdminAvailabilityPage() {
           </div>
         </div>
       )}
-    </main>
+    </>
   );
 }

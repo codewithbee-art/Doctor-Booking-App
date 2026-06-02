@@ -53,10 +53,15 @@ const config: Config = {
           "50%": { transform: "translateY(-10px) rotate(8deg)" },
           "100%": { transform: "translateY(0) rotate(0deg)" },
         },
+        slideIn: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(0)" },
+        },
       },
       animation: {
         fadeIn: "fadeIn 0.2s ease-out",
         slideDown: "slideDown 0.25s ease-out",
+        slideIn: "slideIn 0.25s ease-out",
         float: "float 6s ease-in-out infinite",
         drift: "drift 8s ease-in-out infinite",
         floatSpin: "floatSpin 9s ease-in-out infinite",

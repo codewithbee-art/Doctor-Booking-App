@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
-import LogoutButton from "../dashboard/LogoutButton";
+import AdminPageHeader from "@/components/AdminPageHeader";
 import { formatBS } from "@/lib/dateConvert";
 
 /* ------------------------------------------------------------------ */
@@ -119,7 +119,7 @@ function generateSlots(from: string, to: string, durationMinutes: number): strin
 
 export default function AdminSpecialistBookingsPage() {
   const router = useRouter();
-  const { loading: staffLoading, userEmail, profile: staffProfile, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   // Data
@@ -559,43 +559,20 @@ export default function AdminSpecialistBookingsPage() {
   if (inactive) return <AdminInactive />;
 
   return (
-    <div className="min-h-screen bg-bg-light">
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border bg-white/95 backdrop-blur px-4 py-3">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <a href="/admin/dashboard" className="rounded-lg p-1.5 text-text-secondary hover:bg-bg-light transition-colors" aria-label="Back to dashboard">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-            </a>
-            <h1 className="font-heading text-xl font-bold text-text-primary">Specialist Bookings</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => openWalkIn()}
-              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-body text-sm font-semibold text-white hover:bg-green-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              <span className="hidden sm:inline">Add Walk-in</span>
-            </button>
-            <a
-              href="/admin/dashboard"
-              className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              Dashboard
-            </a>
-            {userEmail && (
-              <span className="font-body text-sm text-text-secondary hidden md:inline">{userEmail}</span>
-            )}
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
+    <>
+      <AdminPageHeader title="Specialist Bookings" description="View and manage bookings for visiting specialists.">
+        <button
+          onClick={() => openWalkIn()}
+          className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 font-body text-sm font-semibold text-white hover:bg-green-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Add Walk-in
+        </button>
+      </AdminPageHeader>
 
-      <div className="mx-auto max-w-7xl px-4 py-6">
+      <div className="mx-auto max-w-7xl">
         {/* Date Range Tabs */}
         <div className="mb-4 flex flex-wrap gap-2">
           {([
@@ -1711,6 +1688,6 @@ export default function AdminSpecialistBookingsPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

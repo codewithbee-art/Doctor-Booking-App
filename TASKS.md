@@ -1279,19 +1279,210 @@
 - [x] Run npm run build successfully
 - [x] Commit Phase 12C to Git
 
-## Phase 13: Checkout, Emails, Deployment
+## Phase 12D: Admin Layout and Settings Shell
 
-- [ ] Add payment gateway setup from nepal (esewa, khalti, direct bank card)
-- [ ] Create checkout API
-- [ ] Create orders
-- [ ] Create order items
+- [x] Create reusable admin layout
+- [x] Create admin sidebar navigation
+- [x] Remove public website navbar from admin pages
+- [x] Replace crowded admin top button row with sidebar navigation
+- [x] Sidebar should include:
+  - Dashboard
+  - Patients
+  - Availability
+  - Specialists
+  - Specialist Bookings
+  - Blog
+  - Shop
+  - Orders
+  - Staff
+  - Settings
+- [x] Sidebar should show active page state
+- [x] Sidebar should support desktop layout
+- [x] Sidebar should be collapsible or icon-only if practical
+- [x] Sidebar should scroll internally if menu becomes taller than screen
+- [x] Create mobile admin drawer
+- [x] Mobile admin drawer should open with burger/menu button
+- [x] Mobile admin drawer should overlay the page instead of pushing content
+- [x] Background should not scroll while mobile drawer is open
+- [x] Add admin page header area for:
+  - page title
+  - page description
+  - page-specific actions
+- [x] Keep page-specific actions in page header:
+  - New Product
+  - New Blog Post
+  - Add Staff
+  - etc.
+- [x] Move admin email/account display into sidebar/footer area
+- [x] Move Logout into sidebar/footer area
+- [x] Create `/admin/settings` page
+- [x] Add settings tab shell:
+  - Clinic Info
+  - Payment Methods
+  - Email Settings
+  - Admin Notifications
+  - Shop Settings
+  - SEO / Metadata
+  - Security & Account
+  - System Settings
+- [x] Settings tabs should show placeholder content for now
+- [x] Do not build real payment settings in Phase 12D
+- [x] Do not build real email settings in Phase 12D
+- [x] Do not build password reset/change password in Phase 12D
+- [x] Do not build role permissions in Phase 12D
+- [x] Do not change database schema in Phase 12D
+- [x] Keep all existing admin pages working
+- [x] Keep all existing admin actions working
+- [x] Keep admin routes protected as they currently are
+- [x] Ensure admin layout is mobile responsive
+- [x] Run npm run build successfully
+- [x] Commit Phase 12D to Git
+
+
+## Phase 13: Manual Payments, Receipts, and Email Notifications
+
+### Phase 13A: Manual Payment Settings and Receipt/Invoice System
+
+- [ ] Rename Phase 13 from payment gateway checkout to manual payment workflow
+- [ ] Do not integrate eSewa, Khalti, or card payment gateway in this phase
+- [ ] Create `payment_methods` table
+- [ ] Add safe Supabase migration for payment methods
+- [ ] Include explicit Supabase GRANT statements for the new payment table
+- [ ] Enable RLS on payment methods
+- [ ] Protect payment settings from public write access
+- [ ] Add payment method fields:
+  - id
+  - method_type
+  - display_name
+  - bank_name
+  - account_holder
+  - account_number
+  - branch
+  - wallet_name
+  - wallet_number
+  - qr_image_url
+  - instructions
+  - is_enabled
+  - display_order
+  - created_at
+  - updated_at
+- [ ] Support payment method types:
+  - bank
+  - wallet
+  - cash
+  - other
+- [ ] Create admin payment settings page
+- [ ] Admin can add payment method
+- [ ] Admin can edit payment method
+- [ ] Admin can enable/disable payment method
+- [ ] Admin can reorder payment methods
+- [ ] Admin can upload or paste QR image URL if practical
+- [ ] Multiple payment methods can be enabled at the same time
+- [ ] New receipts/invoices should show all enabled payment methods
+- [ ] Old receipts/invoices should keep payment method snapshot from the time they were created
+- [ ] Add payment method snapshot support for shop orders
+- [ ] Add payment method snapshot support for regular bookings where relevant
+- [ ] Add payment method snapshot support for specialist bookings
+- [ ] Add payment method snapshot support for private counselling bookings
+- [ ] Generate clear reference numbers for payment remarks:
+  - ORD for shop orders
+  - REG for regular bookings
+  - SPEC for specialist bookings
+  - PRIV for private counselling bookings
+- [ ] Example reference formats:
+  - ORD-260601-EGTH
+  - REG-01062026-A7K2
+  - SPEC-01062026-M9Q4
+  - PRIV-01062026-X2P8
+- [ ] Ensure reference numbers are searchable in admin
+- [ ] Create receipt/invoice page for shop orders
+- [ ] Create receipt/invoice page for bookings where practical
+- [ ] Receipt/invoice should include:
+  - clinic/shop name
+  - receipt/invoice title
+  - order or booking reference number
+  - customer/patient name
+  - phone
+  - email if available
+  - order or appointment date
+  - product/service details
+  - quantity where applicable
+  - unit price where applicable
+  - subtotal
+  - delivery fee if applicable
+  - total or estimated total
+  - payment status
+  - payment instructions
+  - enabled payment methods snapshot
+  - QR image if available
+  - instruction to include reference number in payment remarks
+  - note that payment is confirmed only after clinic/admin verification
+- [ ] Add Download Receipt or Print Receipt button after shop order submission
+- [ ] Add Download Receipt or Print Receipt button after specialist booking submission
+- [ ] Add Download Receipt or Print Receipt button after private counselling booking submission
+- [ ] Add receipt access from admin order/booking detail pages
+- [ ] For delivery orders, show clear instruction:
+  - Do not pay until admin confirms delivery fee and final total
+- [ ] For consultation-required medicine orders, show clear instruction:
+  - Do not pay until consultation review and admin confirmation
+- [ ] Admin can manually update payment status
+- [ ] Admin can add payment reference/remarks where practical
+- [ ] Admin can add paid amount where practical
+- [ ] Admin can add payment note where practical
+- [ ] Admin can mark payment as paid only after manual verification
+- [ ] Do not auto-mark payment as paid from receipt download
+- [ ] Do not build online payment gateway
+- [ ] Do not deploy to Vercel in this phase
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 13A to Git
+
+### Phase 13B: Email Notifications with Resend
+
 - [ ] Add Resend setup
-- [ ] Add booking confirmation email
-- [ ] Add doctor notification email
-- [ ] Add OpenGraph metadata
-- [ ] Add final accessibility checks
-- [ ] Add Vercel deployment instructions
-- [ ] Deploy to Vercel
+- [ ] Add environment variables for Resend safely
+- [ ] Create reusable email templates
+- [ ] Send shop order confirmation email to customer if email is provided
+- [ ] Send shop order notification email to doctor/admin
+- [ ] Send regular booking confirmation email to patient if email is provided
+- [ ] Send specialist booking confirmation email to patient if email is provided
+- [ ] Send private counselling booking confirmation email to patient if email is provided
+- [ ] Send booking notification email to doctor/admin
+- [ ] Emails should include:
+  - order/booking reference number
+  - customer/patient name
+  - date/time where relevant
+  - order or appointment details
+  - payment status
+  - payment instructions
+  - payment methods snapshot where relevant
+  - instruction to include reference number in payment remarks
+  - clinic contact details
+- [ ] Email should not expose sensitive private counselling details unnecessarily
+- [ ] Email failures should not break order or booking creation
+- [ ] Log email failures safely without exposing sensitive patient/order details
+- [ ] Admin should still see order/booking even if email fails
+- [ ] Add clear user message:
+  - confirmation created
+  - email sent if available
+  - if email failed, clinic still has the request
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 13B to Git
+
+### Phase 13C: OpenGraph Metadata and Final Content Polish
+
+- [ ] Add OpenGraph metadata for homepage
+- [ ] Add OpenGraph metadata for shop
+- [ ] Add OpenGraph metadata for product detail pages
+- [ ] Add OpenGraph metadata for blog listing
+- [ ] Add OpenGraph metadata for blog detail pages
+- [ ] Add OpenGraph metadata for specialist pages where appropriate
+- [ ] Add page titles and descriptions where missing
+- [ ] Check important images have alt text where practical
+- [ ] Do basic accessibility polish only on touched pages
+- [ ] Do not perform final deployment accessibility audit in this phase
+- [ ] Do not deploy to Vercel in this phase
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 13C to Git
 
 #### Phase 14: Advanced Role Access and Specialist Permissions
 
@@ -1341,6 +1532,22 @@
 - [ ] Run npm run build successfully
 - [ ] Commit Supabase grants and RLS audit to Git
 
+## Phase 16: Final QA, Accessibility, SEO, and Deployment
+
+- [ ] Run final accessibility audit
+- [ ] Check keyboard navigation
+- [ ] Check mobile usability
+- [ ] Check form labels and error messages
+- [ ] Check image alt text
+- [ ] Check color contrast
+- [ ] Check OpenGraph previews
+- [ ] Check production environment variables
+- [ ] Review Supabase Security Advisor
+- [ ] Add Vercel deployment instructions
+- [ ] Deploy to Vercel
+- [ ] Connect production domain
+- [ ] Final smoke test after deployment
+
 
 ### Admin Mobile Navigation Polish
 
@@ -1373,3 +1580,14 @@
 - [ ] Optimize images with Next.js Image where useful
 - [ ] Test production build performance with `npm run build` and `npm run start`
 - [ ] Run Lighthouse check before deployment
+
+### Settings
+
+
+### Message
+
+
+### Deployment
+Final accessibility audit
+Vercel deployment instructions
+Deploy to Vercel

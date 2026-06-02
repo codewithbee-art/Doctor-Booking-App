@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
+import AdminPageHeader from "@/components/AdminPageHeader";
 import BlogForm from "../../BlogForm";
 
 interface BlogPostData {
@@ -105,27 +106,19 @@ export default function EditBlogPostPage() {
   };
 
   return (
-    <main className="min-h-screen bg-bg-light">
-      <div className="mx-auto max-w-4xl px-4 py-8 md:py-12">
-        <div className="flex items-center gap-3 mb-8">
-          <a
-            href="/admin/blog"
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-2 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
-            Back
-          </a>
-          <h1 className="font-heading text-2xl font-bold text-text-primary">Edit Post</h1>
-          <span className={`ml-auto rounded-full border px-2.5 py-0.5 font-body text-xs font-semibold ${
-            post.status === "published" ? "border-green-300 bg-green-50 text-green-800"
-            : post.status === "archived" ? "border-slate-300 bg-slate-100 text-slate-600"
-            : "border-amber-300 bg-amber-50 text-amber-800"
-          }`}>
-            {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
-          </span>
-        </div>
+    <>
+      <AdminPageHeader title="Edit Post">
+        <span className={`rounded-full border px-2.5 py-0.5 font-body text-xs font-semibold ${
+          post.status === "published" ? "border-green-300 bg-green-50 text-green-800"
+          : post.status === "archived" ? "border-slate-300 bg-slate-100 text-slate-600"
+          : "border-amber-300 bg-amber-50 text-amber-800"
+        }`}>
+          {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
+        </span>
+      </AdminPageHeader>
+      <div className="mx-auto max-w-4xl">
         <BlogForm initialData={initialData} isEdit />
       </div>
-    </main>
+    </>
   );
 }
