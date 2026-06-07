@@ -929,6 +929,16 @@ export default function AdminDashboardPage() {
                   </button>
                 )}
 
+                {/* View Receipt */}
+                <a
+                  href={`/receipt?type=booking&id=${selectedBooking.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg bg-slate-100 border border-slate-200 px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                  View Receipt
+                </a>
+
                 {/* View Patient Record — for any booking with patient_id */}
                 {selectedBooking.patient_id && (
                   <a

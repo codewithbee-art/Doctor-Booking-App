@@ -30,6 +30,10 @@ interface Order {
   consultation_reviewed_at: string | null;
   consultation_review_note: string | null;
   notes: string | null;
+  payment_reference: string | null;
+  paid_amount: number | null;
+  payment_note: string | null;
+  paid_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -153,6 +157,13 @@ export default function AdminOrdersPage() {
   // Delivery fee editing
   const [editingDeliveryFee, setEditingDeliveryFee] = useState(false);
   const [deliveryFeeInput, setDeliveryFeeInput] = useState("");
+
+  // Payment fields editing
+  const [editingPayment, setEditingPayment] = useState(false);
+  const [payRefInput, setPayRefInput] = useState("");
+  const [paidAmtInput, setPaidAmtInput] = useState("");
+  const [payNoteInput, setPayNoteInput] = useState("");
+  const [savingPayment, setSavingPayment] = useState(false);
 
   /* ---- Auth ---- */
   useEffect(() => {
@@ -719,6 +730,137 @@ export default function AdminOrdersPage() {
                   <p className="font-body text-xs text-amber-800">Delivery fee should be confirmed manually before payment/dispatch.</p>
                 </div>
               )}
+
+              {/* Payment Details Section */}
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-body text-xs font-semibold text-text-secondary uppercase tracking-wide">Payment Details</h3>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`/receipt?type=order&id=${selectedOrder.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-md bg-slate-100 px-2 py-1 font-body text-[10px] font-semibold text-primary hover:bg-slate-200 transition-colors"
+                    >
+                      View Receipt
+                    </a>
+                    {!editingPayment && (
+                      <button
+                        onClick={() => {
+                          setEditingPayment(true);
+                          setPayRefInput(selectedOrder.payment_reference || selectedOrder.order_number);
+                          setPaidAmtInput(selectedOrder.paid_amount != null ? String(selectedOrder.paid_amount) : "");
+                          setPayNoteInput(selectedOrder.payment_note || "");
+                        }}
+                        className="rounded-md bg-primary/10 px-2 py-1 font-body text-[10px] font-semibold text-primary hover:bg-primary/20 transition-colors"
+                      >
+                        Edit Payment Info
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {!editingPayment ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-body text-sm">
+                    <div>
+                      <span className="text-text-secondary text-xs">Reference:</span>
+                      <p className="text-text-primary font-medium">{selectedOrder.payment_reference || selectedOrder.order_number}</p>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary text-xs">Paid Amount:</span>
+                      <p className="text-text-primary font-medium">{selectedOrder.paid_amount != null ? `NPR ${selectedOrder.paid_amount}` : "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary text-xs">Payment Note:</span>
+                      <p className="text-text-primary">{selectedOrder.payment_note || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-text-secondary text-xs">Paid At:</span>
+                      <p className="text-text-primary">{selectedOrder.paid_at ? formatDateTime(selectedOrder.paid_at) : "—"}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block font-body text-xs font-medium text-text-secondary mb-0.5">Payment Reference</label>
+                        <input
+                          type="text"
+                          value={payRefInput}
+                          onChange={(e) => setPayRefInput(e.target.value)}
+                          className="w-full rounded-lg border border-border bg-white px-2 py-1.5 font-body text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                          placeholder="e.g. bank txn ID, transfer ref"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-body text-xs font-medium text-text-secondary mb-0.5">Paid Amount (NPR)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          step="0.01"
+                          value={paidAmtInput}
+                          onChange={(e) => setPaidAmtInput(e.target.value)}
+                          className="w-full rounded-lg border border-border bg-white px-2 py-1.5 font-body text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block font-body text-xs font-medium text-text-secondary mb-0.5">Payment Note</label>
+                      <input
+                        type="text"
+                        value={payNoteInput}
+                        onChange={(e) => setPayNoteInput(e.target.value)}
+                        className="w-full rounded-lg border border-border bg-white px-2 py-1.5 font-body text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                        placeholder="Internal note about payment..."
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={async () => {
+                          setSavingPayment(true);
+                          try {
+                            const res = await fetch("/api/admin/orders", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                id: selectedOrder.id,
+                                payment_reference: payRefInput,
+                                paid_amount: paidAmtInput ? parseFloat(paidAmtInput) : null,
+                                payment_note: payNoteInput,
+                              }),
+                            });
+                            const data = await res.json();
+                            if (!data.success) throw new Error(data.error);
+                            setActionMsg({ text: "Payment details saved.", type: "success" });
+                            setEditingPayment(false);
+                            setSelectedOrder({
+                              ...selectedOrder,
+                              payment_reference: payRefInput || null,
+                              paid_amount: paidAmtInput ? parseFloat(paidAmtInput) : null,
+                              payment_note: payNoteInput || null,
+                            });
+                            await fetchOrders();
+                          } catch (err) {
+                            setActionMsg({ text: err instanceof Error ? err.message : "Failed to save.", type: "error" });
+                          } finally {
+                            setSavingPayment(false);
+                          }
+                        }}
+                        disabled={savingPayment}
+                        className="rounded-lg bg-primary px-3 py-1.5 font-body text-xs font-semibold text-white hover:bg-primary/90 transition-colors disabled:opacity-50"
+                      >
+                        {savingPayment ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        onClick={() => setEditingPayment(false)}
+                        className="rounded-lg border border-border px-3 py-1.5 font-body text-xs font-semibold text-text-primary hover:bg-bg-light transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Notes */}
               {selectedOrder.notes && (

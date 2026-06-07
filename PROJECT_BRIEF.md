@@ -126,6 +126,7 @@ Phase 12A: Complete Product Catalogue and Admin Product Management
 Phase 12B-1: Complete Cart and Order Request Foundation
 Phase 12B-2: Complete Admin Order Management and Stock Workflow
 Phase 12C: Complete Shop Analytics and Stock Insights
+Phase 12D: Complete Admin Layout and Settings Shell
 
 Current:
 - Phase 13A: Manual Payment Settings and Receipt/Invoice System

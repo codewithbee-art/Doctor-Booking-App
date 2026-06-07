@@ -1316,6 +1316,14 @@ export default function AdminSpecialistBookingsPage() {
 
             {/* Actions in modal */}
             <div className="mt-6 border-t border-border pt-4 flex flex-wrap gap-2">
+              <a
+                href={`/receipt?type=booking&id=${selectedBooking.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-slate-100 border border-slate-200 px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-slate-200 transition-colors"
+              >
+                View Receipt
+              </a>
               {selectedBooking.patient_id && (
                 <a
                   href={`/admin/patients?id=${selectedBooking.patient_id}`}

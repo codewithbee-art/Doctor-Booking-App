@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getPaymentMethodsSnapshot } from "@/lib/paymentUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -198,6 +199,9 @@ export async function POST(request: NextRequest) {
       attempts++;
     }
 
+    // ---- Fetch payment methods snapshot ----------------------------
+    const paymentMethodsSnapshot = await getPaymentMethodsSnapshot();
+
     // ---- Insert order ---------------------------------------------
     const { data: order, error: orderErr } = await supabaseAdmin
       .from("orders")
@@ -217,6 +221,8 @@ export async function POST(request: NextRequest) {
         total,
         has_consultation_items: hasConsultation,
         notes: body.notes?.trim() || null,
+        payment_methods_snapshot: paymentMethodsSnapshot.length > 0 ? paymentMethodsSnapshot : null,
+        payment_reference: orderNumber,
       })
       .select("id, order_number")
       .single();

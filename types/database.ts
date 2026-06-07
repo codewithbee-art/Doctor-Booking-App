@@ -115,6 +115,11 @@ export interface Booking {
   payment_preference: CounsellingPaymentPreference | null;
   payment_status: CounsellingPaymentStatus | null;
   counselling_reason: string | null;
+  booking_reference: string | null;
+  payment_methods_snapshot: PaymentMethodSnapshot[] | null;
+  paid_amount: number | null;
+  payment_note: string | null;
+  paid_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -195,6 +200,11 @@ export interface Order {
   total: number;
   has_consultation_items: boolean;
   notes: string | null;
+  payment_methods_snapshot: PaymentMethodSnapshot[] | null;
+  payment_reference: string | null;
+  paid_amount: number | null;
+  payment_note: string | null;
+  paid_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -237,6 +247,40 @@ export interface BlogPost {
   is_featured: boolean;
   created_at: string;
   updated_at: string;
+}
+
+// ----- payment_methods -----------------------------------------------
+export type PaymentMethodType = "bank" | "wallet" | "cash" | "other";
+
+export interface PaymentMethod {
+  id: string;
+  method_type: PaymentMethodType;
+  display_name: string;
+  bank_name: string | null;
+  account_holder: string | null;
+  account_number: string | null;
+  branch: string | null;
+  wallet_name: string | null;
+  wallet_number: string | null;
+  qr_image_url: string | null;
+  instructions: string | null;
+  is_enabled: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaymentMethodSnapshot {
+  method_type: string;
+  display_name: string;
+  bank_name: string | null;
+  account_holder: string | null;
+  account_number: string | null;
+  branch: string | null;
+  wallet_name: string | null;
+  wallet_number: string | null;
+  qr_image_url: string | null;
+  instructions: string | null;
 }
 
 // ----- Supabase Database type map ----------------------------------
@@ -328,6 +372,15 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Omit<OrderItem, "id" | "created_at">>;
+      };
+      payment_methods: {
+        Row: PaymentMethod;
+        Insert: Omit<PaymentMethod, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<PaymentMethod, "id" | "created_at" | "updated_at">>;
       };
     };
   };

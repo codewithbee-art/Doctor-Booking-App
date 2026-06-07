@@ -23,6 +23,7 @@ type FulfillmentMethod = "pickup" | "delivery";
 
 interface OrderSuccessData {
   order_number: string;
+  order_id: string;
   order_status: string;
   has_consultation_items: boolean;
   total: number;
@@ -135,6 +136,7 @@ export default function CartPage() {
 
       setSuccess({
         order_number: data.order_number,
+        order_id: data.order_id,
         order_status: data.order_status,
         has_consultation_items: data.has_consultation_items,
         total: data.total,
@@ -193,6 +195,12 @@ export default function CartPage() {
             </p>
           </div>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link
+              href={`/receipt?type=order&id=${success.order_id}`}
+              className="rounded-lg bg-primary px-6 py-3 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors"
+            >
+              View Receipt
+            </Link>
             <Link
               href="/shop"
               className="rounded-lg bg-accent px-6 py-3 font-body text-sm font-semibold text-white hover:bg-accent-hover transition-colors"

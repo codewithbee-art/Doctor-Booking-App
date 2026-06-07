@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { normalizePhone } from "@/lib/normalizePhone";
+import { generateBookingReference, getPaymentMethodsSnapshot } from "@/lib/paymentUtils";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
@@ -322,6 +323,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // ---- Generate booking reference + payment snapshot ----
+
+    const bookingType = isCounselling ? "counselling" : "regular";
+    const bookingReference = generateBookingReference(bookingType as "regular" | "specialist" | "counselling");
+    const paymentMethodsSnapshot = await getPaymentMethodsSnapshot();
+
     // ---- Insert the booking ----
 
     const insertData: Record<string, unknown> = {
@@ -332,9 +339,11 @@ export async function POST(request: NextRequest) {
       appointment_date_ad: appointment_date_ad!,
       appointment_date_bs: appointment_date_bs?.trim() || "",
       appointment_time: appointment_time!,
-      booking_type: isCounselling ? "counselling" : "regular",
+      booking_type: bookingType,
       status: "pending",
       patient_id: patientId,
+      booking_reference: bookingReference,
+      payment_methods_snapshot: paymentMethodsSnapshot.length > 0 ? paymentMethodsSnapshot : null,
     };
 
     if (isCounselling) {
@@ -368,6 +377,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       booking_id: booking.id,
+      booking_reference: bookingReference,
     });
   } catch (err) {
     console.error("[bookings POST] unexpected exception", err instanceof Error ? err.message : String(err));

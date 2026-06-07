@@ -79,3 +79,18 @@
     transform: translateY(0) translateX(-50%);
   }
 }
+
+/* Print styles for receipt pages */
+@media print {
+  body {
+    background: white !important;
+  }
+  nav, footer, .print\:hidden {
+    display: none !important;
+  }
+  .receipt-content {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}

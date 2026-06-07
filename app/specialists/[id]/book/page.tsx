@@ -87,6 +87,7 @@ export default function SpecialistBookPage() {
   const [formError, setFormError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState<string | null>(null);
+  const [successBookingId, setSuccessBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -140,6 +141,7 @@ export default function SpecialistBookPage() {
         }
         return;
       }
+      setSuccessBookingId(json.booking_id);
       setSuccess(`Booking confirmed with ${json.specialist_name}! Your appointment is on ${formatDate(specialist!.visit_date_ad)} at ${formatTime(selectedTime)}.`);
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Unexpected error");
@@ -193,10 +195,15 @@ export default function SpecialistBookPage() {
           <h1 className="font-heading text-2xl font-bold text-text-primary mb-2">Booking Successful!</h1>
           <p className="font-body text-base text-text-secondary mb-6">{success}</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            {successBookingId && (
+              <Link href={`/receipt?type=booking&id=${successBookingId}`} className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors">
+                View Receipt
+              </Link>
+            )}
             <Link href={`/specialists/${id}`} className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors">
               View Specialist
             </Link>
-            <Link href="/specialists" className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors">
+            <Link href="/specialists" className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 font-body text-sm font-semibold text-text-primary hover:bg-bg-light transition-colors">
               All Specialists
             </Link>
           </div>

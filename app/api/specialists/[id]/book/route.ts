@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { normalizePhone } from "@/lib/normalizePhone";
+import { generateBookingReference, getPaymentMethodsSnapshot } from "@/lib/paymentUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -214,6 +215,10 @@ export async function POST(
       }
     }
 
+    // ---- Generate reference + snapshot ----
+    const bookingReference = generateBookingReference("specialist");
+    const paymentMethodsSnapshot = await getPaymentMethodsSnapshot();
+
     // ---- Insert booking ----
     const { data: booking, error: insertError } = await supabaseAdmin
       .from("bookings")
@@ -230,6 +235,8 @@ export async function POST(
         status: "pending",
         patient_id: patientId,
         booking_source: "online",
+        booking_reference: bookingReference,
+        payment_methods_snapshot: paymentMethodsSnapshot.length > 0 ? paymentMethodsSnapshot : null,
       })
       .select("id")
       .single();
@@ -245,6 +252,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       booking_id: booking.id,
+      booking_reference: bookingReference,
       specialist_name: specialist.specialist_name,
     });
   } catch (err) {

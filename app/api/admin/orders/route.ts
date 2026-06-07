@@ -119,6 +119,10 @@ export async function PATCH(request: NextRequest) {
       delivery_fee,
       consultation_reviewed,
       consultation_review_note,
+      payment_reference,
+      paid_amount,
+      payment_note,
+      paid_at,
     } = body;
 
     if (!id) {
@@ -162,6 +166,24 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ success: false, error: "Invalid payment status." }, { status: 400 });
       }
       updates.payment_status = payment_status;
+      // Auto-set paid_at when marking as paid
+      if (payment_status === "paid" && !order.paid_at && !paid_at) {
+        updates.paid_at = new Date().toISOString();
+      }
+    }
+
+    // --- Payment fields ---
+    if (payment_reference !== undefined) {
+      updates.payment_reference = payment_reference?.trim() || null;
+    }
+    if (paid_amount !== undefined) {
+      updates.paid_amount = paid_amount === null || paid_amount === "" ? null : Number(paid_amount);
+    }
+    if (payment_note !== undefined) {
+      updates.payment_note = payment_note?.trim() || null;
+    }
+    if (paid_at !== undefined) {
+      updates.paid_at = paid_at || null;
     }
 
     // --- Order status update ---
