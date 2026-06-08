@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getPaymentMethodsSnapshot } from "@/lib/paymentUtils";
+import { sendOrderEmails } from "@/lib/email/sendEmails";
 
 export const dynamic = "force-dynamic";
 
@@ -249,6 +250,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Failed to save order items." }, { status: 500 });
     }
 
+    // ---- Send emails (fire-and-forget, never blocks response) ------
+    let emailSent = false;
+    let adminEmailSent = false;
+    try {
+      const emailResult = await sendOrderEmails({
+        orderId: order.id,
+        orderNumber: order.order_number,
+        customerName: body.customer_name.trim(),
+        customerPhone: body.customer_phone.trim(),
+        customerEmail: body.customer_email?.trim() || null,
+        fulfillmentMethod: body.fulfillment_method,
+        deliveryAddress: body.fulfillment_method === "delivery" ? (body.delivery_address?.trim() || null) : null,
+        deliveryNotes: body.delivery_notes?.trim() || null,
+        paymentPreference: paymentPref ?? "pay_later",
+        subtotal,
+        deliveryFee,
+        total,
+        hasConsultationItems: hasConsultation,
+        paymentMethodsSnapshot: paymentMethodsSnapshot.length > 0 ? paymentMethodsSnapshot : null,
+        items: orderItems.map((oi) => ({
+          product_name_snapshot: oi.product_name_snapshot,
+          quantity: oi.quantity,
+          unit_price: oi.unit_price,
+          subtotal: oi.subtotal,
+          requires_consultation_snapshot: oi.requires_consultation_snapshot,
+        })),
+        createdAt: new Date().toISOString(),
+      });
+      emailSent = emailResult.customerEmailSent;
+      adminEmailSent = emailResult.adminEmailSent;
+    } catch (err) {
+      console.error("[orders POST] email sending failed:", err instanceof Error ? err.message : String(err));
+    }
+
     return NextResponse.json({
       success: true,
       order_number: order.order_number,
@@ -256,6 +291,8 @@ export async function POST(request: NextRequest) {
       order_status: orderStatus,
       has_consultation_items: hasConsultation,
       total,
+      emailSent,
+      adminEmailSent,
     });
   } catch (err) {
     console.error("[orders POST] unexpected", err);

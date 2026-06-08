@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { normalizePhone } from "@/lib/normalizePhone";
 import { generateBookingReference, getPaymentMethodsSnapshot } from "@/lib/paymentUtils";
+import { sendSpecialistBookingEmails } from "@/lib/email/sendEmails";
 
 export const dynamic = "force-dynamic";
 
@@ -71,7 +72,7 @@ export async function POST(
     // ---- Fetch specialist ----
     const { data: specialist, error: specErr } = await supabaseAdmin
       .from("visiting_specialists")
-      .select("id, specialist_name, visit_date_ad, visit_date_bs, available_from, available_to, is_active, slot_duration_minutes, max_patients")
+      .select("id, specialist_name, specialization, consultation_fee, visit_date_ad, visit_date_bs, available_from, available_to, is_active, slot_duration_minutes, max_patients")
       .eq("id", specialistId)
       .single();
 
@@ -249,11 +250,39 @@ export async function POST(
       );
     }
 
+    // ---- Send emails (never blocks response) ----
+    let emailSent = false;
+    let adminEmailSent = false;
+    try {
+      const emailResult = await sendSpecialistBookingEmails({
+        bookingId: booking.id,
+        bookingReference,
+        patientName: trimmedName,
+        patientPhone: trimmedPhone,
+        patientEmail: trimmedEmail,
+        problem: problem!.trim(),
+        appointmentDateAd: specialist.visit_date_ad,
+        appointmentDateBs: specialist.visit_date_bs || "",
+        appointmentTime: selectedTime.length === 5 ? `${selectedTime}:00` : selectedTime,
+        specialistName: specialist.specialist_name,
+        specialization: specialist.specialization || null,
+        consultationFee: specialist.consultation_fee ?? null,
+        paymentMethodsSnapshot: paymentMethodsSnapshot.length > 0 ? paymentMethodsSnapshot : null,
+        createdAt: new Date().toISOString(),
+      });
+      emailSent = emailResult.customerEmailSent;
+      adminEmailSent = emailResult.adminEmailSent;
+    } catch (err) {
+      console.error("[specialist/book] email sending failed:", err instanceof Error ? err.message : String(err));
+    }
+
     return NextResponse.json({
       success: true,
       booking_id: booking.id,
       booking_reference: bookingReference,
       specialist_name: specialist.specialist_name,
+      emailSent,
+      adminEmailSent,
     });
   } catch (err) {
     console.error("[specialist/book] unexpected", err);

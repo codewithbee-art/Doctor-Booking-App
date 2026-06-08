@@ -127,12 +127,12 @@ Phase 12B-1: Complete Cart and Order Request Foundation
 Phase 12B-2: Complete Admin Order Management and Stock Workflow
 Phase 12C: Complete Shop Analytics and Stock Insights
 Phase 12D: Complete Admin Layout and Settings Shell
+Phase 13A: Complete Manual Payment Settings and Receipt/Invoice System
 
 Current:
-- Phase 13A: Manual Payment Settings and Receipt/Invoice System
+- Phase 13B: Email Notifications with Resend
 
 Upcoming:
-- Phase 13B: Email Notifications with Resend
 - Phase 13C: OpenGraph Metadata and Final Content Polish
 - Phase 14: Advanced Role Access and Specialist Permissions
 - Phase 15: Supabase Grants and RLS Audit

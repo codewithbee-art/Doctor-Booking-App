@@ -1343,14 +1343,14 @@
 
 ### Phase 13A: Manual Payment Settings and Receipt/Invoice System
 
-- [ ] Rename Phase 13 from payment gateway checkout to manual payment workflow
-- [ ] Do not integrate eSewa, Khalti, or card payment gateway in this phase
-- [ ] Create `payment_methods` table
-- [ ] Add safe Supabase migration for payment methods
-- [ ] Include explicit Supabase GRANT statements for the new payment table
-- [ ] Enable RLS on payment methods
-- [ ] Protect payment settings from public write access
-- [ ] Add payment method fields:
+- [x] Rename Phase 13 from payment gateway checkout to manual payment workflow
+- [x] Do not integrate eSewa, Khalti, or card payment gateway in this phase
+- [x] Create `payment_methods` table
+- [x] Add safe Supabase migration for payment methods
+- [x] Include explicit Supabase GRANT statements for the new payment table
+- [x] Enable RLS on payment methods
+- [x] Protect payment settings from public write access
+- [x] Add payment method fields:
   - id
   - method_type
   - display_name
@@ -1366,38 +1366,38 @@
   - display_order
   - created_at
   - updated_at
-- [ ] Support payment method types:
+- [x] Support payment method types:
   - bank
   - wallet
   - cash
   - other
-- [ ] Create admin payment settings page
-- [ ] Admin can add payment method
-- [ ] Admin can edit payment method
-- [ ] Admin can enable/disable payment method
-- [ ] Admin can reorder payment methods
-- [ ] Admin can upload or paste QR image URL if practical
-- [ ] Multiple payment methods can be enabled at the same time
-- [ ] New receipts/invoices should show all enabled payment methods
-- [ ] Old receipts/invoices should keep payment method snapshot from the time they were created
-- [ ] Add payment method snapshot support for shop orders
-- [ ] Add payment method snapshot support for regular bookings where relevant
-- [ ] Add payment method snapshot support for specialist bookings
-- [ ] Add payment method snapshot support for private counselling bookings
-- [ ] Generate clear reference numbers for payment remarks:
+- [x] Create admin payment settings page
+- [x] Admin can add payment method
+- [x] Admin can edit payment method
+- [x] Admin can enable/disable payment method
+- [x] Admin can reorder payment methods
+- [x] Admin can upload or paste QR image URL if practical
+- [x] Multiple payment methods can be enabled at the same time
+- [x] New receipts/invoices should show all enabled payment methods
+- [x] Old receipts/invoices should keep payment method snapshot from the time they were created
+- [x] Add payment method snapshot support for shop orders
+- [x] Add payment method snapshot support for regular bookings where relevant
+- [x] Add payment method snapshot support for specialist bookings
+- [x] Add payment method snapshot support for private counselling bookings
+- [x] Generate clear reference numbers for payment remarks:
   - ORD for shop orders
   - REG for regular bookings
   - SPEC for specialist bookings
   - PRIV for private counselling bookings
-- [ ] Example reference formats:
+- [x] Example reference formats:
   - ORD-260601-EGTH
   - REG-01062026-A7K2
   - SPEC-01062026-M9Q4
   - PRIV-01062026-X2P8
-- [ ] Ensure reference numbers are searchable in admin
-- [ ] Create receipt/invoice page for shop orders
-- [ ] Create receipt/invoice page for bookings where practical
-- [ ] Receipt/invoice should include:
+- [x] Ensure reference numbers are searchable in admin
+- [x] Create receipt/invoice page for shop orders
+- [x] Create receipt/invoice page for bookings where practical
+- [x] Receipt/invoice should include:
   - clinic/shop name
   - receipt/invoice title
   - order or booking reference number
@@ -1417,24 +1417,24 @@
   - QR image if available
   - instruction to include reference number in payment remarks
   - note that payment is confirmed only after clinic/admin verification
-- [ ] Add Download Receipt or Print Receipt button after shop order submission
-- [ ] Add Download Receipt or Print Receipt button after specialist booking submission
-- [ ] Add Download Receipt or Print Receipt button after private counselling booking submission
-- [ ] Add receipt access from admin order/booking detail pages
-- [ ] For delivery orders, show clear instruction:
+- [x] Add Download Receipt or Print Receipt button after shop order submission
+- [x] Add Download Receipt or Print Receipt button after specialist booking submission
+- [x] Add Download Receipt or Print Receipt button after private counselling booking submission
+- [x] Add receipt access from admin order/booking detail pages
+- [x] For delivery orders, show clear instruction:
   - Do not pay until admin confirms delivery fee and final total
-- [ ] For consultation-required medicine orders, show clear instruction:
+- [x] For consultation-required medicine orders, show clear instruction:
   - Do not pay until consultation review and admin confirmation
-- [ ] Admin can manually update payment status
-- [ ] Admin can add payment reference/remarks where practical
-- [ ] Admin can add paid amount where practical
-- [ ] Admin can add payment note where practical
-- [ ] Admin can mark payment as paid only after manual verification
-- [ ] Do not auto-mark payment as paid from receipt download
-- [ ] Do not build online payment gateway
-- [ ] Do not deploy to Vercel in this phase
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 13A to Git
+- [x] Admin can manually update payment status
+- [x] Admin can add payment reference/remarks where practical
+- [x] Admin can add paid amount where practical
+- [x] Admin can add payment note where practical
+- [x] Admin can mark payment as paid only after manual verification
+- [x] Do not auto-mark payment as paid from receipt download
+- [x] Do not build online payment gateway
+- [x] Do not deploy to Vercel in this phase
+- [x] Run npm run build successfully
+- [x] Commit Phase 13A to Git
 
 ### Phase 13B: Email Notifications with Resend
 

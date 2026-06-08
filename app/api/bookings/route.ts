@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { normalizePhone } from "@/lib/normalizePhone";
 import { generateBookingReference, getPaymentMethodsSnapshot } from "@/lib/paymentUtils";
+import { sendBookingEmails } from "@/lib/email/sendEmails";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
@@ -374,10 +375,39 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // ---- Send emails (never blocks response) ----
+    let emailSent = false;
+    let adminEmailSent = false;
+    try {
+      const emailResult = await sendBookingEmails({
+        bookingId: booking.id,
+        bookingReference,
+        patientName: trimmedName,
+        patientPhone: trimmedPhone,
+        patientEmail: trimmedEmail,
+        problem: problem!.trim(),
+        appointmentDateAd: appointment_date_ad!,
+        appointmentDateBs: appointment_date_bs?.trim() || "",
+        appointmentTime: appointment_time!,
+        bookingType,
+        paymentStatus: isCounselling ? "unpaid" : null,
+        consultationMode: isCounselling ? (consultation_mode || null) : null,
+        paymentPreference: isCounselling ? (payment_preference || null) : null,
+        paymentMethodsSnapshot: paymentMethodsSnapshot.length > 0 ? paymentMethodsSnapshot : null,
+        createdAt: new Date().toISOString(),
+      });
+      emailSent = emailResult.customerEmailSent;
+      adminEmailSent = emailResult.adminEmailSent;
+    } catch (err) {
+      console.error("[bookings POST] email sending failed:", err instanceof Error ? err.message : String(err));
+    }
+
     return NextResponse.json({
       success: true,
       booking_id: booking.id,
       booking_reference: bookingReference,
+      emailSent,
+      adminEmailSent,
     });
   } catch (err) {
     console.error("[bookings POST] unexpected exception", err instanceof Error ? err.message : String(err));
