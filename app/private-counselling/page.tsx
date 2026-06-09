@@ -1,11 +1,13 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Private & Confidential Counselling — Doctor Booking",
+export const metadata: Metadata = buildMetadata({
+  title: "Private & Confidential Counselling",
   description:
-    "Book a confidential counselling session. Choose phone, video, or in-person consultation. Your privacy is our priority.",
-};
+    "Book a discreet, confidential counselling session by phone, video, or in person. Your privacy is respected at every step.",
+  path: "/private-counselling",
+});
 
 const features = [
   {

@@ -1438,16 +1438,16 @@
 
 ### Phase 13B: Email Notifications with Resend
 
-- [ ] Add Resend setup
-- [ ] Add environment variables for Resend safely
-- [ ] Create reusable email templates
-- [ ] Send shop order confirmation email to customer if email is provided
-- [ ] Send shop order notification email to doctor/admin
-- [ ] Send regular booking confirmation email to patient if email is provided
-- [ ] Send specialist booking confirmation email to patient if email is provided
-- [ ] Send private counselling booking confirmation email to patient if email is provided
-- [ ] Send booking notification email to doctor/admin
-- [ ] Emails should include:
+- [x] Add Resend setup
+- [x] Add environment variables for Resend safely
+- [x] Create reusable email templates
+- [x] Send shop order confirmation email to customer if email is provided
+- [x] Send shop order notification email to doctor/admin
+- [x] Send regular booking confirmation email to patient if email is provided
+- [x] Send specialist booking confirmation email to patient if email is provided
+- [x] Send private counselling booking confirmation email to patient if email is provided
+- [x] Send booking notification email to doctor/admin
+- [x] Emails should include:
   - order/booking reference number
   - customer/patient name
   - date/time where relevant
@@ -1457,29 +1457,29 @@
   - payment methods snapshot where relevant
   - instruction to include reference number in payment remarks
   - clinic contact details
-- [ ] Email should not expose sensitive private counselling details unnecessarily
-- [ ] Email failures should not break order or booking creation
-- [ ] Log email failures safely without exposing sensitive patient/order details
-- [ ] Admin should still see order/booking even if email fails
-- [ ] Add clear user message:
+- [x] Email should not expose sensitive private counselling details unnecessarily
+- [x] Email failures should not break order or booking creation
+- [x] Log email failures safely without exposing sensitive patient/order details
+- [x] Admin should still see order/booking even if email fails
+- [x] Add clear user message:
   - confirmation created
   - email sent if available
   - if email failed, clinic still has the request
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 13B to Git
+- [x] Run npm run build successfully
+- [x] Commit Phase 13B to Git
 
 ### Phase 13C: OpenGraph Metadata and Final Content Polish
 
-- [ ] Add OpenGraph metadata for homepage
-- [ ] Add OpenGraph metadata for shop
-- [ ] Add OpenGraph metadata for product detail pages
-- [ ] Add OpenGraph metadata for blog listing
-- [ ] Add OpenGraph metadata for blog detail pages
-- [ ] Add OpenGraph metadata for specialist pages where appropriate
-- [ ] Add page titles and descriptions where missing
-- [ ] Check important images have alt text where practical
-- [ ] Do basic accessibility polish only on touched pages
-- [ ] Do not perform final deployment accessibility audit in this phase
+- [x] Add OpenGraph metadata for homepage
+- [x] Add OpenGraph metadata for shop
+- [x] Add OpenGraph metadata for product detail pages
+- [x] Add OpenGraph metadata for blog listing
+- [x] Add OpenGraph metadata for blog detail pages
+- [x] Add OpenGraph metadata for specialist pages where appropriate
+- [x] Add page titles and descriptions where missing
+- [x] Check important images have alt text where practical
+- [x] Do basic accessibility polish only on touched pages
+- [x] Do not perform final deployment accessibility audit in this phase
 - [ ] Do not deploy to Vercel in this phase
 - [ ] Run npm run build successfully
 - [ ] Commit Phase 13C to Git

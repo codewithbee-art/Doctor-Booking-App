@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import SpecialistsPreview from "@/components/SpecialistsPreview";
@@ -5,8 +6,17 @@ import BlogPreview from "@/components/BlogPreview";
 import ShopPreview from "@/components/ShopPreview";
 import HeroParticles from "@/components/HeroParticles";
 import DoctorNameAnimation from "@/components/DoctorNameAnimation";
+import { buildMetadata } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Dr. Bishnu Acharya — Ayurvedic General Physician & Family Care",
+  description:
+    "Trusted Ayurvedic general physician and family care in Kathmandu. Book doctor appointments and specialist consultations, request private counselling, order medicine, and read health articles.",
+  path: "/",
+  absoluteTitle: true,
+});
 
 const services = [
   {

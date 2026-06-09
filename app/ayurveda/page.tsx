@@ -18,12 +18,22 @@ export const metadata: Metadata = {
     "Nepal Ayurveda",
     "holistic health",
   ],
+  alternates: { canonical: "/ayurveda" },
   openGraph: {
     title: "Understanding Ayurveda | Dr. Bishnu Acharya",
     description:
       "Discover the wisdom of Ayurveda: the five elements, three Doshas, and your unique constitution.",
     type: "article",
     locale: "en_US",
+    siteName: "Dr. Bishnu Acharya",
+    images: [{ url: "/Images/HeroImage.jpeg" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Understanding Ayurveda | Dr. Bishnu Acharya",
+    description:
+      "Discover the wisdom of Ayurveda: the five elements, three Doshas, and your unique constitution.",
+    images: ["/Images/HeroImage.jpeg"],
   },
 };
 

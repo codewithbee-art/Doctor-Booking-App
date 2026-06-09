@@ -3,6 +3,13 @@ import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/contexts/CartContext";
 import PublicShell from "@/components/PublicShell";
+import {
+  SITE_NAME,
+  SITE_TAGLINE,
+  SITE_URL,
+  DEFAULT_DESCRIPTION,
+  DEFAULT_OG_IMAGE,
+} from "@/lib/seo";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -17,23 +24,38 @@ const sourceSans = Source_Sans_3({
 });
 
 export const metadata: Metadata = {
-  title: "Doctor Booking — Nepali Medical Practice",
-  description:
-    "Professional medical care with advanced booking system. Book appointments, order medicine, and read health tips from our experienced doctors.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: DEFAULT_DESCRIPTION,
   keywords: [
-    "doctor",
-    "booking",
+    "Dr. Bishnu Acharya",
+    "Ayurvedic doctor",
+    "doctor booking",
+    "specialist booking",
+    "private counselling",
+    "medicine shop",
+    "health articles",
     "Nepal",
-    "medical",
-    "appointment",
-    "health",
+    "Kathmandu",
+    "family care",
   ],
   openGraph: {
-    title: "Doctor Booking — Nepali Medical Practice",
-    description:
-      "Professional medical care with advanced booking system. Book appointments, order medicine, and read health tips.",
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: DEFAULT_DESCRIPTION,
     type: "website",
+    siteName: SITE_NAME,
     locale: "en_US",
+    url: SITE_URL,
+    images: [{ url: DEFAULT_OG_IMAGE }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: DEFAULT_DESCRIPTION,
+    images: [DEFAULT_OG_IMAGE],
   },
 };
 
