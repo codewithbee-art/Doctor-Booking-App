@@ -1,48 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 const VALID_ROLES = ["owner", "doctor", "receptionist", "inventory_manager", "content_editor"];
 
 /* ------------------------------------------------------------------ */
-/*  Helper: verify caller is an active owner                          */
+/*  Helper: verify caller is an active owner (uses shared adminAuth)  */
 /* ------------------------------------------------------------------ */
-async function verifyOwner(request: Request) {
-  const authHeader = request.headers.get("authorization");
-  const token = authHeader?.replace("Bearer ", "");
-  if (!token) return { ok: false as const, error: "Not authenticated.", status: 401 };
-
-  const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-  if (authError || !user) return { ok: false as const, error: "Invalid or expired session.", status: 401 };
-
-  const { data: profile } = await supabaseAdmin
-    .from("staff_profiles")
-    .select("id, role, is_active")
-    .eq("auth_user_id", user.id)
-    .single();
-
-  if (!profile || !profile.is_active || profile.role !== "owner") {
-    return { ok: false as const, error: "Only an active owner can manage staff.", status: 403 };
-  }
-
-  return { ok: true as const, userId: user.id, profileId: profile.id };
-}
 
 /* ------------------------------------------------------------------ */
 /*  GET /api/admin/staff — list all staff profiles                    */
 /* ------------------------------------------------------------------ */
 export async function GET(request: Request) {
   try {
-    const auth = await verifyOwner(request);
-    if (!auth.ok) {
-      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
-    }
+    const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+    if (auth instanceof NextResponse) return auth;
 
     const { data: staff, error } = await supabaseAdmin
       .from("staff_profiles")
@@ -65,10 +37,8 @@ export async function GET(request: Request) {
 /* ------------------------------------------------------------------ */
 export async function POST(request: NextRequest) {
   try {
-    const auth = await verifyOwner(request);
-    if (!auth.ok) {
-      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
-    }
+    const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+    if (auth instanceof NextResponse) return auth;
 
     const body = await request.json();
     const { full_name, email, phone, role, password } = body;
@@ -136,10 +106,8 @@ export async function POST(request: NextRequest) {
 /* ------------------------------------------------------------------ */
 export async function PATCH(request: NextRequest) {
   try {
-    const auth = await verifyOwner(request);
-    if (!auth.ok) {
-      return NextResponse.json({ success: false, error: auth.error }, { status: auth.status });
-    }
+    const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+    if (auth instanceof NextResponse) return auth;
 
     const body = await request.json();
     const { staff_id, full_name, phone, role, is_active } = body;
@@ -160,12 +128,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Prevent owner from deactivating themselves
-    if (target.auth_user_id === auth.userId && is_active === false) {
+    if (target.auth_user_id === auth.profile.auth_user_id && is_active === false) {
       return NextResponse.json({ success: false, error: "You cannot deactivate your own account." }, { status: 400 });
     }
 
     // Prevent owner from changing their own role away from owner
-    if (target.auth_user_id === auth.userId && role && role !== "owner") {
+    if (target.auth_user_id === auth.profile.auth_user_id && role && role !== "owner") {
       return NextResponse.json({ success: false, error: "You cannot change your own role away from owner." }, { status: 400 });
     }
 

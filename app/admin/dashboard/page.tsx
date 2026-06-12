@@ -6,6 +6,7 @@ import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import { formatBS } from "@/lib/dateConvert";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -160,7 +161,7 @@ export default function AdminDashboardPage() {
       setLoading(true);
       setFetchError(null);
       try {
-        const res = await fetch("/api/bookings");
+        const res = await adminFetch("/api/bookings");
         const json = await res.json();
         if (!res.ok) throw new Error(json.error || "Failed to load bookings");
         setBookings(json.bookings ?? []);
@@ -209,7 +210,7 @@ export default function AdminDashboardPage() {
     setBookings((cur) => cur.map((b) => (b.id === bookingId ? { ...b, status: newStatus } : b)));
 
     try {
-      const res = await fetch(`/api/bookings/${bookingId}`, {
+      const res = await adminFetch(`/api/bookings/${bookingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -270,7 +271,7 @@ export default function AdminDashboardPage() {
     setRescheduling(true);
     setRescheduleError(null);
     try {
-      const res = await fetch(`/api/bookings/${rescheduleBooking.id}`, {
+      const res = await adminFetch(`/api/bookings/${rescheduleBooking.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -295,7 +296,7 @@ export default function AdminDashboardPage() {
   /* ---- Refresh bookings ---- */
   const refreshBookings = useCallback(async () => {
     try {
-      const res = await fetch("/api/bookings");
+      const res = await adminFetch("/api/bookings");
       const json = await res.json();
       if (res.ok) setBookings(json.bookings ?? []);
     } catch { /* ignore */ }
@@ -317,7 +318,7 @@ export default function AdminDashboardPage() {
     setCancelError(null);
     const reason = cancelReason === "__custom__" ? cancelCustomReason.trim() : cancelReason;
     try {
-      const res = await fetch(`/api/bookings/${cancelBooking.id}`, {
+      const res = await adminFetch(`/api/bookings/${cancelBooking.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "cancelled", cancellation_reason: reason || null }),
@@ -349,7 +350,7 @@ export default function AdminDashboardPage() {
     // If a visit already exists for this booking, load it
     if (b.has_visit) {
       try {
-        const res = await fetch(`/api/admin/bookings/${b.id}/checkup`);
+        const res = await adminFetch(`/api/admin/bookings/${b.id}/checkup`);
         const json = await res.json();
         if (json.visit) {
           setCheckupDate(json.visit.visit_date_ad || todayAD());
@@ -370,7 +371,7 @@ export default function AdminDashboardPage() {
     setCheckupError(null);
     setCheckupSuccess(null);
     try {
-      const res = await fetch(`/api/admin/bookings/${checkupBooking.id}/checkup`, {
+      const res = await adminFetch(`/api/admin/bookings/${checkupBooking.id}/checkup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -138,7 +139,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch("/api/admin/blog/upload-image", {
+      const res = await adminFetch("/api/admin/blog/upload-image", {
         method: "POST",
         body: formData,
       });
@@ -183,7 +184,7 @@ export default function BlogForm({ initialData, isEdit }: BlogFormProps) {
     };
 
     try {
-      const res = await fetch("/api/admin/blog", {
+      const res = await adminFetch("/api/admin/blog", {
         method: isEdit ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

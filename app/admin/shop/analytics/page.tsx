@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -149,7 +150,7 @@ export default function AdminShopAnalyticsPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/shop/analytics?range=${r}`, { cache: "no-store" });
+      const res = await adminFetch(`/api/admin/shop/analytics?range=${r}`);
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
       setData(json);

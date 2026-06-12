@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -86,7 +87,7 @@ export default function AdminBlogPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/blog", { cache: "no-store" });
+      const res = await adminFetch("/api/admin/blog");
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setPosts(data.posts ?? []);
@@ -122,7 +123,7 @@ export default function AdminBlogPage() {
   const updateStatus = async (id: string, status: string) => {
     setActionMsg(null);
     try {
-      const res = await fetch("/api/admin/blog", {
+      const res = await adminFetch("/api/admin/blog", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status }),
@@ -140,7 +141,7 @@ export default function AdminBlogPage() {
     if (!confirm(`Delete draft "${title}"? This cannot be undone.`)) return;
     setActionMsg(null);
     try {
-      const res = await fetch(`/api/admin/blog?id=${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/blog?id=${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setActionMsg("Draft deleted.");

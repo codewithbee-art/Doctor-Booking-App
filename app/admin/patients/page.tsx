@@ -7,6 +7,7 @@ import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import { formatBS } from "@/lib/dateConvert";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -295,7 +296,7 @@ function AdminPatientsContent() {
       const url = term
         ? `/api/admin/patients?search=${encodeURIComponent(term)}`
         : "/api/admin/patients";
-      const res = await fetch(url);
+      const res = await adminFetch(url);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to fetch patients.");
       setPatients(json.patients ?? []);
@@ -320,7 +321,7 @@ function AdminPatientsContent() {
     setPatientBookings([]);
     setPatientVisits([]);
     try {
-      const res = await fetch(`/api/admin/patients?id=${encodeURIComponent(id)}`);
+      const res = await adminFetch(`/api/admin/patients?id=${encodeURIComponent(id)}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to load patient.");
       setSelectedPatient(json.patient);
@@ -352,7 +353,7 @@ function AdminPatientsContent() {
     setVisitSaveError(null);
     setVisitSaveSuccess(false);
     try {
-      const res = await fetch("/api/admin/patients/visits", {
+      const res = await adminFetch("/api/admin/patients/visits", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -414,7 +415,7 @@ function AdminPatientsContent() {
     setSavingEdit(true);
     setEditError(null);
     try {
-      const res = await fetch("/api/admin/patients/visits", {
+      const res = await adminFetch("/api/admin/patients/visits", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -455,7 +456,7 @@ function AdminPatientsContent() {
 
     // Check if visit already exists
     try {
-      const res = await fetch(`/api/admin/bookings/${booking.id}/checkup`);
+      const res = await adminFetch(`/api/admin/bookings/${booking.id}/checkup`);
       const json = await res.json();
       if (json.visit) {
         setCheckupHasVisit(true);
@@ -476,7 +477,7 @@ function AdminPatientsContent() {
     setCheckupError(null);
     setCheckupSuccess(null);
     try {
-      const res = await fetch(`/api/admin/bookings/${checkupBookingId}/checkup`, {
+      const res = await adminFetch(`/api/admin/bookings/${checkupBookingId}/checkup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -522,7 +523,7 @@ function AdminPatientsContent() {
     setSavingProfile(true);
     setProfileError(null);
     try {
-      const res = await fetch("/api/admin/patients", {
+      const res = await adminFetch("/api/admin/patients", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -555,7 +556,7 @@ function AdminPatientsContent() {
     setShowDuplicates(true);
     setMergeSuccess(null);
     try {
-      const res = await fetch(`/api/admin/patients?duplicates=${encodeURIComponent(selectedPatient.id)}`);
+      const res = await adminFetch(`/api/admin/patients?duplicates=${encodeURIComponent(selectedPatient.id)}`);
       const json = await res.json();
       if (res.ok) setDuplicates(json.duplicates ?? []);
     } catch { /* ignore */ } finally {
@@ -570,7 +571,7 @@ function AdminPatientsContent() {
     setMergeError(null);
     setMergeSuccess(null);
     try {
-      const res = await fetch("/api/admin/patients/merge", {
+      const res = await adminFetch("/api/admin/patients/merge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -595,7 +596,7 @@ function AdminPatientsContent() {
   const searchForLink = useCallback(async (term: string) => {
     if (!term.trim()) { setLinkSearchResults([]); return; }
     try {
-      const res = await fetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
+      const res = await adminFetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
       const json = await res.json();
       if (res.ok) setLinkSearchResults(json.patients ?? []);
     } catch { /* ignore */ }
@@ -607,7 +608,7 @@ function AdminPatientsContent() {
     setLinkingInProgress(true);
     setLinkError(null);
     try {
-      const res = await fetch(`/api/admin/bookings/${linkingBookingId}/link`, {
+      const res = await adminFetch(`/api/admin/bookings/${linkingBookingId}/link`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ patient_id: patientId }),
@@ -630,7 +631,7 @@ function AdminPatientsContent() {
     setViewBookingUpdating(true);
     setViewBookingError(null);
     try {
-      const res = await fetch(`/api/bookings/${bookingId}`, {
+      const res = await adminFetch(`/api/bookings/${bookingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -669,7 +670,7 @@ function AdminPatientsContent() {
     setCancelBookingError(null);
     const reason = cancelReason === "__custom__" ? cancelCustomReason.trim() : cancelReason;
     try {
-      const res = await fetch(`/api/bookings/${cancelBooking.id}`, {
+      const res = await adminFetch(`/api/bookings/${cancelBooking.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "cancelled", cancellation_reason: reason || null }),
@@ -693,7 +694,7 @@ function AdminPatientsContent() {
     }
     setDupSearching(true);
     try {
-      const res = await fetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
+      const res = await adminFetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
       const json = await res.json();
       if (res.ok) {
         // Filter out the current patient from results
@@ -734,7 +735,7 @@ function AdminPatientsContent() {
     setSavingNewPatient(true);
     setAddPatientError(null);
     try {
-      const res = await fetch("/api/admin/patients", {
+      const res = await adminFetch("/api/admin/patients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -752,7 +753,7 @@ function AdminPatientsContent() {
 
       // If walk-in visit is included, create it
       if (apAddVisit && apVisitDate) {
-        const vRes = await fetch("/api/admin/patients/visits", {
+        const vRes = await adminFetch("/api/admin/patients/visits", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -786,7 +787,7 @@ function AdminPatientsContent() {
     if (!term.trim()) { setWalkinSearchResults([]); return; }
     setWalkinSearching(true);
     try {
-      const res = await fetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
+      const res = await adminFetch(`/api/admin/patients?search=${encodeURIComponent(term.trim())}`);
       const json = await res.json();
       if (res.ok) setWalkinSearchResults(json.patients ?? []);
     } catch { /* ignore */ } finally {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { adToBS, BS_MONTHS } from "@/lib/dateConvert";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,9 @@ function formatBSString(adDateStr: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   let body: { months?: number };
 
   try {

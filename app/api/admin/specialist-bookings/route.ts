@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { normalizePhone } from "@/lib/normalizePhone";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -17,6 +18,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  *   ?search=<term>          — search patient name or phone
  */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const specialistIdFilter = searchParams.get("specialist_id");
@@ -196,6 +200,9 @@ interface WalkInBody {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   let body: WalkInBody;
   try {
     body = await request.json();

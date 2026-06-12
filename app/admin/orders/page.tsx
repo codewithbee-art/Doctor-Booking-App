@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -177,7 +178,7 @@ export default function AdminOrdersPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/orders", { cache: "no-store" });
+      const res = await adminFetch("/api/admin/orders");
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setOrders(data.orders ?? []);
@@ -226,7 +227,7 @@ export default function AdminOrdersPage() {
     setOrderItems([]);
     setReturningCount(0);
     try {
-      const res = await fetch(`/api/admin/orders/${order.id}`);
+      const res = await adminFetch(`/api/admin/orders/${order.id}`);
       const data = await res.json();
       if (data.success) {
         setOrderItems(data.items ?? []);
@@ -241,7 +242,7 @@ export default function AdminOrdersPage() {
     setUpdatingId(orderId);
     setActionMsg(null);
     try {
-      const res = await fetch("/api/admin/orders", {
+      const res = await adminFetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: orderId, order_status: newStatus }),
@@ -268,7 +269,7 @@ export default function AdminOrdersPage() {
     setCancelling(true);
     setCancelError(null);
     try {
-      const res = await fetch("/api/admin/orders", {
+      const res = await adminFetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: cancelOrder.id, order_status: "cancelled", cancel_reason: cancelReason.trim() || undefined }),
@@ -292,7 +293,7 @@ export default function AdminOrdersPage() {
     setUpdatingId(orderId);
     setActionMsg(null);
     try {
-      const res = await fetch("/api/admin/orders", {
+      const res = await adminFetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: orderId, payment_status: newPayment }),
@@ -350,7 +351,7 @@ export default function AdminOrdersPage() {
     setConsultReviewing(true);
     setActionMsg(null);
     try {
-      const res = await fetch("/api/admin/orders", {
+      const res = await adminFetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: orderId, consultation_reviewed: true, consultation_review_note: consultReviewNote.trim() || undefined }),
@@ -380,7 +381,7 @@ export default function AdminOrdersPage() {
     setUpdatingId(orderId);
     setActionMsg(null);
     try {
-      const res = await fetch("/api/admin/orders", {
+      const res = await adminFetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: orderId, delivery_fee: fee }),
@@ -819,7 +820,7 @@ export default function AdminOrdersPage() {
                         onClick={async () => {
                           setSavingPayment(true);
                           try {
-                            const res = await fetch("/api/admin/orders", {
+                            const res = await adminFetch("/api/admin/orders", {
                               method: "PATCH",
                               headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({

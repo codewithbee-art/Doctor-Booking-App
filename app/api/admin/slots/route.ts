@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -9,6 +10,9 @@ const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 /* ------------------------------------------------------------------ */
 
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   const date = request.nextUrl.searchParams.get("date");
 
   if (!date || !DATE_REGEX.test(date)) {
@@ -64,6 +68,9 @@ export async function GET(request: NextRequest) {
 /* ------------------------------------------------------------------ */
 
 export async function PATCH(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   let body: { id?: string; is_blocked?: boolean; blocked_reason?: string };
 
   try {
@@ -125,6 +132,9 @@ export async function PATCH(request: NextRequest) {
 /* ------------------------------------------------------------------ */
 
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   let body: { date?: string; blocked_reason?: string };
 
   try {

@@ -6,6 +6,7 @@ import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import { formatBS } from "@/lib/dateConvert";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -134,7 +135,7 @@ export default function AdminSpecialistsPage() {
     setLoading(true);
     setFetchError(null);
     try {
-      const res = await fetch("/api/admin/specialists");
+      const res = await adminFetch("/api/admin/specialists");
       const json = await res.json();
       if (!res.ok) throw new Error(json.detail || json.error || "Failed to load");
       setSpecialists(json.specialists ?? []);
@@ -261,7 +262,7 @@ export default function AdminSpecialistsPage() {
     };
 
     try {
-      const res = await fetch("/api/admin/specialists", {
+      const res = await adminFetch("/api/admin/specialists", {
         method: editingId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -280,7 +281,7 @@ export default function AdminSpecialistsPage() {
   async function toggleActive(s: Specialist) {
     setActionError(null);
     try {
-      const res = await fetch("/api/admin/specialists", {
+      const res = await adminFetch("/api/admin/specialists", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: s.id, is_active: !s.is_active }),
@@ -297,7 +298,7 @@ export default function AdminSpecialistsPage() {
     if (!confirm(`Delete specialist visit for "${s.specialist_name}" on ${formatDate(s.visit_date_ad)}?`)) return;
     setActionError(null);
     try {
-      const res = await fetch("/api/admin/specialists", {
+      const res = await adminFetch("/api/admin/specialists", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: s.id }),
@@ -431,7 +432,7 @@ export default function AdminSpecialistsPage() {
                               try {
                                 const fd = new FormData();
                                 fd.append("file", file);
-                                const res = await fetch("/api/admin/specialists/upload-image", { method: "POST", body: fd });
+                                const res = await adminFetch("/api/admin/specialists/upload-image", { method: "POST", body: fd });
                                 const json = await res.json();
                                 if (!res.ok) throw new Error(json.error || "Upload failed");
                                 setFormImageUrl(json.url);

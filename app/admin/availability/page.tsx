@@ -6,6 +6,7 @@ import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -121,7 +122,7 @@ export default function AdminAvailabilityPage() {
     setLoadingSlots(true);
     setSlotsError(null);
     try {
-      const res = await fetch(`/api/admin/slots?date=${encodeURIComponent(date)}`);
+      const res = await adminFetch(`/api/admin/slots?date=${encodeURIComponent(date)}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to load slots");
       setSlots(json.slots ?? []);
@@ -154,7 +155,7 @@ export default function AdminAvailabilityPage() {
     );
 
     try {
-      const res = await fetch("/api/admin/slots", {
+      const res = await adminFetch("/api/admin/slots", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: slot.id, is_blocked: newBlocked, blocked_reason: reason }),
@@ -185,7 +186,7 @@ export default function AdminAvailabilityPage() {
     const reason = dayReason === "Other" ? dayCustomReason.trim() : dayReason;
 
     try {
-      const res = await fetch("/api/admin/slots", {
+      const res = await adminFetch("/api/admin/slots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ date: selectedDate, blocked_reason: reason }),
@@ -212,7 +213,7 @@ export default function AdminAvailabilityPage() {
     setGenerating(true);
     setGenerateMsg(null);
     try {
-      const res = await fetch("/api/admin/slots/generate", {
+      const res = await adminFetch("/api/admin/slots/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ months: 3 }),
@@ -280,7 +281,7 @@ export default function AdminAvailabilityPage() {
 
     try {
       // 1. Reschedule the booking
-      const res = await fetch(`/api/bookings/${bookingId}`, {
+      const res = await adminFetch(`/api/bookings/${bookingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -292,7 +293,7 @@ export default function AdminAvailabilityPage() {
       if (!res.ok) throw new Error(json.error || "Failed to reschedule booking");
 
       // 2. Block the original slot
-      await fetch("/api/admin/slots", {
+      await adminFetch("/api/admin/slots", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: originalSlotId, is_blocked: true, blocked_reason: reason }),

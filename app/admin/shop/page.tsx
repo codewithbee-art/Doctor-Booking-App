@@ -6,6 +6,7 @@ import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import ProductImage from "@/components/ProductImage";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -152,7 +153,7 @@ export default function AdminShopPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/products", { cache: "no-store" });
+      const res = await adminFetch("/api/admin/products");
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setProducts(data.products ?? []);
@@ -244,7 +245,7 @@ export default function AdminShopPage() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/api/admin/products/upload-image", { method: "POST", body: fd });
+      const res = await adminFetch("/api/admin/products/upload-image", { method: "POST", body: fd });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setForm((prev) => ({ ...prev, image_url: data.url }));
@@ -294,7 +295,7 @@ export default function AdminShopPage() {
         payload.id = editingProduct.id;
       }
 
-      const res = await fetch("/api/admin/products", {
+      const res = await adminFetch("/api/admin/products", {
         method: editingProduct ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -314,7 +315,7 @@ export default function AdminShopPage() {
 
   async function toggleActive(p: Product) {
     try {
-      const res = await fetch("/api/admin/products", {
+      const res = await adminFetch("/api/admin/products", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: p.id, is_active: !p.is_active }),
@@ -330,7 +331,7 @@ export default function AdminShopPage() {
 
   async function toggleFeatured(p: Product) {
     try {
-      const res = await fetch("/api/admin/products", {
+      const res = await adminFetch("/api/admin/products", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: p.id, is_featured: !p.is_featured }),
@@ -347,7 +348,7 @@ export default function AdminShopPage() {
   async function deleteProduct(p: Product) {
     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
     try {
-      const res = await fetch(`/api/admin/products?id=${p.id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/products?id=${p.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setActionMsg({ text: "Product deleted.", type: "success" });

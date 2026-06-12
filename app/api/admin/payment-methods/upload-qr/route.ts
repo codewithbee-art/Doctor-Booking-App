@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,9 @@ const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const BUCKET = "payment-qr-codes";
 
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

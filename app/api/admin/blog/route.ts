@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
+
+const BLOG_ROLES = ["owner", "content_editor"] as const;
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +13,9 @@ const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 /*  List blog posts with optional filters                              */
 /* ------------------------------------------------------------------ */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...BLOG_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const statusFilter = searchParams.get("status");
@@ -53,6 +59,9 @@ export async function GET(request: NextRequest) {
 /*  Create a new blog post                                             */
 /* ------------------------------------------------------------------ */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...BLOG_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const {
@@ -135,6 +144,9 @@ export async function POST(request: NextRequest) {
 /*  Update an existing blog post                                       */
 /* ------------------------------------------------------------------ */
 export async function PATCH(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...BLOG_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { id, ...fields } = body;
@@ -230,6 +242,9 @@ export async function PATCH(request: NextRequest) {
 /*  Delete a blog post (only drafts; published/archived → archive)     */
 /* ------------------------------------------------------------------ */
 export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...BLOG_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

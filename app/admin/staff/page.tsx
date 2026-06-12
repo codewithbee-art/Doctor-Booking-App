@@ -6,6 +6,7 @@ import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -99,11 +100,7 @@ export default function AdminStaffPage() {
     setLoading(true);
     setFetchError(null);
     try {
-      const session = await (await import("@/lib/supabase")).supabase.auth.getSession();
-      const token = session.data.session?.access_token;
-      const res = await fetch("/api/admin/staff", {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const res = await adminFetch("/api/admin/staff");
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to fetch staff.");
       setStaff(json.staff ?? []);
@@ -127,11 +124,9 @@ export default function AdminStaffPage() {
     setCreateError(null);
     setCreateSuccess(null);
     try {
-      const session = await (await import("@/lib/supabase")).supabase.auth.getSession();
-      const token = session.data.session?.access_token;
-      const res = await fetch("/api/admin/staff", {
+      const res = await adminFetch("/api/admin/staff", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ full_name: cName, email: cEmail, phone: cPhone, role: cRole, password: cPassword }),
       });
       const json = await res.json();
@@ -160,11 +155,9 @@ export default function AdminStaffPage() {
     setSaving(true);
     setEditError(null);
     try {
-      const session = await (await import("@/lib/supabase")).supabase.auth.getSession();
-      const token = session.data.session?.access_token;
-      const res = await fetch("/api/admin/staff", {
+      const res = await adminFetch("/api/admin/staff", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staff_id: editStaff.id, full_name: eName, phone: ePhone, role: eRole }),
       });
       const json = await res.json();
@@ -184,11 +177,9 @@ export default function AdminStaffPage() {
     setToggling(true);
     setToggleError(null);
     try {
-      const session = await (await import("@/lib/supabase")).supabase.auth.getSession();
-      const token = session.data.session?.access_token;
-      const res = await fetch("/api/admin/staff", {
+      const res = await adminFetch("/api/admin/staff", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staff_id: toggleTarget.id, is_active: !toggleTarget.is_active }),
       });
       const json = await res.json();

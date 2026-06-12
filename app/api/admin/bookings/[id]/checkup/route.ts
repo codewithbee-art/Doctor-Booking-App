@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 /**
  * GET /api/admin/bookings/[id]/checkup
@@ -10,6 +11,9 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await verifyAdmin(_request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   const { id: bookingId } = params;
 
   try {
@@ -49,6 +53,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
   const { id: bookingId } = params;
 
   try {

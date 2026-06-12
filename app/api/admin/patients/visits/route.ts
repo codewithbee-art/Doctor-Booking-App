@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 /**
  * POST /api/admin/patients/visits
@@ -20,6 +21,9 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
  *   doctor_name_snapshot   (optional, text — doctor name at time of visit)
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
 
@@ -133,6 +137,9 @@ export async function POST(request: NextRequest) {
  *   doctor_name_snapshot   (optional, text)
  */
 export async function PATCH(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { visit_id } = body;

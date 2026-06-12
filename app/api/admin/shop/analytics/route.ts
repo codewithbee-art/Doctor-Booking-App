@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,9 @@ export const dynamic = "force-dynamic";
 /* ------------------------------------------------------------------ */
 
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "inventory_manager"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const range = searchParams.get("range") || "all"; // today, week, month, year, all

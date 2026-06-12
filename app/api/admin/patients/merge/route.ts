@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 /**
  * POST /api/admin/patients/merge
@@ -14,6 +15,9 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
  *   source_id  (required, uuid — the duplicate to merge away)
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { target_id, source_id } = body;

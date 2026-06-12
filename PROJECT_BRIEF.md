@@ -129,11 +129,14 @@ Phase 12C: Complete Shop Analytics and Stock Insights
 Phase 12D: Complete Admin Layout and Settings Shell
 Phase 13A: Complete Manual Payment Settings and Receipt/Invoice System
 Phase 13B: Complete Email Notifications with Resend
+Phase 13C: Complete OpenGraph Metadata and Final Content Polish
 
 Current:
-- Phase 13C: OpenGraph Metadata and Final Content Polish
+- Phase 14A: Admin API Authentication Lockdown
 
 Upcoming:
+- Phase 14B: Custom Staff Permissions System
+- Phase 14C: Specialist-Specific Staff Access
 - Phase 14: Advanced Role Access and Specialist Permissions
 - Phase 15: Supabase Grants and RLS Audit
 - Phase 16: Final QA, Accessibility, SEO, and Deployment
@@ -748,6 +751,61 @@ Upcoming:
 - Improve alt text and basic accessibility on touched pages where practical
 - Keep this as a lightweight content/metadata polish phase
 - Do not run the final deployment accessibility audit in this phase
+- Do not deploy to Vercel in this phase
+
+#### Phase 14A: Admin API Authentication Lockdown
+
+- Strengthen admin API security before adding custom staff permissions or specialist-specific access
+- Create a shared admin API authentication helper for protected admin API routes
+- Verify Supabase Auth Bearer token on every `/api/admin/*` route
+- Verify the authenticated user exists in `staff_profiles`
+- Verify the staff account is active before allowing admin API access
+- Enforce current role-based access rules at API level, not only on frontend pages
+- Return safe `401` responses for unauthenticated admin API requests
+- Return safe `403` responses for inactive staff or staff without the required role
+- Protect sensitive admin APIs including staff, patients, patient visits, bookings, checkups, availability, specialists, specialist bookings, blog admin, shop admin, orders, payment methods, settings, and analytics
+- Keep public APIs public where intentionally designed, including booking submission, specialist booking submission, shop order submission, blog/product reads, slot reads, and reference-based receipt access
+- Keep the existing role system for this phase: owner, doctor, receptionist, inventory_manager, and content_editor
+- Do not add custom staff permission checkboxes in this phase
+- Do not add specialist-specific staff access in this phase
+- Do not modify public pages in this phase
+- Do not deploy to Vercel in this phase
+
+#### Phase 14B: Custom Staff Permissions System
+
+- Review and refine owner, doctor, receptionist, inventory_manager, and content_editor access before deployment
+- Add custom staff permissions after admin API authentication is secured
+- Keep staff roles as default permission templates instead of fixed access rules only
+- Allow the owner to choose a role as a starting point when creating or editing staff
+- Allow the owner to customise exactly which admin sections each staff member can access
+- Add permission checkboxes to the staff create/edit interface
+- Add default permission templates for owner, doctor, receptionist, inventory_manager, and content_editor
+- Update staff profile loading so the frontend receives the staff member’s saved permissions
+- Update admin sidebar visibility so staff only see sections they are allowed to access
+- Update admin page guards to use saved permissions where appropriate
+- Keep API-level protection from Phase 14A
+- Prevent owner accounts from accidental lockout
+- Prevent an owner from removing their own critical access
+- Ensure at least one active owner always remains
+- Do not add specialist-specific access in this phase unless required as a placeholder
+- Do not deploy to Vercel in this phase
+
+#### Phase 14C: Specialist-Specific Staff Access
+
+- Add specialist-specific staff access after custom staff permissions are working
+- Link visiting specialist records to `staff_profiles` where needed
+- Allow a visiting specialist to have restricted staff portal access
+- Allow specialist users to access only their own specialist bookings
+- Allow specialist users to view only patient details needed for their own appointments
+- Allow specialist users to start or continue checkup only for their own specialist patients
+- Allow specialist users to start or continue checkup only for their own specialist bookings
+- Prevent specialist users from accessing unrelated patient records
+- Prevent specialist users from accessing unrelated specialist bookings
+- Prevent specialist users from accessing unrelated admin sections
+- Hide unrelated sidebar items for specialist users
+- Block specialist users from staff management unless explicitly permitted
+- Block specialist users from shop, orders, blog, and settings unless explicitly permitted
+- Add final specialist permission boundary testing
 - Do not deploy to Vercel in this phase
 
 #### Phase 15: Supabase Grants and RLS Audit

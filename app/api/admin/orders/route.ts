@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
+
+const ORDER_ROLES = ["owner", "inventory_manager"] as const;
 
 export const dynamic = "force-dynamic";
 
@@ -48,6 +51,9 @@ function canTransition(from: string, to: string, fulfillment: string): boolean {
 /* ------------------------------------------------------------------ */
 
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...ORDER_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -109,6 +115,9 @@ export async function GET(request: NextRequest) {
 /* ------------------------------------------------------------------ */
 
 export async function PATCH(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...ORDER_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const {

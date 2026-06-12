@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,7 +9,10 @@ export const dynamic = "force-dynamic";
  *
  * Returns all visiting specialists (active and inactive), ordered by visit_date_ad desc.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { data, error } = await supabaseAdmin
       .from("visiting_specialists")
@@ -38,6 +42,9 @@ export async function GET() {
  * Create a new specialist visit.
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const {
@@ -151,6 +158,9 @@ export async function POST(request: NextRequest) {
  * Body must include { id, ...fields_to_update }
  */
 export async function PATCH(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { id } = body;
@@ -256,6 +266,9 @@ export async function PATCH(request: NextRequest) {
  * Body: { id }
  */
 export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { id } = body;

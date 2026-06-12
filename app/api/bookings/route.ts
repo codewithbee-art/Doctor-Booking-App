@@ -3,6 +3,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { normalizePhone } from "@/lib/normalizePhone";
 import { generateBookingReference, getPaymentMethodsSnapshot } from "@/lib/paymentUtils";
 import { sendBookingEmails } from "@/lib/email/sendEmails";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const PHONE_REGEX = /^[0-9+\-\s()]{7,20}$/;
@@ -27,7 +28,12 @@ const VALID_CONSULTATION_MODES = ["phone", "video", "in_person"];
 const VALID_PRIVACY_PREFERENCES = ["private", "normal"];
 const VALID_PAYMENT_PREFERENCES = ["pay_now", "pay_later", "pay_on_visit"];
 
-export async function GET() {
+const BOOKINGS_ROLES = ["owner", "doctor", "receptionist"] as const;
+
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...BOOKINGS_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { data: bookings, error: fetchError } = await supabaseAdmin
       .from("bookings")

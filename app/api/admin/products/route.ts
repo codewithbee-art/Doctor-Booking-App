@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
+
+const SHOP_ROLES = ["owner", "inventory_manager"] as const;
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +18,9 @@ const VALID_CATEGORIES = [
 /*  Admin: list ALL products (including inactive/hidden)                */
 /* ------------------------------------------------------------------ */
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...SHOP_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim().toLowerCase();
@@ -61,6 +67,9 @@ export async function GET(request: NextRequest) {
 /*  Admin: create a new product                                         */
 /* ------------------------------------------------------------------ */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...SHOP_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const {
@@ -141,6 +150,9 @@ export async function POST(request: NextRequest) {
 /*  Admin: update an existing product                                   */
 /* ------------------------------------------------------------------ */
 export async function PATCH(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...SHOP_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { id, ...fields } = body;
@@ -214,6 +226,9 @@ export async function PATCH(request: NextRequest) {
 /*  Admin: permanently delete a product                                 */
 /* ------------------------------------------------------------------ */
 export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: [...SHOP_ROLES] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

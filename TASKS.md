@@ -1480,21 +1480,125 @@
 - [x] Check important images have alt text where practical
 - [x] Do basic accessibility polish only on touched pages
 - [x] Do not perform final deployment accessibility audit in this phase
-- [ ] Do not deploy to Vercel in this phase
+- [x] Do not deploy to Vercel in this phase
+- [x] Run npm run build successfully
+- [x] Commit Phase 13C to Git
+
+## Phase 14A: Admin API Authentication Lockdown
+
+- [x] Review current admin API security before adding custom staff permissions or specialist-specific access
+- [x] Create a shared admin API authentication helper for protected admin API routes
+- [x] Verify Supabase Auth Bearer token on every `/api/admin/*` route
+- [x] Verify the authenticated user exists in `staff_profiles`
+- [x] Verify the staff account is active before allowing admin API access
+- [x] Enforce current role-based access rules at API level, not only on frontend pages
+- [x] Return safe `401` responses for unauthenticated admin API requests
+- [x] Return safe `403` responses for inactive staff or staff without the required role
+- [x] Protect staff management admin APIs
+- [x] Protect patient admin APIs
+- [x] Protect patient visit admin APIs
+- [x] Protect patient merge admin APIs
+- [x] Protect booking and checkup admin APIs
+- [x] Protect availability admin APIs
+- [x] Protect visiting specialist admin APIs
+- [x] Protect specialist booking admin APIs
+- [x] Protect blog admin APIs
+- [x] Protect shop and product admin APIs
+- [x] Protect order admin APIs
+- [x] Protect payment method admin APIs
+- [x] Protect settings admin APIs
+- [x] Protect analytics admin APIs
+- [x] Keep public booking submission APIs public
+- [x] Keep public specialist booking submission APIs public
+- [x] Keep public shop order submission APIs public
+- [x] Keep public blog and product read APIs public
+- [x] Keep public slot read APIs public
+- [x] Keep receipt access public only where intentionally reference-based
+- [x] Keep the existing role system for this phase
+- [x] Do not add custom staff permission checkboxes in this phase
+- [x] Do not add specialist-specific staff access in this phase
+- [x] Do not modify public pages in this phase
+- [x] Test unauthenticated admin API blocking
+- [x] Test inactive staff blocking
+- [x] Test wrong-role admin API blocking
+- [x] Test owner access
+- [x] Test non-owner staff management blocking
+- [x] Test public booking, specialist booking, shop order, blog, product, slot, and receipt flows still work
+- [x] Run npm run build successfully
+- [x] Commit Phase 14A to Git
+
+## Phase 14B: Custom Staff Permissions System
+
+- [ ] Review all admin roles and permissions before changing the staff access model
+- [ ] Add custom staff permissions after admin API authentication is secured
+- [ ] Keep staff roles as default permission templates instead of fixed access rules only
+- [ ] Refine owner access
+- [ ] Refine doctor access
+- [ ] Refine receptionist access
+- [ ] Refine inventory_manager access
+- [ ] Refine content_editor access
+- [ ] Allow the owner to choose a role as a starting point when creating staff
+- [ ] Allow the owner to choose a role as a starting point when editing staff
+- [ ] Allow the owner to customise exact permissions for each staff account
+- [ ] Add permission checkboxes to the staff create interface
+- [ ] Add permission checkboxes to the staff edit interface
+- [ ] Add default permission template for owner
+- [ ] Add default permission template for doctor
+- [ ] Add default permission template for receptionist
+- [ ] Add default permission template for inventory_manager
+- [ ] Add default permission template for content_editor
+- [ ] Update staff profile types to include permissions
+- [ ] Update staff create API to save permissions safely
+- [ ] Update staff edit API to save permissions safely
+- [ ] Update current staff profile loading to return saved permissions
+- [ ] Update admin sidebar visibility based on permissions
+- [ ] Update admin page guards based on saved permissions
+- [ ] Keep API-level protection from Phase 14A
+- [ ] Prevent owner accounts from accidental lockout
+- [ ] Prevent an owner from removing their own critical access
+- [ ] Ensure at least one active owner always remains
+- [ ] Test owner full access
+- [ ] Test doctor permission template
+- [ ] Test receptionist permission template
+- [ ] Test inventory_manager permission template
+- [ ] Test content_editor permission template
+- [ ] Test custom permission overrides
+- [ ] Test staff cannot access admin sections without permission
+- [ ] Test staff cannot call admin APIs without permission
 - [ ] Run npm run build successfully
-- [ ] Commit Phase 13C to Git
+- [ ] Commit Phase 14B to Git
 
-#### Phase 14: Advanced Role Access and Specialist Permissions
+## Phase 14C: Specialist-Specific Staff Access
 
-- Review all admin roles and permissions before deployment
-- Refine owner, doctor, receptionist, inventory_manager, and content_editor access
-- Add specialist-specific staff access
-- Link visiting specialist records to staff_profiles where needed
-- Allow specialist users to access only their own specialist bookings
-- Allow specialist users to view patient details needed for their own appointments
-- Allow specialist users to start or continue checkup only for their own specialist patients
-- Prevent specialist users from accessing unrelated admin sections
-- Add final permission testing before deployment
+- [ ] Add specialist-specific staff access after custom staff permissions are working
+- [ ] Link visiting specialist records to `staff_profiles` where needed
+- [ ] Allow a visiting specialist to have restricted staff portal access
+- [ ] Add specialist-specific access rules
+- [ ] Allow specialist users to access only their own specialist bookings
+- [ ] Allow specialist users to view only patient details needed for their own appointments
+- [ ] Allow specialist users to start or continue checkup only for their own specialist patients
+- [ ] Allow specialist users to start or continue checkup only for their own specialist bookings
+- [ ] Prevent specialist users from accessing unrelated patient records
+- [ ] Prevent specialist users from accessing unrelated specialist bookings
+- [ ] Prevent specialist users from accessing unrelated admin sections
+- [ ] Hide unrelated sidebar items for specialist users
+- [ ] Block specialist users from staff management unless explicitly permitted
+- [ ] Block specialist users from shop management unless explicitly permitted
+- [ ] Block specialist users from order management unless explicitly permitted
+- [ ] Block specialist users from blog management unless explicitly permitted
+- [ ] Block specialist users from settings unless explicitly permitted
+- [ ] Test linked specialist account access
+- [ ] Test specialist booking filtering
+- [ ] Test specialist patient detail boundaries
+- [ ] Test specialist checkup boundaries
+- [ ] Test unrelated patient record blocking
+- [ ] Test unrelated admin section blocking
+- [ ] Confirm public booking, order, shop, and blog flows still work
+- [ ] Confirm public APIs were not accidentally blocked
+- [ ] Confirm patient data is not exposed through unprotected admin APIs
+- [ ] Confirm final permission testing before deployment
+- [ ] Run npm run build successfully
+- [ ] Commit Phase 14C to Git
 
 ## Phase 15: Supabase Grants and RLS Audit
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,9 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const auth = await verifyAdmin(_request, { allowedRoles: ["owner", "inventory_manager"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { id } = params;
     if (!id) {

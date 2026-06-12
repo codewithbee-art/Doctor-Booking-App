@@ -6,6 +6,7 @@ import { useStaffProfile } from "@/lib/useStaffProfile";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import BlogForm from "../../BlogForm";
+import { adminFetch } from "@/lib/adminFetch";
 
 interface BlogPostData {
   id: string;
@@ -49,7 +50,7 @@ export default function EditBlogPostPage() {
     setLoadingPost(true);
     setLoadError(null);
     try {
-      const res = await fetch(`/api/admin/blog/${postId}`, { cache: "no-store" });
+      const res = await adminFetch(`/api/admin/blog/${postId}`);
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setPost(data.post);

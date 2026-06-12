@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +15,9 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
  * Uploads to Supabase Storage bucket and returns the public URL.
  */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "content_editor"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const formData = await request.formData();
     const file = formData.get("file");

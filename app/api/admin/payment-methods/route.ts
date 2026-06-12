@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { verifyAdmin } from "@/lib/adminAuth";
 
 export const dynamic = "force-dynamic";
 
@@ -7,7 +8,10 @@ export const dynamic = "force-dynamic";
 /*  GET /api/admin/payment-methods                                     */
 /*  Returns all payment methods ordered by display_order               */
 /* ------------------------------------------------------------------ */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { data, error } = await supabaseAdmin
       .from("payment_methods")
@@ -32,6 +36,9 @@ export async function GET() {
 /*  Create a new payment method                                        */
 /* ------------------------------------------------------------------ */
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
 
@@ -80,6 +87,9 @@ export async function POST(request: NextRequest) {
 /*  Update an existing payment method                                  */
 /* ------------------------------------------------------------------ */
 export async function PATCH(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const body = await request.json();
     const { id, ...updates } = body;
@@ -136,6 +146,9 @@ export async function PATCH(request: NextRequest) {
 /*  Delete a payment method                                            */
 /* ------------------------------------------------------------------ */
 export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  if (auth instanceof NextResponse) return auth;
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
