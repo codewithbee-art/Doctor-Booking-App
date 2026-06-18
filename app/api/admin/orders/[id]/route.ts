@@ -13,7 +13,7 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await verifyAdmin(_request, { allowedRoles: ["owner", "inventory_manager"] });
+  const auth = await verifyAdmin(_request, { requiredPermission: "orders" });
   if (auth instanceof NextResponse) return auth;
 
   try {

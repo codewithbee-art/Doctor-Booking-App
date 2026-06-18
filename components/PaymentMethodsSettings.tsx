@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { adminFetch } from "@/lib/adminFetch";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -69,7 +70,7 @@ export default function PaymentMethodsSettings() {
 
   const fetchMethods = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/payment-methods");
+      const res = await adminFetch("/api/admin/payment-methods");
       const data = await res.json();
       if (data.success) {
         setMethods(data.methods);
@@ -125,7 +126,7 @@ export default function PaymentMethodsSettings() {
     try {
       const payload = { ...form, id: editingId || undefined };
       const method = editingId ? "PATCH" : "POST";
-      const res = await fetch("/api/admin/payment-methods", {
+      const res = await adminFetch("/api/admin/payment-methods", {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -146,7 +147,7 @@ export default function PaymentMethodsSettings() {
   async function handleToggleEnabled(m: PaymentMethod) {
     setActionMsg(null);
     try {
-      const res = await fetch("/api/admin/payment-methods", {
+      const res = await adminFetch("/api/admin/payment-methods", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: m.id, is_enabled: !m.is_enabled }),
@@ -164,7 +165,7 @@ export default function PaymentMethodsSettings() {
     setDeleting(id);
     setActionMsg(null);
     try {
-      const res = await fetch(`/api/admin/payment-methods?id=${id}`, { method: "DELETE" });
+      const res = await adminFetch(`/api/admin/payment-methods?id=${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setActionMsg({ text: "Payment method deleted.", type: "success" });
@@ -184,12 +185,12 @@ export default function PaymentMethodsSettings() {
     setActionMsg(null);
     try {
       await Promise.all([
-        fetch("/api/admin/payment-methods", {
+        adminFetch("/api/admin/payment-methods", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: curr.id, display_order: prev.display_order }),
         }),
-        fetch("/api/admin/payment-methods", {
+        adminFetch("/api/admin/payment-methods", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: prev.id, display_order: curr.display_order }),
@@ -209,12 +210,12 @@ export default function PaymentMethodsSettings() {
     setActionMsg(null);
     try {
       await Promise.all([
-        fetch("/api/admin/payment-methods", {
+        adminFetch("/api/admin/payment-methods", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: curr.id, display_order: next.display_order }),
         }),
-        fetch("/api/admin/payment-methods", {
+        adminFetch("/api/admin/payment-methods", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ id: next.id, display_order: curr.display_order }),
@@ -462,7 +463,7 @@ export default function PaymentMethodsSettings() {
                           try {
                             const fd = new FormData();
                             fd.append("file", file);
-                            const res = await fetch("/api/admin/payment-methods/upload-qr", {
+                            const res = await adminFetch("/api/admin/payment-methods/upload-qr", {
                               method: "POST",
                               body: fd,
                             });

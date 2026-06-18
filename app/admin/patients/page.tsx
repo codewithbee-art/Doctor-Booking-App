@@ -157,7 +157,7 @@ export default function AdminPatientsPage() {
 function AdminPatientsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasRole } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasRole, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   // List state
@@ -830,9 +830,9 @@ function AdminPatientsContent() {
   /* ---- Inactive staff gate ---- */
   if (inactive) return <AdminInactive />;
 
-  /* ---- Role guard: owner, doctor, receptionist can access patients ---- */
-  if (staffProfile && !hasRole("owner", "doctor", "receptionist")) {
-    return <AdminAccessDenied message="Your role does not have access to patient records." />;
+  /* ---- Permission guard ---- */
+  if (staffProfile && !hasPermission("patients")) {
+    return <AdminAccessDenied message="You do not have permission to access patient records." />;
   }
 
   return (

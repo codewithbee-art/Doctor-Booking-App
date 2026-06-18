@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { verifyAdmin } from "@/lib/adminAuth";
 
-const SHOP_ROLES = ["owner", "inventory_manager"] as const;
-
 export const dynamic = "force-dynamic";
 
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -18,7 +16,7 @@ const VALID_CATEGORIES = [
 /*  Admin: list ALL products (including inactive/hidden)                */
 /* ------------------------------------------------------------------ */
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...SHOP_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "shop" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -67,7 +65,7 @@ export async function GET(request: NextRequest) {
 /*  Admin: create a new product                                         */
 /* ------------------------------------------------------------------ */
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...SHOP_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "shop" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -150,7 +148,7 @@ export async function POST(request: NextRequest) {
 /*  Admin: update an existing product                                   */
 /* ------------------------------------------------------------------ */
 export async function PATCH(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...SHOP_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "shop" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -226,7 +224,7 @@ export async function PATCH(request: NextRequest) {
 /*  Admin: permanently delete a product                                 */
 /* ------------------------------------------------------------------ */
 export async function DELETE(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...SHOP_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "shop" });
   if (auth instanceof NextResponse) return auth;
 
   try {

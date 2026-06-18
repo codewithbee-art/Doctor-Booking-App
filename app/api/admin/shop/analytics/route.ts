@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 /* ------------------------------------------------------------------ */
 
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "inventory_manager"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "shop_analytics" });
   if (auth instanceof NextResponse) return auth;
 
   try {

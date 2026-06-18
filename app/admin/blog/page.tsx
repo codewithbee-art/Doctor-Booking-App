@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import { adminFetch } from "@/lib/adminFetch";
@@ -65,7 +66,7 @@ function formatDate(dateStr: string) {
 
 export default function AdminBlogPage() {
   const router = useRouter();
-  const { loading: staffLoading, profile: staffProfile, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [posts, setPosts] = useState<BlogPostSummary[]>([]);
@@ -160,6 +161,9 @@ export default function AdminBlogPage() {
     );
   }
   if (inactive) return <AdminInactive />;
+  if (staffProfile && !hasPermission("blog")) {
+    return <AdminAccessDenied message="You do not have permission to access blog management." />;
+  }
 
   const tabs: { key: FilterTab; label: string }[] = [
     { key: "all", label: "All" },

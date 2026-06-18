@@ -14,7 +14,7 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "bookings" });
   if (auth instanceof NextResponse) return auth;
 
   const { id: bookingId } = params;

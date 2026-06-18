@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     // Fetch staff profile by auth_user_id
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("staff_profiles")
-      .select("id, auth_user_id, full_name, email, role, phone, is_active, created_at, updated_at")
+      .select("id, auth_user_id, full_name, email, role, phone, is_active, permissions, created_at, updated_at")
       .eq("auth_user_id", user.id)
       .single();
 

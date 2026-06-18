@@ -21,7 +21,7 @@ import { verifyAdmin } from "@/lib/adminAuth";
  *   doctor_name_snapshot   (optional, text — doctor name at time of visit)
  */
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "patient_visits" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
  *   doctor_name_snapshot   (optional, text)
  */
 export async function PATCH(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "patient_visits" });
   if (auth instanceof NextResponse) return auth;
 
   try {

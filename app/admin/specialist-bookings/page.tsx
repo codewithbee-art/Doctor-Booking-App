@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import { formatBS } from "@/lib/dateConvert";
@@ -120,7 +121,7 @@ function generateSlots(from: string, to: string, durationMinutes: number): strin
 
 export default function AdminSpecialistBookingsPage() {
   const router = useRouter();
-  const { loading: staffLoading, profile: staffProfile, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   // Data
@@ -558,6 +559,9 @@ export default function AdminSpecialistBookingsPage() {
     );
   }
   if (inactive) return <AdminInactive />;
+  if (staffProfile && !hasPermission("specialist_bookings")) {
+    return <AdminAccessDenied message="You do not have permission to access specialist bookings." />;
+  }
 
   return (
     <>

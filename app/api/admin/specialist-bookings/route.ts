@@ -18,7 +18,7 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  *   ?search=<term>          — search patient name or phone
  */
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "specialist_bookings" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -200,7 +200,7 @@ interface WalkInBody {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "specialist_bookings" });
   if (auth instanceof NextResponse) return auth;
 
   let body: WalkInBody;

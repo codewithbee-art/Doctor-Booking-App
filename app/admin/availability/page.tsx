@@ -79,7 +79,7 @@ function formatTime(timeStr: string) {
 
 export default function AdminAvailabilityPage() {
   const router = useRouter();
-  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasRole } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasRole, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [selectedDate, setSelectedDate] = useState(todayAD());
@@ -327,9 +327,9 @@ export default function AdminAvailabilityPage() {
   /* ---- Inactive staff gate ---- */
   if (inactive) return <AdminInactive />;
 
-  /* ---- Role guard: owner, doctor, receptionist can access availability ---- */
-  if (staffProfile && !hasRole("owner", "doctor", "receptionist")) {
-    return <AdminAccessDenied message="Your role does not have access to availability management." />;
+  /* ---- Permission guard ---- */
+  if (staffProfile && !hasPermission("availability")) {
+    return <AdminAccessDenied message="You do not have permission to access availability management." />;
   }
 
   const blockedCount = slots.filter((s) => s.is_blocked).length;

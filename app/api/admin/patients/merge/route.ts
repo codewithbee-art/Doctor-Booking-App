@@ -15,7 +15,7 @@ import { verifyAdmin } from "@/lib/adminAuth";
  *   source_id  (required, uuid — the duplicate to merge away)
  */
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "patients" });
   if (auth instanceof NextResponse) return auth;
 
   try {

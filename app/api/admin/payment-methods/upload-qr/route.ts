@@ -9,7 +9,7 @@ const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 const BUCKET = "payment-qr-codes";
 
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "payment_methods" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error("[QR upload]", uploadError.message);
+      console.error("[QR upload]", uploadError.message, uploadError);
       return NextResponse.json(
-        { success: false, error: `Upload failed: ${uploadError.message}` },
+        { success: false, error: "Failed to upload QR image." },
         { status: 500 }
       );
     }

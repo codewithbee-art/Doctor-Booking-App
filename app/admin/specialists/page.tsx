@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import { formatBS } from "@/lib/dateConvert";
@@ -79,7 +80,7 @@ function modeLabel(m: string | null) {
 
 export default function AdminSpecialistsPage() {
   const router = useRouter();
-  const { loading: staffLoading, profile: staffProfile, noSession } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [specialists, setSpecialists] = useState<Specialist[]>([]);
@@ -162,6 +163,9 @@ export default function AdminSpecialistsPage() {
 
   if (!staffProfile || !staffProfile.is_active) {
     return <AdminInactive />;
+  }
+  if (!hasPermission("specialists")) {
+    return <AdminAccessDenied message="You do not have permission to access specialists management." />;
   }
 
   const canManage = ["owner", "doctor", "receptionist"].includes(staffProfile.role);
