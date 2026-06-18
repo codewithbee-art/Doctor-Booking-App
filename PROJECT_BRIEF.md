@@ -130,14 +130,13 @@ Phase 12D: Complete Admin Layout and Settings Shell
 Phase 13A: Complete Manual Payment Settings and Receipt/Invoice System
 Phase 13B: Complete Email Notifications with Resend
 Phase 13C: Complete OpenGraph Metadata and Final Content Polish
+Phase 14A: Complete Admin API Authentication Lockdown
 
 Current:
-- Phase 14A: Admin API Authentication Lockdown
+- Phase 14B: Custom Staff Permissions System
 
 Upcoming:
-- Phase 14B: Custom Staff Permissions System
 - Phase 14C: Specialist-Specific Staff Access
-- Phase 14: Advanced Role Access and Specialist Permissions
 - Phase 15: Supabase Grants and RLS Audit
 - Phase 16: Final QA, Accessibility, SEO, and Deployment
 
@@ -772,22 +771,42 @@ Upcoming:
 - Do not deploy to Vercel in this phase
 
 #### Phase 14B: Custom Staff Permissions System
-
-- Review and refine owner, doctor, receptionist, inventory_manager, and content_editor access before deployment
 - Add custom staff permissions after admin API authentication is secured
+- Add a `permissions` JSONB column to `staff_profiles`
+- Backfill existing staff permissions from their current role templates
 - Keep staff roles as default permission templates instead of fixed access rules only
-- Allow the owner to choose a role as a starting point when creating or editing staff
-- Allow the owner to customise exactly which admin sections each staff member can access
-- Add permission checkboxes to the staff create/edit interface
+- Create centralized permission helpers for permission keys, role templates, default permissions, and permission checks
 - Add default permission templates for owner, doctor, receptionist, inventory_manager, and content_editor
-- Update staff profile loading so the frontend receives the staff member’s saved permissions
+- Treat owner as full access in application logic even if stored permission JSON is wrong, to prevent accidental owner lockout
+- Update staff profile types, admin authentication, staff profile loading, and staff APIs to support saved permissions
+- Allow the owner to choose a role as a starting point when creating or editing staff
+- Show the selected role’s default permissions visually in the staff create/edit interface
+- Allow the owner to check and uncheck permissions for each staff account
+- Save owner-customized permissions per staff member
+- Prevent role changes from silently overwriting custom permissions
+- Add a clear option and confirmation to apply default permissions from a selected role when editing staff
 - Update admin sidebar visibility so staff only see sections they are allowed to access
-- Update admin page guards to use saved permissions where appropriate
+- Hide action buttons and page options when the logged-in staff member does not have permission to use them
+- Show a clear access denied message if a staff member manually opens a restricted admin URL
+- Apply consistent permission guards across all admin pages
 - Keep API-level protection from Phase 14A
+- Enforce saved permissions in admin APIs where appropriate
+- Keep staff management, staff password reset, and critical owner actions owner-only
+- Verify inactive staff are blocked from admin pages and admin APIs
+- Keep deactivate as the main staff removal action
+- Keep hard delete out of this phase
+- Preserve historical doctor and staff references in patient visit history
+- Add owner-only staff password change/reset so the owner can set a new password for a staff account without needing the old password
+- Require password validation, confirmation, and safe handling with no password logging
+- Prevent non-owner users from changing staff passwords
 - Prevent owner accounts from accidental lockout
 - Prevent an owner from removing their own critical access
+- Prevent an owner from deactivating their own account
 - Ensure at least one active owner always remains
-- Do not add specialist-specific access in this phase unless required as a placeholder
+- Do not add specialist-specific access in this phase
+- Do not modify public pages in this phase
+- Do not modify public APIs in this phase
+- Do not modify payment, email, receipt, stock, OpenGraph, or deployment logic in this phase
 - Do not deploy to Vercel in this phase
 
 #### Phase 14C: Specialist-Specific Staff Access

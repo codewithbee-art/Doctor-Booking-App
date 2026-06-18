@@ -49,6 +49,7 @@ export interface StaffProfile {
   role: StaffRole;
   phone: string | null;
   is_active: boolean;
+  permissions: Record<string, boolean>;
   created_at: string;
   updated_at: string;
 }

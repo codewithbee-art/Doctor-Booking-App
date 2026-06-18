@@ -15,7 +15,7 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
  * Uploads to Supabase Storage bucket and returns the public URL.
  */
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "specialists" });
   if (auth instanceof NextResponse) return auth;
 
   try {

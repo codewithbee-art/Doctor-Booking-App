@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import type { StaffRole } from "@/types/database";
+import { hasPermission as checkPermission, type PermissionKey } from "@/lib/permissions";
 
 export interface StaffProfileData {
   id: string;
@@ -12,6 +13,7 @@ export interface StaffProfileData {
   role: StaffRole;
   phone: string | null;
   is_active: boolean;
+  permissions: Record<string, boolean>;
 }
 
 interface UseStaffProfileResult {
@@ -29,6 +31,8 @@ interface UseStaffProfileResult {
   ready: boolean;
   /** Check if the user's role is in the allowed list */
   hasRole: (...roles: StaffRole[]) => boolean;
+  /** Check if the user has a specific permission (owner always true) */
+  hasPermission: (key: PermissionKey) => boolean;
 }
 
 /**
@@ -36,7 +40,7 @@ interface UseStaffProfileResult {
  * and their staff profile in one step.
  *
  * Usage:
- *   const { loading, profile, noSession, inactive, hasRole } = useStaffProfile();
+ *   const { loading, profile, noSession, inactive, hasRole, hasPermission } = useStaffProfile();
  */
 export function useStaffProfile(): UseStaffProfileResult {
   const [loading, setLoading] = useState(true);
@@ -94,5 +98,10 @@ export function useStaffProfile(): UseStaffProfileResult {
     return roles.includes(profile.role);
   };
 
-  return { loading, userEmail, profile, noSession, inactive, ready, hasRole };
+  const hasPermission = (key: PermissionKey) => {
+    if (!profile || !profile.is_active) return false;
+    return checkPermission(profile, key);
+  };
+
+  return { loading, userEmail, profile, noSession, inactive, ready, hasRole, hasPermission };
 }

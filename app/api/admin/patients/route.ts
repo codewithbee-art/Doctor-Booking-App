@@ -3,8 +3,6 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { normalizePhone } from "@/lib/normalizePhone";
 import { verifyAdmin } from "@/lib/adminAuth";
 
-const PATIENTS_ROLES = ["owner", "doctor", "receptionist"] as const;
-
 /**
  * GET /api/admin/patients
  *
@@ -19,7 +17,7 @@ const PATIENTS_ROLES = ["owner", "doctor", "receptionist"] as const;
  *   { success: true, duplicates: [...] }          (duplicates mode)
  */
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...PATIENTS_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "patients" });
   if (auth instanceof NextResponse) return auth;
 
   const { searchParams } = request.nextUrl;
@@ -213,7 +211,7 @@ export async function GET(request: NextRequest) {
  *   identity_status   (optional, default "normal")
  */
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...PATIENTS_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "patients" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -279,7 +277,7 @@ export async function POST(request: NextRequest) {
  *   identity_notes    (optional, send null to clear)
  */
 export async function PATCH(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...PATIENTS_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "patients" });
   if (auth instanceof NextResponse) return auth;
 
   try {

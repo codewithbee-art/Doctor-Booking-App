@@ -10,7 +10,7 @@ const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 /* ------------------------------------------------------------------ */
 
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "availability" });
   if (auth instanceof NextResponse) return auth;
 
   const date = request.nextUrl.searchParams.get("date");
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 /* ------------------------------------------------------------------ */
 
 export async function PATCH(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "availability" });
   if (auth instanceof NextResponse) return auth;
 
   let body: { id?: string; is_blocked?: boolean; blocked_reason?: string };
@@ -132,7 +132,7 @@ export async function PATCH(request: NextRequest) {
 /* ------------------------------------------------------------------ */
 
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "availability" });
   if (auth instanceof NextResponse) return auth;
 
   let body: { date?: string; blocked_reason?: string };

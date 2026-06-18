@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  * Returns all visiting specialists (active and inactive), ordered by visit_date_ad desc.
  */
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "specialists" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
  * Create a new specialist visit.
  */
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "specialists" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -158,7 +158,7 @@ export async function POST(request: NextRequest) {
  * Body must include { id, ...fields_to_update }
  */
 export async function PATCH(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "specialists" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -266,7 +266,7 @@ export async function PATCH(request: NextRequest) {
  * Body: { id }
  */
 export async function DELETE(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "specialists" });
   if (auth instanceof NextResponse) return auth;
 
   try {

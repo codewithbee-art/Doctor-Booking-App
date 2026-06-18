@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import ProductImage from "@/components/ProductImage";
@@ -119,7 +120,7 @@ function formatDate(d: string) {
 
 export default function AdminShopPage() {
   const router = useRouter();
-  const { loading: staffLoading, profile: staffProfile, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [products, setProducts] = useState<Product[]>([]);
@@ -367,6 +368,9 @@ export default function AdminShopPage() {
     );
   }
   if (inactive) return <AdminInactive />;
+  if (staffProfile && !hasPermission("shop")) {
+    return <AdminAccessDenied message="You do not have permission to access shop management." />;
+  }
 
   const tabs: { key: FilterTab; label: string }[] = [
     { key: "all", label: "All" },

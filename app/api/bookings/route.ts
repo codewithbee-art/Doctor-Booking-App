@@ -28,10 +28,8 @@ const VALID_CONSULTATION_MODES = ["phone", "video", "in_person"];
 const VALID_PRIVACY_PREFERENCES = ["private", "normal"];
 const VALID_PAYMENT_PREFERENCES = ["pay_now", "pay_later", "pay_on_visit"];
 
-const BOOKINGS_ROLES = ["owner", "doctor", "receptionist"] as const;
-
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...BOOKINGS_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "bookings" });
   if (auth instanceof NextResponse) return auth;
 
   try {

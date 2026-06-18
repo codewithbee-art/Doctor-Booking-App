@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 /*  Returns all payment methods ordered by display_order               */
 /* ------------------------------------------------------------------ */
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "payment_methods" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 /*  Create a new payment method                                        */
 /* ------------------------------------------------------------------ */
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "payment_methods" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 /*  Update an existing payment method                                  */
 /* ------------------------------------------------------------------ */
 export async function PATCH(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "payment_methods" });
   if (auth instanceof NextResponse) return auth;
 
   try {
@@ -146,7 +146,7 @@ export async function PATCH(request: NextRequest) {
 /*  Delete a payment method                                            */
 /* ------------------------------------------------------------------ */
 export async function DELETE(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "payment_methods" });
   if (auth instanceof NextResponse) return auth;
 
   try {

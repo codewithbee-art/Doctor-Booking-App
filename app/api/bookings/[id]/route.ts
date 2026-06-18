@@ -3,14 +3,13 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { verifyAdmin } from "@/lib/adminAuth";
 
 const ALLOWED_STATUSES = ["pending", "confirmed", "cancelled", "completed"];
-const BOOKINGS_ROLES = ["owner", "doctor", "receptionist"] as const;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...BOOKINGS_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "bookings" });
   if (auth instanceof NextResponse) return auth;
 
   const { id } = params;
@@ -192,7 +191,7 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const auth = await verifyAdmin(request, { allowedRoles: [...BOOKINGS_ROLES] });
+  const auth = await verifyAdmin(request, { requiredPermission: "bookings" });
   if (auth instanceof NextResponse) return auth;
 
   const { id } = params;

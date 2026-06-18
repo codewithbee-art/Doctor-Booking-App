@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import BlogForm from "../BlogForm";
 
 export default function NewBlogPostPage() {
   const router = useRouter();
-  const { loading: staffLoading, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
@@ -26,6 +27,9 @@ export default function NewBlogPostPage() {
     );
   }
   if (inactive) return <AdminInactive />;
+  if (staffProfile && !hasPermission("blog")) {
+    return <AdminAccessDenied message="You do not have permission to access blog management." />;
+  }
 
   return (
     <>

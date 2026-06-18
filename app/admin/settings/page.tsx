@@ -1,36 +1,49 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import PaymentMethodsSettings from "@/components/PaymentMethodsSettings";
+import type { PermissionKey } from "@/lib/permissions";
 
-const TABS = [
-  { key: "clinic", label: "Clinic Info", description: "Configure clinic name, address, phone number, logo, and operating hours." },
-  { key: "payment", label: "Payment Methods", description: "Manage bank accounts, wallets, QR codes, and manual payment instructions shown on receipts." },
-  { key: "email", label: "Email Settings", description: "Configure Resend API key, sender address, and email notification preferences." },
-  { key: "notifications", label: "Admin Notifications", description: "Choose which events trigger admin/doctor email or in-app notifications." },
-  { key: "shop", label: "Shop Settings", description: "Configure delivery fees, minimum order amount, shop open/close status, and stock thresholds." },
-  { key: "seo", label: "SEO / Metadata", description: "Set default page titles, descriptions, OpenGraph images, and social sharing metadata." },
-  { key: "security", label: "Security & Account", description: "Change password, manage sessions, and configure two-factor authentication." },
-  { key: "system", label: "System Settings", description: "Manage date format preferences, timezone, appointment slot duration, and system maintenance." },
-] as const;
-
-type TabKey = (typeof TABS)[number]["key"];
+const TABS: { key: string; label: string; description: string; permission: PermissionKey }[] = [
+  { key: "clinic", label: "Clinic Info", description: "Configure clinic name, address, phone number, logo, and operating hours.", permission: "settings_clinic_info" },
+  { key: "payment", label: "Payment Methods", description: "Manage bank accounts, wallets, QR codes, and manual payment instructions shown on receipts.", permission: "payment_methods" },
+  { key: "email", label: "Email Settings", description: "Configure Resend API key, sender address, and email notification preferences.", permission: "settings_email" },
+  { key: "notifications", label: "Admin Notifications", description: "Choose which events trigger admin/doctor email or in-app notifications.", permission: "settings_notifications" },
+  { key: "shop", label: "Shop Settings", description: "Configure delivery fees, minimum order amount, shop open/close status, and stock thresholds.", permission: "settings_shop" },
+  { key: "seo", label: "SEO / Metadata", description: "Set default page titles, descriptions, OpenGraph images, and social sharing metadata.", permission: "settings_seo" },
+  { key: "security", label: "Security & Account", description: "Change password, manage sessions, and configure two-factor authentication.", permission: "settings_security" },
+  { key: "system", label: "System Settings", description: "Manage date format preferences, timezone, appointment slot duration, and system maintenance.", permission: "settings_system" },
+];
 
 export default function AdminSettingsPage() {
   const router = useRouter();
-  const { loading: staffLoading, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
-  const [activeTab, setActiveTab] = useState<TabKey>("clinic");
+  const [activeTab, setActiveTab] = useState<string | null>(null);
+
+  // Compute permitted tabs
+  const permittedTabs = useMemo(
+    () => (staffProfile ? TABS.filter((t) => hasPermission(t.permission)) : []),
+    [staffProfile, hasPermission]
+  );
 
   useEffect(() => {
     if (staffLoading) return;
     if (noSession) { router.replace("/admin/login"); return; }
     setChecking(false);
   }, [staffLoading, noSession, router]);
+
+  // Set initial active tab once permitted tabs are known
+  useEffect(() => {
+    if (permittedTabs.length > 0 && (activeTab === null || !permittedTabs.some((t) => t.key === activeTab))) {
+      setActiveTab(permittedTabs[0].key);
+    }
+  }, [permittedTabs, activeTab]);
 
   if (checking || staffLoading) {
     return (
@@ -41,8 +54,12 @@ export default function AdminSettingsPage() {
   }
 
   if (inactive) return <AdminInactive />;
+  if (staffProfile && permittedTabs.length === 0) {
+    return <AdminAccessDenied message="You do not have permission to access settings." />;
+  }
 
-  const currentTab = TABS.find((t) => t.key === activeTab)!;
+  const currentTab = permittedTabs.find((t) => t.key === activeTab) ?? permittedTabs[0];
+  if (!currentTab) return null;
 
   return (
     <>
@@ -55,7 +72,7 @@ export default function AdminSettingsPage() {
         {/* Tab navigation */}
         <div className="border-b border-slate-200 overflow-x-auto">
           <nav className="flex min-w-max px-4" aria-label="Settings tabs">
-            {TABS.map((tab) => (
+            {permittedTabs.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}

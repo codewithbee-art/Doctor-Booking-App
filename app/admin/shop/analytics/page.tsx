@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import { adminFetch } from "@/lib/adminFetch";
@@ -130,7 +131,7 @@ function BarChart({ data, labelKey, valueKey, maxItems = 8 }: {
 
 export default function AdminShopAnalyticsPage() {
   const router = useRouter();
-  const { loading: staffLoading, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [data, setData] = useState<AnalyticsData | null>(null);
@@ -170,6 +171,9 @@ export default function AdminShopAnalyticsPage() {
     return <main className="min-h-screen bg-bg-light flex items-center justify-center"><p className="font-body text-sm text-text-secondary">Loading...</p></main>;
   }
   if (inactive) return <AdminInactive />;
+  if (staffProfile && !hasPermission("shop_analytics")) {
+    return <AdminAccessDenied message="You do not have permission to access shop analytics." />;
+  }
 
   const s = data?.summary;
 

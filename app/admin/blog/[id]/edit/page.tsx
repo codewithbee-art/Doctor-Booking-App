@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import BlogForm from "../../BlogForm";
@@ -33,7 +34,7 @@ export default function EditBlogPostPage() {
   const router = useRouter();
   const params = useParams();
   const postId = params.id as string;
-  const { loading: staffLoading, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [post, setPost] = useState<BlogPostData | null>(null);
@@ -73,6 +74,9 @@ export default function EditBlogPostPage() {
     );
   }
   if (inactive) return <AdminInactive />;
+  if (staffProfile && !hasPermission("blog")) {
+    return <AdminAccessDenied message="You do not have permission to access blog management." />;
+  }
 
   if (loadError || !post) {
     return (

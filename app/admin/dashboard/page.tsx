@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useStaffProfile } from "@/lib/useStaffProfile";
+import AdminAccessDenied from "@/components/AdminAccessDenied";
 import AdminInactive from "@/components/AdminInactive";
 import AdminPageHeader from "@/components/AdminPageHeader";
 import { formatBS } from "@/lib/dateConvert";
@@ -106,7 +107,7 @@ function todayAD() {
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const { loading: staffLoading, profile: staffProfile, noSession, inactive } = useStaffProfile();
+  const { loading: staffLoading, profile: staffProfile, noSession, inactive, hasPermission } = useStaffProfile();
   const [checking, setChecking] = useState(true);
 
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -415,6 +416,9 @@ export default function AdminDashboardPage() {
 
   /* ---- Inactive staff gate ---- */
   if (inactive) return <AdminInactive />;
+  if (staffProfile && !hasPermission("bookings")) {
+    return <AdminAccessDenied message="You do not have permission to access the bookings dashboard." />;
+  }
 
   /* ---- Filter tab config ---- */
   const TABS: { key: FilterTab; label: string }[] = [
@@ -868,7 +872,7 @@ export default function AdminDashboardPage() {
               <p className="font-body text-xs font-semibold uppercase tracking-wider text-text-secondary mb-3">Actions</p>
               <div className="flex flex-wrap gap-2">
                 {/* Pending: Confirm, Cancel, Reschedule */}
-                {selectedBooking.status === "pending" && (
+                {selectedBooking.status === "pending" && hasPermission("bookings") && (
                   <>
                     <button
                       onClick={() => { updateStatus(selectedBooking.id, "confirmed"); setSelectedBooking(null); }}
@@ -897,31 +901,37 @@ export default function AdminDashboardPage() {
                 {/* Confirmed: Start/Continue Checkup, Reschedule, Cancel */}
                 {selectedBooking.status === "confirmed" && (
                   <>
-                    <button
-                      onClick={() => openCheckup(selectedBooking)}
-                      className="rounded-lg bg-primary px-4 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                    >
-                      {selectedBooking.has_visit ? "Continue Checkup" : "Start Checkup"}
-                    </button>
-                    <button
-                      onClick={() => { setSelectedBooking(null); openReschedule(selectedBooking); }}
-                      disabled={updatingId !== null}
-                      className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                    >
-                      Reschedule
-                    </button>
-                    <button
-                      onClick={() => openCancel(selectedBooking)}
-                      disabled={updatingId !== null}
-                      className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                    >
-                      Cancel
-                    </button>
+                    {hasPermission("patient_visits") && (
+                      <button
+                        onClick={() => openCheckup(selectedBooking)}
+                        className="rounded-lg bg-primary px-4 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                      >
+                        {selectedBooking.has_visit ? "Continue Checkup" : "Start Checkup"}
+                      </button>
+                    )}
+                    {hasPermission("bookings") && (
+                      <>
+                        <button
+                          onClick={() => { setSelectedBooking(null); openReschedule(selectedBooking); }}
+                          disabled={updatingId !== null}
+                          className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                        >
+                          Reschedule
+                        </button>
+                        <button
+                          onClick={() => openCancel(selectedBooking)}
+                          disabled={updatingId !== null}
+                          className="rounded-lg bg-red-50 border border-red-300 px-4 py-2 font-body text-sm font-semibold text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
 
                 {/* Completed: Edit Visit */}
-                {selectedBooking.status === "completed" && selectedBooking.has_visit && (
+                {selectedBooking.status === "completed" && selectedBooking.has_visit && hasPermission("patient_visits") && (
                   <button
                     onClick={() => openCheckup(selectedBooking)}
                     className="rounded-lg bg-blue-50 border border-blue-300 px-4 py-2 font-body text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -941,7 +951,7 @@ export default function AdminDashboardPage() {
                 </a>
 
                 {/* View Patient Record — for any booking with patient_id */}
-                {selectedBooking.patient_id && (
+                {selectedBooking.patient_id && hasPermission("patients") && (
                   <a
                     href={`/admin/patients?id=${selectedBooking.patient_id}`}
                     className="rounded-lg bg-primary/10 border border-primary/30 px-4 py-2 font-body text-sm font-semibold text-primary hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
@@ -951,7 +961,7 @@ export default function AdminDashboardPage() {
                 )}
 
                 {/* Cancelled: Restore, and Reschedule only after restore fails */}
-                {selectedBooking.status === "cancelled" && (
+                {selectedBooking.status === "cancelled" && hasPermission("bookings") && (
                   <>
                     <button
                       onClick={() => { updateStatus(selectedBooking.id, "pending"); setSelectedBooking(null); }}
@@ -973,7 +983,7 @@ export default function AdminDashboardPage() {
                 )}
 
                 {/* Link to Patient — for unlinked bookings */}
-                {!selectedBooking.patient_id && (
+                {!selectedBooking.patient_id && hasPermission("patients") && (
                   <a
                     href={`/admin/patients`}
                     className="rounded-lg bg-amber-50 border border-amber-300 px-4 py-2 font-body text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
@@ -1031,7 +1041,7 @@ export default function AdminDashboardPage() {
                 </svg>
                 <p className="mt-3 font-body text-base font-semibold text-text-primary">{checkupSuccess}</p>
                 <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
-                  {checkupBooking.patient_id && (
+                  {checkupBooking.patient_id && hasPermission("patients") && (
                     <a
                       href={`/admin/patients?id=${checkupBooking.patient_id}`}
                       className="rounded-lg bg-primary px-5 py-2 font-body text-sm font-semibold text-white hover:bg-primary/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"

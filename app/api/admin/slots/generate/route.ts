@@ -36,7 +36,7 @@ function formatBSString(adDateStr: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await verifyAdmin(request, { allowedRoles: ["owner", "doctor", "receptionist"] });
+  const auth = await verifyAdmin(request, { requiredPermission: "availability" });
   if (auth instanceof NextResponse) return auth;
 
   let body: { months?: number };

@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import type { StaffRole } from "@/types/database";
+import { hasPermission, type PermissionKey } from "@/lib/permissions";
 
 /* ------------------------------------------------------------------ */
 /*  Shared admin API authentication helper                             */
 /*  Phase 14A: Admin API Authentication Lockdown                       */
+/*  Phase 14B: Extended with permission-based checks                   */
 /* ------------------------------------------------------------------ */
 
 export interface AdminAuthResult {
@@ -17,6 +19,7 @@ export interface AdminAuthResult {
     role: StaffRole;
     phone: string | null;
     is_active: boolean;
+    permissions: Record<string, boolean>;
   };
 }
 
@@ -30,11 +33,12 @@ export interface AdminAuthResult {
  *
  * @param request  — the incoming Request object
  * @param options  — optional config
- *   allowedRoles: restrict to specific roles (owner always implied unless excluded)
+ *   allowedRoles: restrict to specific roles
+ *   requiredPermission: require a specific permission key (owner always passes)
  */
 export async function verifyAdmin(
   request: Request,
-  options?: { allowedRoles?: StaffRole[] }
+  options?: { allowedRoles?: StaffRole[]; requiredPermission?: PermissionKey }
 ): Promise<AdminAuthResult | NextResponse> {
   try {
     // 1. Extract Bearer token
@@ -58,10 +62,10 @@ export async function verifyAdmin(
       );
     }
 
-    // 3. Load staff profile
+    // 3. Load staff profile (including permissions)
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("staff_profiles")
-      .select("id, auth_user_id, full_name, email, role, phone, is_active")
+      .select("id, auth_user_id, full_name, email, role, phone, is_active, permissions")
       .eq("auth_user_id", user.id)
       .single();
 
@@ -90,7 +94,17 @@ export async function verifyAdmin(
       }
     }
 
-    // 6. Return authenticated result
+    // 6. Check required permission if specified (owner always passes)
+    if (options?.requiredPermission) {
+      if (!hasPermission(profile, options.requiredPermission)) {
+        return NextResponse.json(
+          { success: false, error: "Insufficient permissions." },
+          { status: 403 }
+        );
+      }
+    }
+
+    // 7. Return authenticated result
     return {
       userId: user.id,
       profile: profile as AdminAuthResult["profile"],
