@@ -1528,98 +1528,98 @@
 - [x] Commit Phase 14A to Git
 
 ## Phase 14B: Custom Staff Permissions System
-- [ ] Add custom staff permissions after admin API authentication is secured
-- [ ] Add a new staff permissions migration for `staff_profiles`
-- [ ] Add `permissions` JSONB column to `staff_profiles`
-- [ ] Backfill existing staff permissions from their current role templates
-- [ ] Keep staff roles as default permission templates instead of fixed access rules only
-- [ ] Create centralized permission helper file
-- [ ] Define all permission keys in one place
-- [ ] Define default permission template for owner
-- [ ] Define default permission template for doctor
-- [ ] Define default permission template for receptionist
-- [ ] Define default permission template for inventory_manager
-- [ ] Define default permission template for content_editor
-- [ ] Add helper to get default permissions for a selected role
-- [ ] Add helper to check whether a staff member has a permission
-- [ ] Treat owner as full access in code even if stored permission JSON is wrong
-- [ ] Update staff profile TypeScript types to include permissions
-- [ ] Update admin authentication helper to load staff permissions
-- [ ] Add optional permission-based checking to admin authentication helper
-- [ ] Keep existing Phase 14A authentication and active-staff blocking
-- [ ] Keep owner-only protection for critical owner actions
-- [ ] Update current staff profile API to return saved permissions
-- [ ] Update staff profile hook to expose permissions
-- [ ] Update staff profile hook to expose permission checking helper
-- [ ] Update staff create API to save permissions safely
-- [ ] Update staff edit API to save permissions safely
-- [ ] Validate submitted permissions server-side
-- [ ] Prevent staff from editing their own permissions
-- [ ] Prevent non-owner users from editing staff permissions
-- [ ] Allow the owner to choose a role as a starting point when creating staff
-- [ ] Show the selected role’s default permissions visually in the staff create form
-- [ ] Allow the owner to check and uncheck permissions when creating staff
-- [ ] Save the owner-customized permissions for each staff account
-- [ ] Allow the owner to choose a role as a starting point when editing staff
-- [ ] Show the staff member’s saved permissions visually in the staff edit form
-- [ ] Allow the owner to check and uncheck permissions when editing staff
-- [ ] Prevent role changes from silently overwriting custom permissions
-- [ ] Add a clear option to apply default permissions from the selected role when editing staff
-- [ ] Add confirmation before replacing custom permissions with role defaults
-- [ ] Update staff cards to show a simple permissions summary
-- [ ] Update admin sidebar visibility based on saved permissions
-- [ ] Hide sidebar items that the logged-in staff member does not have permission to access
-- [ ] Hide action buttons that the logged-in staff member does not have permission to use
-- [ ] Hide page options that the logged-in staff member does not have permission to use
-- [ ] Show a clear access denied message if a staff member manually opens a restricted admin URL
-- [ ] Apply consistent permission guards to every admin page
-- [ ] Fix admin pages that currently rely only on API protection
-- [ ] Fix specialist admin page inactive-staff display gap
-- [ ] Load staff profile where needed for settings and analytics guards
-- [ ] Keep public pages unchanged
-- [ ] Keep public APIs unchanged
-- [ ] Enforce saved permissions in admin APIs where appropriate
-- [ ] Keep staff management API owner-only
-- [ ] Keep staff password reset owner-only
-- [ ] Keep critical settings and payment-method management owner-only unless explicitly safe
-- [ ] Verify deactivate staff still blocks admin page access
-- [ ] Verify deactivate staff still blocks admin API access
-- [ ] Keep deactivate as the main staff removal action
-- [ ] Keep hard delete out of this phase
-- [ ] Preserve historical doctor and staff references in patient visit history
-- [ ] Add owner-only staff password change/reset option
-- [ ] Create dedicated staff password reset API endpoint
-- [ ] Allow owner to set a new password for a staff account without needing the old password
-- [ ] Prevent non-owner users from changing staff passwords
-- [ ] Add password minimum length validation
-- [ ] Require new password confirmation in the UI
-- [ ] Show confirmation before changing a staff password
-- [ ] Do not log staff passwords
-- [ ] Prevent owner accounts from accidental lockout
-- [ ] Prevent an owner from removing their own critical access
-- [ ] Prevent an owner from deactivating their own account
-- [ ] Prevent an owner from changing their own role away from owner
-- [ ] Ensure at least one active owner always remains
-- [ ] Test owner full access
-- [ ] Test doctor permission template
-- [ ] Test receptionist permission template
-- [ ] Test inventory_manager permission template
-- [ ] Test content_editor permission template
-- [ ] Test custom permission overrides
-- [ ] Test changing role without accidentally overwriting custom permissions
-- [ ] Test applying role defaults with confirmation
-- [ ] Test staff cannot see sidebar items without permission
-- [ ] Test staff cannot see action buttons without permission
-- [ ] Test staff cannot access admin pages without permission
-- [ ] Test staff cannot call admin APIs without permission
-- [ ] Test inactive staff blocking on pages and APIs
-- [ ] Test owner-only password change/reset
-- [ ] Test non-owner cannot change staff password
-- [ ] Test owner cannot deactivate their own account
-- [ ] Test last active owner cannot be demoted or deactivated
-- [ ] Test public booking, specialist booking, shop, blog, product, slot, and receipt flows still work
-- [ ] Run npm run build successfully
-- [ ] Commit Phase 14B to Git
+- [x] Add custom staff permissions after admin API authentication is secured
+- [x] Add a new staff permissions migration for `staff_profiles`
+- [x] Add `permissions` JSONB column to `staff_profiles`
+- [x] Backfill existing staff permissions from their current role templates
+- [x] Keep staff roles as default permission templates instead of fixed access rules only
+- [x] Create centralized permission helper file
+- [x] Define all permission keys in one place
+- [x] Define default permission template for owner
+- [x] Define default permission template for doctor
+- [x] Define default permission template for receptionist
+- [x] Define default permission template for inventory_manager
+- [x] Define default permission template for content_editor
+- [x] Add helper to get default permissions for a selected role
+- [x] Add helper to check whether a staff member has a permission
+- [x] Treat owner as full access in code even if stored permission JSON is wrong
+- [x] Update staff profile TypeScript types to include permissions
+- [x] Update admin authentication helper to load staff permissions
+- [x] Add optional permission-based checking to admin authentication helper
+- [x] Keep existing Phase 14A authentication and active-staff blocking
+- [x] Keep owner-only protection for critical owner actions
+- [x] Update current staff profile API to return saved permissions
+- [x] Update staff profile hook to expose permissions
+- [x] Update staff profile hook to expose permission checking helper
+- [x] Update staff create API to save permissions safely
+- [x] Update staff edit API to save permissions safely
+- [x] Validate submitted permissions server-side
+- [x] Prevent staff from editing their own permissions
+- [x] Prevent non-owner users from editing staff permissions
+- [x] Allow the owner to choose a role as a starting point when creating staff
+- [x] Show the selected role’s default permissions visually in the staff create form
+- [x] Allow the owner to check and uncheck permissions when creating staff
+- [x] Save the owner-customized permissions for each staff account
+- [x] Allow the owner to choose a role as a starting point when editing staff
+- [x] Show the staff member’s saved permissions visually in the staff edit form
+- [x] Allow the owner to check and uncheck permissions when editing staff
+- [x] Prevent role changes from silently overwriting custom permissions
+- [x] Add a clear option to apply default permissions from the selected role when editing staff
+- [x] Add confirmation before replacing custom permissions with role defaults
+- [x] Update staff cards to show a simple permissions summary
+- [x] Update admin sidebar visibility based on saved permissions
+- [x] Hide sidebar items that the logged-in staff member does not have permission to access
+- [x] Hide action buttons that the logged-in staff member does not have permission to use
+- [x] Hide page options that the logged-in staff member does not have permission to use
+- [x] Show a clear access denied message if a staff member manually opens a restricted admin URL
+- [x] Apply consistent permission guards to every admin page
+- [x] Fix admin pages that currently rely only on API protection
+- [x] Fix specialist admin page inactive-staff display gap
+- [x] Load staff profile where needed for settings and analytics guards
+- [x] Keep public pages unchanged
+- [x] Keep public APIs unchanged
+- [x] Enforce saved permissions in admin APIs where appropriate
+- [x] Keep staff management API owner-only
+- [x] Keep staff password reset owner-only
+- [x] Keep critical settings and payment-method management owner-only unless explicitly safe
+- [x] Verify deactivate staff still blocks admin page access
+- [x] Verify deactivate staff still blocks admin API access
+- [x] Keep deactivate as the main staff removal action
+- [x] Keep hard delete out of this phase
+- [x] Preserve historical doctor and staff references in patient visit history
+- [x] Add owner-only staff password change/reset option
+- [x] Create dedicated staff password reset API endpoint
+- [x] Allow owner to set a new password for a staff account without needing the old password
+- [x] Prevent non-owner users from changing staff passwords
+- [x] Add password minimum length validation
+- [x] Require new password confirmation in the UI
+- [x] Show confirmation before changing a staff password
+- [x] Do not log staff passwords
+- [x] Prevent owner accounts from accidental lockout
+- [x] Prevent an owner from removing their own critical access
+- [x] Prevent an owner from deactivating their own account
+- [x] Prevent an owner from changing their own role away from owner
+- [x] Ensure at least one active owner always remains
+- [x] Test owner full access
+- [x] Test doctor permission template
+- [x] Test receptionist permission template
+- [x] Test inventory_manager permission template
+- [x] Test content_editor permission template
+- [x] Test custom permission overrides
+- [x] Test changing role without accidentally overwriting custom permissions
+- [x] Test applying role defaults with confirmation
+- [x] Test staff cannot see sidebar items without permission
+- [x] Test staff cannot see action buttons without permission
+- [x] Test staff cannot access admin pages without permission
+- [x] Test staff cannot call admin APIs without permission
+- [x] Test inactive staff blocking on pages and APIs
+- [x] Test owner-only password change/reset
+- [x] Test non-owner cannot change staff password
+- [x] Test owner cannot deactivate their own account
+- [x] Test last active owner cannot be demoted or deactivated
+- [x] Test public booking, specialist booking, shop, blog, product, slot, and receipt flows still work
+- [x] Run npm run build successfully
+- [x] Commit Phase 14B to Git
 
 ## Phase 14C: Specialist-Specific Staff Access
 

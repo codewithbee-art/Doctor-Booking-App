@@ -131,12 +131,12 @@ Phase 13A: Complete Manual Payment Settings and Receipt/Invoice System
 Phase 13B: Complete Email Notifications with Resend
 Phase 13C: Complete OpenGraph Metadata and Final Content Polish
 Phase 14A: Complete Admin API Authentication Lockdown
+Phase 14B: Custom Staff Permissions System
 
 Current:
-- Phase 14B: Custom Staff Permissions System
+- Phase 14C: Specialist-Specific Staff Access
 
 Upcoming:
-- Phase 14C: Specialist-Specific Staff Access
 - Phase 15: Supabase Grants and RLS Audit
 - Phase 16: Final QA, Accessibility, SEO, and Deployment
 
